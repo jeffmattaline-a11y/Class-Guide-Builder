@@ -108,7 +108,7 @@ tr.hidden{display:none}
     <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
     <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Tier/Rate</div>
   </div>
-  <div class="grid-wrap">
+  <div class="grid-wrap" id="gridWrap">
     <table id="gridTable"><colgroup><col class="c-desc"></colgroup></table>
   </div>
 </div><!-- end stdPanel -->
@@ -135,7 +135,7 @@ tr.hidden{display:none}
     <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
     <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Tier/Rate</div>
   </div>
-  <div class="grid-wrap">
+  <div class="grid-wrap" id="gridWrapSal">
     <table id="gridTableSal"><colgroup><col class="c-desc"></colgroup></table>
   </div>
 </div><!-- end salPanel -->
@@ -239,25 +239,62 @@ function makePanel(opts){
     if (showOnlyEdited && !hasAnyEdit(idx)) return false;
     return !searchTerm || v.d.toLowerCase().includes(searchTerm);
   }
-  function renderRows(){
-    let visCount = 0;
-    let html = '';
-    VEHICLES.forEach((v, idx) => {
-      if (!matchesFilter(v, idx)) return;
-      visCount++;
-      html += `<tr data-idx="${idx}"><td class="desc">${v.d}</td>`;
-      trKeys.forEach(trKey => {
-        const eff = getEffClass(idx, trKey);
-        const edited = isEdited(idx, trKey);
-        const naClass = (eff===null||eff===undefined||eff==='Off') ? 'na' : '';
-        html += `<td class="cls ${edited?'edited':''} ${naClass}"><select data-idx="${idx}" data-tr="${trKey}" data-panel="${ids.tbody}">${minimalOptionHtml(eff)}</select></td>`;
-      });
-      html += '</tr>';
+  const ROW_H = 33; // matches td.cls height:32px + 1px border — used to size virtual scroll spacers
+  const OVERSCAN = 12; // extra rows rendered above/below the visible window as a scroll buffer
+  let filteredList = [];
+  let rafPending = false;
+
+  function computeFilteredList(){
+    filteredList = [];
+    VEHICLES.forEach((v, idx) => { if (matchesFilter(v, idx)) filteredList.push(idx); });
+    document.getElementById(ids.count).textContent = filteredList.length.toLocaleString() + ' of ' + VEHICLES.length.toLocaleString() + ' vehicles shown';
+  }
+
+  function rowHtml(idx){
+    const v = VEHICLES[idx];
+    let html = `<tr data-idx="${idx}"><td class="desc">${v.d}</td>`;
+    trKeys.forEach(trKey => {
+      const eff = getEffClass(idx, trKey);
+      const edited = isEdited(idx, trKey);
+      const naClass = (eff===null||eff===undefined||eff==='Off') ? 'na' : '';
+      html += `<td class="cls ${edited?'edited':''} ${naClass}"><select data-idx="${idx}" data-tr="${trKey}" data-panel="${ids.tbody}">${minimalOptionHtml(eff)}</select></td>`;
     });
+    html += '</tr>';
+    return html;
+  }
+
+  // Only the rows actually scrolled into view (plus a small buffer) ever exist in the
+  // DOM — the rest are represented by two blank spacer rows sized to match. This is
+  // what keeps the page fast at any list length: rendering 3,746 rows costs the same
+  // as rendering 40, because only ~40 are ever real at once.
+  function renderWindow(){
+    const wrap = document.getElementById(ids.gridWrap);
+    const total = filteredList.length;
+    const viewportH = wrap.clientHeight || 600;
+    const scrollTop = wrap.scrollTop;
+    const startIdx = Math.max(0, Math.floor(scrollTop / ROW_H) - OVERSCAN);
+    const visibleCount = Math.ceil(viewportH / ROW_H) + OVERSCAN * 2;
+    const endIdx = Math.min(total, startIdx + visibleCount);
+
+    const colspan = trKeys.length + 1;
+    let html = '';
+    if (startIdx > 0) html += `<tr style="height:${startIdx*ROW_H}px"><td colspan="${colspan}" style="border:none;padding:0"></td></tr>`;
+    for (let i = startIdx; i < endIdx; i++) html += rowHtml(filteredList[i]);
+    if (total - endIdx > 0) html += `<tr style="height:${(total-endIdx)*ROW_H}px"><td colspan="${colspan}" style="border:none;padding:0"></td></tr>`;
+
     document.getElementById(ids.tbody).innerHTML = html;
-    document.getElementById(ids.count).textContent = visCount.toLocaleString() + ' of ' + VEHICLES.length.toLocaleString() + ' vehicles shown';
     updateEditCount();
   }
+
+  function refreshList(){
+    computeFilteredList();
+    const wrap = document.getElementById(ids.gridWrap);
+    const maxScroll = Math.max(0, filteredList.length*ROW_H - wrap.clientHeight);
+    if (wrap.scrollTop > maxScroll) wrap.scrollTop = maxScroll; // clamp so we don't scroll past a shorter filtered list
+    renderWindow();
+  }
+
+  function renderRows(){ refreshList(); } // kept as the external name other code already calls
   function updateEditCount(){
     let cells = 0, veh = 0;
     Object.keys(overrides).forEach(idx => {
@@ -282,6 +319,9 @@ function makePanel(opts){
     td.classList.toggle('edited', val !== base);
     td.classList.toggle('na', val===null||val===undefined||val==='Off');
     updateEditCount();
+    // If the "Show Only Edited" filter is on, this change may add/remove this
+    // vehicle from that filtered view — refresh the list membership, not just the cell.
+    if (showOnlyEdited) refreshList();
   }
   function clearOverrides(){
     if (!confirm('Discard all edits and reset every vehicle back to its current class?')) return;
@@ -501,11 +541,16 @@ function makePanel(opts){
 
   const tbl = document.getElementById(ids.table);
   tbl.innerHTML = buildHeader() + `<tbody id="${ids.tbody}"></tbody>`;
+  document.getElementById(ids.gridWrap).addEventListener('scroll', function(){
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(() => { rafPending = false; renderWindow(); });
+  });
   let built = false;
   function ensureBuilt(){
     if (built) return;
     built = true;
-    renderRows();
+    refreshList();
   }
   if (!opts.lazy) ensureBuilt();
 
@@ -537,13 +582,13 @@ document.addEventListener('change', function(e){
 
 const stdPanelObj = makePanel({
   trKeys: (() => { const a=[]; TIER_LIST.forEach(t=>RATE_LIST.forEach(r=>a.push(t+r))); return a; })(),
-  ids: { table:'gridTable', tbody:'tbodyEl', count:'count', editCount:'editCount', guideName:'guideName', search:'search', importFile:'importFile', editedFilterBtn:'editedFilterBtn' },
+  ids: { table:'gridTable', tbody:'tbodyEl', count:'count', editCount:'editCount', guideName:'guideName', search:'search', importFile:'importFile', editedFilterBtn:'editedFilterBtn', gridWrap:'gridWrap' },
   mirrorFrom: null
 });
 
 const salPanelObj = makePanel({
   trKeys: (() => { const a=[]; TIER_LIST.forEach(t=>RATE_LIST.forEach(r=>a.push(t+r+'S'))); return a; })(),
-  ids: { table:'gridTableSal', tbody:'tbodyElSal', count:'countSal', editCount:'editCountSal', guideName:'guideNameSal', search:'searchSal', importFile:'importFileSal', editedFilterBtn:'editedFilterBtnSal' },
+  ids: { table:'gridTableSal', tbody:'tbodyElSal', count:'countSal', editCount:'editCountSal', guideName:'guideNameSal', search:'searchSal', importFile:'importFileSal', editedFilterBtn:'editedFilterBtnSal', gridWrap:'gridWrapSal' },
   mirrorFrom: 'std',
   lazy: true
 });
