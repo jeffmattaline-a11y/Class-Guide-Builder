@@ -170,6 +170,7 @@ function switchProduct(which){
   document.getElementById('salPanel').classList.toggle('hidden', which!=='sal');
   document.getElementById('stdProductTab').classList.toggle('std-active', which==='std');
   document.getElementById('salProductTab').classList.toggle('sal-active', which==='sal');
+  if (which === 'sal') salPanelObj.ensureBuilt();
 }
 
 // A "panel" is one editable class-guide grid (vehicle desc on the left, N tier
@@ -284,11 +285,11 @@ function makePanel(opts){
     const sTitle = {font:{bold:true,sz:12}};
     const sSub = {font:{bold:true,sz:10}};
     const sPlain = {font:{sz:10}};
-    const sHdr = {font:{bold:true,sz:9,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'808080'}},alignment:{horizontal:'center',vertical:'center'}};
-    const sHdrTier = {font:{bold:true,sz:9,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'0A5A9C'}},alignment:{horizontal:'center',vertical:'center'}};
+    const sHdr = {font:{bold:true,sz:9,color:{rgb:'FFFFFF'}},fill:{patternType:'solid',fgColor:{rgb:'808080'},bgColor:{rgb:'808080'}},alignment:{horizontal:'center',vertical:'center'}};
+    const sHdrTier = {font:{bold:true,sz:9,color:{rgb:'FFFFFF'}},fill:{patternType:'solid',fgColor:{rgb:'0A5A9C'},bgColor:{rgb:'0A5A9C'}},alignment:{horizontal:'center',vertical:'center'}};
     const sHdrPlain = {font:{sz:9},alignment:{horizontal:'center',vertical:'center'}};
     const sCenter = {font:{sz:10},alignment:{horizontal:'center'}};
-    const sCenterEdited = {font:{sz:10},alignment:{horizontal:'center'},fill:{fgColor:{rgb:'FFF3B0'}}};
+    const sCenterEdited = {font:{sz:10},alignment:{horizontal:'center'},fill:{patternType:'solid',fgColor:{rgb:'FFF3B0'},bgColor:{rgb:'FFF3B0'}}};
     const sLeft = {font:{sz:10}};
 
     C(1,1,'American Auto Shield, LLC', sTitle);
@@ -464,10 +465,16 @@ function makePanel(opts){
     if (isXlsx) reader.readAsArrayBuffer(file); else reader.readAsText(file);
   }
 
-  // wire up this panel's own search box and import input
+  // wire up this panel's own search box and import input (debounced — rebuilding
+  // ~34,000 dropdown cells on every keystroke is what makes typing feel laggy)
+  let searchDebounce = null;
   document.getElementById(ids.search).addEventListener('input', function(e){
-    searchTerm = e.target.value.trim().toLowerCase();
-    renderRows();
+    const val = e.target.value;
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(() => {
+      searchTerm = val.trim().toLowerCase();
+      renderRows();
+    }, 200);
   });
   document.getElementById(ids.importFile).addEventListener('change', function(e){
     const file = e.target.files[0];
@@ -477,7 +484,13 @@ function makePanel(opts){
 
   const tbl = document.getElementById(ids.table);
   tbl.innerHTML = buildHeader() + `<tbody id="${ids.tbody}"></tbody>`;
-  renderRows();
+  let built = false;
+  function ensureBuilt(){
+    if (built) return;
+    built = true;
+    renderRows();
+  }
+  if (!opts.lazy) ensureBuilt();
 
   function toggleEditedFilter(){
     showOnlyEdited = !showOnlyEdited;
@@ -486,7 +499,7 @@ function makePanel(opts){
     renderRows();
   }
 
-  return { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter };
+  return { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, ensureBuilt };
 }
 
 document.addEventListener('change', function(e){
@@ -505,7 +518,8 @@ const stdPanelObj = makePanel({
 const salPanelObj = makePanel({
   trKeys: (() => { const a=[]; TIER_LIST.forEach(t=>RATE_LIST.forEach(r=>a.push(t+r+'S'))); return a; })(),
   ids: { table:'gridTableSal', tbody:'tbodyElSal', count:'countSal', editCount:'editCountSal', guideName:'guideNameSal', search:'searchSal', importFile:'importFileSal', editedFilterBtn:'editedFilterBtnSal' },
-  mirrorFrom: 'std'
+  mirrorFrom: 'std',
+  lazy: true
 });
 </script>
 </body>
