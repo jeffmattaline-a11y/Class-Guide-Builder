@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>Class Guide Builder</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,sans-serif;font-size:12px;background:#f0f0f0;height:100vh;display:flex;flex-direction:column;overflow:hidden;color:#1a1a1a}
@@ -329,25 +330,35 @@ function makePanel(opts){
     renderRows();
   }
 
-  function exportXlsx(){
+  async function exportXlsx(){
     const guideName = (document.getElementById(ids.guideName).value || 'Untitled Class Guide').trim();
     const today = new Date().toISOString().slice(0,10);
-    const wb = XLSX.utils.book_new();
-    const ws = {};
-    const C = (r,c,v,s) => {
-      const addr = XLSX.utils.encode_cell({r,c});
-      const isNum = typeof v === 'number';
-      ws[addr] = {v, t: isNum ? 'n' : 's', s: s||{}};
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet('AAS2012 (2)');
+
+    // r,c below are 0-indexed (row0/col0 = A1) to match the original layout math;
+    // ExcelJS itself is 1-indexed, so this helper converts. Style writing needs
+    // ExcelJS — the free SheetJS build silently drops fills/fonts on write, which
+    // is why earlier exports had no yellow highlighting despite the style objects
+    // being set correctly.
+    const C = (r, c, v, s) => {
+      const cell = ws.getCell(r+1, c+1);
+      cell.value = v;
+      if (!s) return;
+      cell.font = { bold: !!s.bold, size: s.size || 10, color: s.color ? {argb: 'FF'+s.color} : undefined };
+      if (s.fill) cell.fill = { type:'pattern', pattern:'solid', fgColor: {argb: 'FF'+s.fill} };
+      if (s.align) cell.alignment = { horizontal: s.align, vertical: 'center' };
     };
-    const sTitle = {font:{bold:true,sz:12}};
-    const sSub = {font:{bold:true,sz:10}};
-    const sPlain = {font:{sz:10}};
-    const sHdr = {font:{bold:true,sz:9,color:{rgb:'FFFFFF'}},fill:{patternType:'solid',fgColor:{rgb:'808080'},bgColor:{rgb:'808080'}},alignment:{horizontal:'center',vertical:'center'}};
-    const sHdrTier = {font:{bold:true,sz:9,color:{rgb:'FFFFFF'}},fill:{patternType:'solid',fgColor:{rgb:'0A5A9C'},bgColor:{rgb:'0A5A9C'}},alignment:{horizontal:'center',vertical:'center'}};
-    const sHdrPlain = {font:{sz:9},alignment:{horizontal:'center',vertical:'center'}};
-    const sCenter = {font:{sz:10},alignment:{horizontal:'center'}};
-    const sCenterEdited = {font:{sz:10},alignment:{horizontal:'center'},fill:{patternType:'solid',fgColor:{rgb:'FFF3B0'},bgColor:{rgb:'FFF3B0'}}};
-    const sLeft = {font:{sz:10}};
+
+    const sTitle = {bold:true, size:12};
+    const sSub = {bold:true, size:10};
+    const sPlain = {size:10};
+    const sHdr = {bold:true, size:9, color:'FFFFFF', fill:'808080', align:'center'};
+    const sHdrTier = {bold:true, size:9, color:'FFFFFF', fill:'0A5A9C', align:'center'};
+    const sHdrPlain = {size:9, align:'center'};
+    const sCenter = {size:10, align:'center'};
+    const sCenterEdited = {size:10, align:'center', fill:'FFF3B0'};
+    const sLeft = {size:10};
 
     C(1,1,'American Auto Shield, LLC', sTitle);
     C(2,1,'Forte Class Guides: AAS2012', sSub);
@@ -393,27 +404,28 @@ function makePanel(opts){
       C(r,c2++,v.mfg||'',sCenter);
     });
 
-    const lastRow = 6+VEHICLES.length;
-    const lastCol = secondTierStart+trKeys.length-1;
-    ws['!ref'] = XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:lastRow, c:lastCol}});
-    ws['!merges'] = [{s:{r:3,c:1}, e:{r:3,c:3}}];
-    ws['!freeze'] = {xSplit:6, ySplit:7};
-    ws['!cols'] = [
-      {wch:3.3},{wch:3.3},{wch:3.9},{wch:6.1},{wch:38.4},{wch:12.9},
-      ...trKeys.map(()=>({wch:7.6})),
-      {wch:6.1},{wch:4.6},{wch:4.6},{wch:4.6},{wch:5},{wch:4.6},{wch:12.1},
-      ...YEAR_COLS.map(()=>({wch:4.6})),
-      ...TAIL_COLS.map(()=>({wch:4.6})),
-      {wch:1.4},
-      ...trKeys.map(()=>({wch:9.1}))
+    ws.mergeCells(4,2,4,4); // guide-name line (row4, cols B:D — 1-indexed)
+    ws.views = [{ state:'frozen', xSplit:6, ySplit:7 }];
+    const colWidths = [
+      3.3,3.3,3.9,6.1,38.4,12.9,
+      ...trKeys.map(()=>7.6),
+      6.1,4.6,4.6,4.6,5,4.6,12.1,
+      ...YEAR_COLS.map(()=>4.6),
+      ...TAIL_COLS.map(()=>4.6),
+      1.4,
+      ...trKeys.map(()=>9.1)
     ];
-    ws['!rows'] = []; ws['!rows'][6] = {hpt:16};
+    ws.columns = colWidths.map(w => ({ width: w }));
+    ws.getRow(7).height = 16;
 
-    XLSX.utils.book_append_sheet(wb, ws, 'AAS2012 (2)');
-    wb.Sheets['AAS2012 (2)']['!freeze'] = {xSplit:6, ySplit:7};
-
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], {type:'application/octet-stream'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
     const fname = guideName.trim().replace(/[^a-z0-9]+/gi,'_') || 'class_guide';
-    XLSX.writeFile(wb, fname + '.xlsx', {cellStyles:true});
+    a.href = url; a.download = fname + '.xlsx';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   function parseCsvLine(line){
