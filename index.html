@@ -40,6 +40,8 @@ body{font-family:system-ui,sans-serif;font-size:12px;background:#f0f0f0;height:1
 .btn.blue{background:#0a84ff;color:#fff}
 .btn.orange{background:#ff9f0a;color:#1a1200}
 .btn.red{background:transparent;color:#ff453a;border:1px solid #ff453a}
+.btn.filterbtn{background:transparent;color:#aaa;border:1px solid #555}
+.btn.filterbtn.on{background:#ffcc00;color:#1a1200;border-color:#ffcc00}
 .count{color:#888;font-size:11px;margin-left:auto}
 .legbar{background:#252527;padding:6px 14px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:10px;color:#aaa;flex-shrink:0;border-bottom:1px solid #333}
 .li{display:flex;align-items:center;gap:5px}
@@ -59,8 +61,8 @@ th.t3{background:#3a2012;color:#ffcc80}
 td.cls{height:32px}
 td.cls select{width:100%;height:100%;border:none;background:transparent;font-weight:800;font-size:12px;text-align:center;cursor:pointer;color:#333}
 td.cls.na select{color:#aaa}
-td.edited{background:#e3f0ff}
-td.edited select{color:#0a55c0}
+td.edited{background:#fff3b0}
+td.edited select{color:#8a6d00;font-weight:800}
 tr.hidden{display:none}
 </style>
 </head>
@@ -96,13 +98,15 @@ tr.hidden{display:none}
     <button class="btn blue" onclick="stdPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
     <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFile" style="display:none" accept=".xlsx,.csv"></label>
     <button class="btn red" onclick="stdPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtn" onclick="stdPanelObj.toggleEditedFilter()">Show Only Edited</button>
     <span class="count" id="count"></span>
     <span id="editCount" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
   <div class="legbar">
     <div class="li"><span class="sw" style="background:#fff"></span> Current AAS2012 class (unedited)</div>
-    <div class="li"><span class="sw" style="background:#e3f0ff;border:1px solid #0a55c0"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
     <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Tier/Rate</div>
   </div>
   <div class="grid-wrap">
     <table id="gridTable"><colgroup><col class="c-desc"></colgroup></table>
@@ -121,13 +125,15 @@ tr.hidden{display:none}
     <button class="btn orange" onclick="salPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
     <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileSal" style="display:none" accept=".xlsx,.csv"></label>
     <button class="btn red" onclick="salPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnSal" onclick="salPanelObj.toggleEditedFilter()">Show Only Edited</button>
     <span class="count" id="countSal"></span>
     <span id="editCountSal" style="color:#ff9f0a;font-weight:700;font-size:11px"></span>
   </div>
   <div class="legbar">
     <div class="li"><span class="sw" style="background:#fff"></span> Mirrors the matching Standard tier's class (unedited)</div>
-    <div class="li"><span class="sw" style="background:#e3f0ff;border:1px solid #0a55c0"></span> Edited for this Salvage guide</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this Salvage guide</div>
     <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Tier/Rate</div>
   </div>
   <div class="grid-wrap">
     <table id="gridTableSal"><colgroup><col class="c-desc"></colgroup></table>
@@ -172,6 +178,7 @@ function makePanel(opts){
   const { trKeys, ids, guideDefault, mirrorFrom } = opts;
   const overrides = {};  // idx -> { 'TRKEY': classNum|null }
   let searchTerm = '';
+  let showOnlyEdited = false;
 
   function baseClass(idx, trKey){
     // Salvage panels mirror the matching Standard tier/rate's class by default
@@ -191,6 +198,7 @@ function makePanel(opts){
   }
   function classOptionsHtml(selected){
     let opt = `<option value="" ${selected===null||selected===undefined?'selected':''}>&mdash;</option>`;
+    opt += `<option value="Off" ${selected==='Off'?'selected':''}>Off</option>`;
     CLASS_OPTIONS.forEach(c => { opt += `<option value="${c}" ${c===selected?'selected':''}>${c}</option>`; });
     return opt;
   }
@@ -205,20 +213,25 @@ function makePanel(opts){
     row += '</tr>';
     return '<colgroup>' + cols.join('') + '</colgroup><thead>' + row + '</thead>';
   }
-  function matchesFilter(v){
+  function hasAnyEdit(idx){
+    const o = overrides[idx];
+    return !!(o && Object.keys(o).length > 0);
+  }
+  function matchesFilter(v, idx){
+    if (showOnlyEdited && !hasAnyEdit(idx)) return false;
     return !searchTerm || v.d.toLowerCase().includes(searchTerm);
   }
   function renderRows(){
     let visCount = 0;
     let html = '';
     VEHICLES.forEach((v, idx) => {
-      if (!matchesFilter(v)) return;
+      if (!matchesFilter(v, idx)) return;
       visCount++;
       html += `<tr data-idx="${idx}"><td class="desc">${v.d}</td>`;
       trKeys.forEach(trKey => {
         const eff = getEffClass(idx, trKey);
         const edited = isEdited(idx, trKey);
-        const naClass = (eff===null||eff===undefined) ? 'na' : '';
+        const naClass = (eff===null||eff===undefined||eff==='Off') ? 'na' : '';
         html += `<td class="cls ${edited?'edited':''} ${naClass}"><select data-idx="${idx}" data-tr="${trKey}" data-panel="${ids.tbody}">${classOptionsHtml(eff)}</select></td>`;
       });
       html += '</tr>';
@@ -249,7 +262,7 @@ function makePanel(opts){
     }
     const td = target.closest('td');
     td.classList.toggle('edited', val !== base);
-    td.classList.toggle('na', val===null||val===undefined);
+    td.classList.toggle('na', val===null||val===undefined||val==='Off');
     updateEditCount();
   }
   function clearOverrides(){
@@ -275,6 +288,7 @@ function makePanel(opts){
     const sHdrTier = {font:{bold:true,sz:9,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'0A5A9C'}},alignment:{horizontal:'center',vertical:'center'}};
     const sHdrPlain = {font:{sz:9},alignment:{horizontal:'center',vertical:'center'}};
     const sCenter = {font:{sz:10},alignment:{horizontal:'center'}};
+    const sCenterEdited = {font:{sz:10},alignment:{horizontal:'center'},fill:{fgColor:{rgb:'FFF3B0'}}};
     const sLeft = {font:{sz:10}};
 
     C(1,1,'American Auto Shield, LLC', sTitle);
@@ -305,9 +319,11 @@ function makePanel(opts){
       C(r,5,v.my, sCenter);
       trKeys.forEach((trKey, i) => {
         const eff = getEffClass(idx, trKey);
-        if (eff===null||eff===undefined) { C(r,6+i,'',sCenter); return; }
+        const style = isEdited(idx, trKey) ? sCenterEdited : sCenter;
+        if (eff===null||eff===undefined) { C(r,6+i,'',style); return; }
+        if (eff === 'Off') { C(r,6+i,'Off',style); return; }
         const asNum = /^\d+$/.test(eff) ? parseInt(eff,10) : eff;
-        C(r,6+i,asNum,sCenter);
+        C(r,6+i,asNum,style);
       });
       let c2 = 6+trKeys.length;
       C(r,c2++,'',sCenter);
@@ -463,7 +479,14 @@ function makePanel(opts){
   tbl.innerHTML = buildHeader() + `<tbody id="${ids.tbody}"></tbody>`;
   renderRows();
 
-  return { renderRows, exportXlsx, clearOverrides, handleChange };
+  function toggleEditedFilter(){
+    showOnlyEdited = !showOnlyEdited;
+    const btn = document.getElementById(ids.editedFilterBtn);
+    if (btn) btn.classList.toggle('on', showOnlyEdited);
+    renderRows();
+  }
+
+  return { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter };
 }
 
 document.addEventListener('change', function(e){
@@ -475,13 +498,13 @@ document.addEventListener('change', function(e){
 
 const stdPanelObj = makePanel({
   trKeys: (() => { const a=[]; TIER_LIST.forEach(t=>RATE_LIST.forEach(r=>a.push(t+r))); return a; })(),
-  ids: { table:'gridTable', tbody:'tbodyEl', count:'count', editCount:'editCount', guideName:'guideName', search:'search', importFile:'importFile' },
+  ids: { table:'gridTable', tbody:'tbodyEl', count:'count', editCount:'editCount', guideName:'guideName', search:'search', importFile:'importFile', editedFilterBtn:'editedFilterBtn' },
   mirrorFrom: null
 });
 
 const salPanelObj = makePanel({
   trKeys: (() => { const a=[]; TIER_LIST.forEach(t=>RATE_LIST.forEach(r=>a.push(t+r+'S'))); return a; })(),
-  ids: { table:'gridTableSal', tbody:'tbodyElSal', count:'countSal', editCount:'editCountSal', guideName:'guideNameSal', search:'searchSal', importFile:'importFileSal' },
+  ids: { table:'gridTableSal', tbody:'tbodyElSal', count:'countSal', editCount:'editCountSal', guideName:'guideNameSal', search:'searchSal', importFile:'importFileSal', editedFilterBtn:'editedFilterBtnSal' },
   mirrorFrom: 'std'
 });
 </script>
