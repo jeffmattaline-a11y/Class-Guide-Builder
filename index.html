@@ -51,11 +51,18 @@ body{font-family:system-ui,sans-serif;font-size:12px;background:#f0f0f0;height:1
 .grid-wrap{overflow:auto;flex:1;background:#fff}
 table{border-collapse:collapse;width:100%;table-layout:fixed}
 col.c-desc{width:340px}
+col.c-offall{width:64px}
 col.c-cell{width:70px}
 th,td{border:1px solid #e2e2e2;text-align:center;padding:0;font-size:11px;overflow:hidden}
 thead th{color:#fff;padding:7px 3px;font-weight:800;position:sticky;top:0;z-index:9}
 th.desc,td.desc{text-align:left;padding-left:8px;position:sticky;left:0;z-index:10;background:#232326;color:#eee;font-weight:600}
 td.desc{background:#fff;color:#1a1a1a;font-weight:600}
+th.offallhead,td.offall{text-align:center;position:sticky;left:340px;z-index:10;background:#2c2c2e}
+td.offall{background:#f5f5f5}
+.offAllBtn{background:#555;color:#fff;border:none;border-radius:3px;font-size:9px;font-weight:700;padding:3px 7px;cursor:pointer;white-space:nowrap}
+.offAllBtn:hover{background:#6b6b6b}
+.offAllBtn.active{background:#c62828}
+.offAllBtn.active:hover{background:#d33636}
 th.t1{background:#0a3550;color:#90caf9}
 th.t2{background:#1a3a1a;color:#a5d6a7}
 th.t3{background:#3a2012;color:#ffcc80}
@@ -108,6 +115,7 @@ tr.hidden{display:none}
     <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
     <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
     <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Tier/Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every tier on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its base classes</div>
   </div>
   <div class="grid-wrap" id="gridWrap">
     <table id="gridTable"><colgroup><col class="c-desc"></colgroup></table>
@@ -135,6 +143,7 @@ tr.hidden{display:none}
     <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this Salvage guide</div>
     <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
     <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Tier/Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every tier on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its base classes</div>
   </div>
   <div class="grid-wrap" id="gridWrapSal">
     <table id="gridTableSal"><colgroup><col class="c-desc"></colgroup></table>
@@ -222,8 +231,8 @@ function makePanel(opts){
     select.dataset.populated = '1';
   }
   function buildHeader(){
-    let cols = ['<col class="c-desc">'];
-    let row = '<tr><th class="desc">Vehicle (Make Model, engine/drive)</th>';
+    let cols = ['<col class="c-desc">', '<col class="c-offall">'];
+    let row = '<tr><th class="desc">Vehicle (Make Model, engine/drive)</th><th class="offallhead">Off All</th>';
     trKeys.forEach(trKey => {
       const tierClass = 't'+trKey[0];
       cols.push('<col class="c-cell">');
@@ -253,7 +262,9 @@ function makePanel(opts){
 
   function rowHtml(idx){
     const v = VEHICLES[idx];
-    let html = `<tr data-idx="${idx}"><td class="desc">${v.d}</td>`;
+    const allOff = trKeys.every(trKey => getEffClass(idx, trKey) === 'Off');
+    const btnLabel = allOff ? 'Back On' : 'Off All';
+    let html = `<tr data-idx="${idx}"><td class="desc">${v.d}</td><td class="offall"><button class="offAllBtn ${allOff?'active':''}" data-idx="${idx}" data-panel="${ids.tbody}">${btnLabel}</button></td>`;
     trKeys.forEach(trKey => {
       const eff = getEffClass(idx, trKey);
       const edited = isEdited(idx, trKey);
@@ -277,7 +288,7 @@ function makePanel(opts){
     const visibleCount = Math.ceil(viewportH / ROW_H) + OVERSCAN * 2;
     const endIdx = Math.min(total, startIdx + visibleCount);
 
-    const colspan = trKeys.length + 1;
+    const colspan = trKeys.length + 2;
     let html = '';
     if (startIdx > 0) html += `<tr style="height:${startIdx*ROW_H}px"><td colspan="${colspan}" style="border:none;padding:0"></td></tr>`;
     for (let i = startIdx; i < endIdx; i++) html += rowHtml(filteredList[i]);
@@ -573,7 +584,38 @@ function makePanel(opts){
     renderRows();
   }
 
-  return { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, ensureBuilt, populateOptions };
+  function toggleOffAll(idx, btnEl){
+    const tr = btnEl.closest('tr');
+    const allOff = trKeys.every(trKey => getEffClass(idx, trKey) === 'Off');
+    if (allOff) {
+      // already all "Off" — click again reverts every tier on this row back to its base class
+      if (overrides[idx]) {
+        trKeys.forEach(trKey => delete overrides[idx][trKey]);
+        if (Object.keys(overrides[idx]).length === 0) delete overrides[idx];
+      }
+    } else {
+      if (!overrides[idx]) overrides[idx] = {};
+      trKeys.forEach(trKey => { overrides[idx][trKey] = 'Off'; });
+    }
+    trKeys.forEach(trKey => {
+      const select = tr.querySelector(`select[data-tr="${trKey}"]`);
+      if (!select) return;
+      const eff = getEffClass(idx, trKey);
+      select.innerHTML = minimalOptionHtml(eff);
+      select.value = (eff===null||eff===undefined) ? '' : eff;
+      delete select.dataset.populated; // full option list rebuilds next time this cell is focused
+      const td = select.closest('td');
+      td.classList.toggle('edited', isEdited(idx, trKey));
+      td.classList.toggle('na', eff===null||eff===undefined||eff==='Off');
+    });
+    const nowAllOff = !allOff;
+    btnEl.classList.toggle('active', nowAllOff);
+    btnEl.textContent = nowAllOff ? 'Back On' : 'Off All';
+    updateEditCount();
+    if (showOnlyEdited) refreshList();
+  }
+
+  return { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, ensureBuilt, populateOptions, toggleOffAll };
 }
 
 // Populate a cell's full option list right before it opens — see populateOptions()
@@ -583,6 +625,14 @@ document.addEventListener('focusin', function(e){
     if (e.target.dataset.panel === 'tbodyEl') stdPanelObj.populateOptions(e.target);
     else if (e.target.dataset.panel === 'tbodyElSal') salPanelObj.populateOptions(e.target);
   }
+});
+
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('.offAllBtn');
+  if (!btn) return;
+  const idx = btn.dataset.idx;
+  if (btn.dataset.panel === 'tbodyEl') stdPanelObj.toggleOffAll(idx, btn);
+  else if (btn.dataset.panel === 'tbodyElSal') salPanelObj.toggleOffAll(idx, btn);
 });
 
 document.addEventListener('change', function(e){
