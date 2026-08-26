@@ -203,6 +203,23 @@ function makePanel(opts){
     CLASS_OPTIONS.forEach(c => { opt += `<option value="${c}" ${c===selected?'selected':''}>${c}</option>`; });
     return opt;
   }
+  // Cheap initial render: each <select> starts with just ONE <option> (its current
+  // value) instead of the full ~26-option list. Full options get injected on first
+  // focus/click (see populateOptions below), right before the browser opens the
+  // dropdown. With ~34,000 cells, this is the difference between ~34,000 DOM nodes
+  // and ~900,000 — that gap is what was causing the lag.
+  function minimalOptionHtml(selected){
+    const label = (selected===null||selected===undefined) ? '&mdash;' : selected;
+    const val = (selected===null||selected===undefined) ? '' : selected;
+    return `<option value="${val}">${label}</option>`;
+  }
+  function populateOptions(select){
+    if (select.dataset.populated === '1') return;
+    const cur = select.value;
+    select.innerHTML = classOptionsHtml(cur === '' ? null : cur);
+    select.value = cur;
+    select.dataset.populated = '1';
+  }
   function buildHeader(){
     let cols = ['<col class="c-desc">'];
     let row = '<tr><th class="desc">Vehicle (Make Model, engine/drive)</th>';
@@ -233,7 +250,7 @@ function makePanel(opts){
         const eff = getEffClass(idx, trKey);
         const edited = isEdited(idx, trKey);
         const naClass = (eff===null||eff===undefined||eff==='Off') ? 'na' : '';
-        html += `<td class="cls ${edited?'edited':''} ${naClass}"><select data-idx="${idx}" data-tr="${trKey}" data-panel="${ids.tbody}">${classOptionsHtml(eff)}</select></td>`;
+        html += `<td class="cls ${edited?'edited':''} ${naClass}"><select data-idx="${idx}" data-tr="${trKey}" data-panel="${ids.tbody}">${minimalOptionHtml(eff)}</select></td>`;
       });
       html += '</tr>';
     });
@@ -499,8 +516,17 @@ function makePanel(opts){
     renderRows();
   }
 
-  return { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, ensureBuilt };
+  return { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, ensureBuilt, populateOptions };
 }
+
+// Populate a cell's full option list right before it opens — see populateOptions()
+// above for why this is deferred instead of baked into every cell up front.
+document.addEventListener('focusin', function(e){
+  if (e.target.tagName === 'SELECT' && e.target.closest('td.cls')) {
+    if (e.target.dataset.panel === 'tbodyEl') stdPanelObj.populateOptions(e.target);
+    else if (e.target.dataset.panel === 'tbodyElSal') salPanelObj.populateOptions(e.target);
+  }
+});
 
 document.addEventListener('change', function(e){
   if (e.target.tagName !== 'SELECT' || !e.target.closest('td.cls')) return;
