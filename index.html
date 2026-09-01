@@ -67,9 +67,9 @@ td.offall{background:#f5f5f5}
 .offAllBtn:hover{background:#6b6b6b}
 .offAllBtn.active{background:#c62828}
 .offAllBtn.active:hover{background:#d33636}
-th.t1{background:#0a3550;color:#90caf9}
-th.t2{background:#1a3a1a;color:#a5d6a7}
-th.t3{background:#3a2012;color:#ffcc80}
+th.ra{background:#0a3550;color:#90caf9}
+th.rb{background:#1a3a1a;color:#a5d6a7}
+th.rg{background:#3a2012;color:#ffcc80}
 th.ra-alum{background:#4a4a4d;color:#e0e0e0}
 th.rb-alum{background:#333335;color:#c7c7c9}
 th.ra-alumsal{background:#3a3a3c;color:#d6d6d8}
@@ -335,10 +335,11 @@ function switchProduct(which){
 // columns on the right). Standard and Salvage are two instances of the same logic.
 function makePanel(opts){
   const { trKeys, ids, guideDefault, mirrorFrom, vehicleFilter } = opts;
+  const panelLabel = opts.panelLabel || 'this';
   // Header label/CSS class per column. Standard/Salvage default to the original
   // "Tier 1A" / t1,t2,t3 styling; rate-only panels (Aluminum, EV) pass their own.
   const colHeaderLabel = opts.colHeaderLabel || (trKey => 'Tier ' + trKey);
-  const colHeaderClass = opts.colHeaderClass || (trKey => 't'+trKey[0]);
+  const colHeaderClass = opts.colHeaderClass || (trKey => 'r'+trKey[1].toLowerCase()); // color by Rate letter (A/B/G), so 1A/2A/3A share a color, 1B/2B/3B share another, etc.
   const overrides = {};  // idx -> { 'TRKEY': classNum|null }
   let searchTerm = '';
   let showOnlyEdited = false;
@@ -528,7 +529,7 @@ function makePanel(opts){
     const sLeft = {size:10};
 
     C(1,1,'American Auto Shield, LLC', sTitle);
-    C(2,1,'Forte Class Guides: AAS2012', sSub);
+    C(2,1,'Forte Class Guides: AAS2012 — ' + panelLabel, sSub);
     C(3,1,`${guideName} — exported ${today}`, sPlain);
 
     const FIXED_AFTER = ['Code','Cyl','4WD','Tur','Fuel','PTM','MFG'];
@@ -539,14 +540,14 @@ function makePanel(opts){
     C(6,3,'Typ', sHdr);
     C(6,4,'Description', sHdr);
     C(6,5,'Model Year', sHdr);
-    trKeys.forEach((trKey, i) => C(6,6+i,'Tier '+trKey, sHdrTier));
+    trKeys.forEach((trKey, i) => C(6,6+i,colHeaderLabel(trKey), sHdrTier));
     let col = 6+trKeys.length;
     FIXED_AFTER.forEach(h => C(6,col++,h, sHdr));
     YEAR_COLS.forEach(h => C(6,col++,h, sHdr));
     TAIL_COLS.forEach(h => C(6,col++,h, sHdr));
     col++;
     const secondTierStart = col;
-    trKeys.forEach((trKey, i) => C(6,secondTierStart+i,'Tier '+trKey, sHdrPlain));
+    trKeys.forEach((trKey, i) => C(6,secondTierStart+i,colHeaderLabel(trKey), sHdrPlain));
 
     vehicleIndices.forEach((idx, row0) => {
       const v = VEHICLES[idx];
@@ -622,17 +623,40 @@ function makePanel(opts){
       if (dc !== -1 && row[dc+1] === 'Model Year'){ headerIdx = i; descCol = dc; myCol = dc+1; break; }
     }
     if (headerIdx === -1){
-      alert('Could not find the "Description / Model Year / Tier..." header row — is this a class guide exported from this tool?');
+      alert('Could not find the "Description / Model Year / ...columns" header row — is this a class guide exported from this tool?');
       return;
     }
     const header = rows2d[headerIdx];
+    // Belt-and-suspenders tab check #1: every export since this feature stamps its
+    // own tab name into a title cell ("Forte Class Guides: AAS2012 — <panelLabel>").
+    // If we can read that stamp and it names a different tab, refuse outright —
+    // this is what actually distinguishes Aluminum from EV, since both use the
+    // same "Rate A / Rate B" column labels and would otherwise look identical.
+    for (const row of rows2d){
+      for (const cell of row){
+        if (typeof cell !== 'string') continue;
+        const m = cell.match(/^Forte Class Guides: AAS2012(?: — (.+))?$/);
+        if (!m) continue;
+        const sourceLabel = m[1];
+        if (sourceLabel && sourceLabel !== panelLabel){
+          alert(`This file was exported from the "${sourceLabel}" tab, not "${panelLabel}". Switch to the "${sourceLabel}" tab to import it, or re-export from here if you meant to update this guide instead. Nothing was imported.`);
+          return;
+        }
+      }
+    }
+    // Belt-and-suspenders tab check #2: only recognize columns that literally
+    // match THIS panel's own column labels (e.g. Salvage looks for "Tier 1AS",
+    // Aluminum looks for "Rate A") — catches older exports with no tab stamp above.
+    const expectedLabels = trKeys.map(trKey => colHeaderLabel(trKey));
     const trPositions = [];
     header.forEach((h, c) => {
-      if (typeof h === 'string' && /^Tier\s/.test(h)) {
-        const key = h.replace(/^Tier\s*/,'');
-        if (!trPositions.some(p => p[0] === key)) trPositions.push([key, c]);
-      }
+      const trKeyIdx = expectedLabels.indexOf(h);
+      if (trKeyIdx !== -1 && !trPositions.some(p => p[0] === trKeys[trKeyIdx])) trPositions.push([trKeys[trKeyIdx], c]);
     });
+    if (trPositions.length === 0){
+      alert(`This file has no columns matching the "${panelLabel}" tab you're on (expected columns like "${expectedLabels[0]}"). Nothing was imported — switch to the matching tab and try again, or re-export from the tab this file came from.`);
+      return;
+    }
     const byKey = {};
     for (let i=headerIdx+1; i<rows2d.length; i++){
       const row = rows2d[i];
@@ -801,12 +825,14 @@ document.addEventListener('change', function(e){
 });
 
 const stdPanelObj = makePanel({
+  panelLabel: 'Standard (A/B/G)',
   trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })(), // Rate-major order: 1A,2A,3A,1B,2B,3B,1G,2G,3G
   ids: { table:'gridTable', tbody:'tbodyEl', count:'count', editCount:'editCount', guideName:'guideName', search:'search', importFile:'importFile', editedFilterBtn:'editedFilterBtn', gridWrap:'gridWrap' },
   mirrorFrom: null
 });
 
 const salPanelObj = makePanel({
+  panelLabel: 'Salvage / Branded Title (S)',
   trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'S'))); return a; })(), // Rate-major order: 1AS,2AS,3AS,1BS,2BS,3BS,1GS,2GS,3GS
   ids: { table:'gridTableSal', tbody:'tbodyElSal', count:'countSal', editCount:'editCountSal', guideName:'guideNameSal', search:'searchSal', importFile:'importFileSal', editedFilterBtn:'editedFilterBtnSal', gridWrap:'gridWrapSal' },
   mirrorFrom: 'std',
@@ -819,6 +845,7 @@ const salPanelObj = makePanel({
 const isEvVehicle = v => v.conf === 'ev'; // classes E0–E9, per how EVs are identified in this guide
 
 const alumPanelObj = makePanel({
+  panelLabel: 'Aluminum (A/B)',
   trKeys: NO_TIER_RATE_LIST.slice(),
   colHeaderLabel: trKey => 'Rate ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-alum' : 'rb-alum'),
@@ -828,6 +855,7 @@ const alumPanelObj = makePanel({
 });
 
 const alumsalPanelObj = makePanel({
+  panelLabel: 'Salvage Aluminum (AS/BS)',
   trKeys: NO_TIER_RATE_LIST.map(r => r+'S'),
   colHeaderLabel: trKey => 'Rate ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-alumsal' : 'rb-alumsal'),
@@ -837,6 +865,7 @@ const alumsalPanelObj = makePanel({
 });
 
 const evPanelObj = makePanel({
+  panelLabel: 'Electric Vehicles (A/B)',
   trKeys: NO_TIER_RATE_LIST.slice(),
   colHeaderLabel: trKey => 'Rate ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-ev' : 'rb-ev'),
@@ -847,6 +876,7 @@ const evPanelObj = makePanel({
 });
 
 const evsalPanelObj = makePanel({
+  panelLabel: 'Salvage EV (AS/BS)',
   trKeys: NO_TIER_RATE_LIST.map(r => r+'S'),
   colHeaderLabel: trKey => 'Rate ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-evsal' : 'rb-evsal'),
