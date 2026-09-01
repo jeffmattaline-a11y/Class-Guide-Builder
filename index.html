@@ -79,6 +79,7 @@ th.ra-alum{background:#4a4a4d;color:#e0e0e0}
 th.rb-alum{background:#333335;color:#c7c7c9}
 th.ra-alumsal{background:#3a3a3c;color:#d6d6d8}
 th.rb-alumsal{background:#282829;color:#b5b5b7}
+th.rg-alumsal{background:#1c1c1d;color:#9a9a9c}
 th.ra-ev{background:#0d3d1f;color:#8fe3a8}
 th.rb-ev{background:#092b16;color:#6fcf8e}
 th.ra-evsal{background:#0a3316;color:#82d69b}
@@ -129,7 +130,7 @@ tr.hidden{display:none}
   <div class="product-tab std-active" id="stdProductTab" onclick="switchProduct('std')">&#128663; Standard (A/B/G)</div>
   <div class="product-tab" id="salProductTab" onclick="switchProduct('sal')">&#128296; Salvage / Branded Title (S)</div>
   <div class="product-tab" id="alumProductTab" onclick="switchProduct('alum')">&#129693; Aluminum (A/B)</div>
-  <div class="product-tab" id="alumsalProductTab" onclick="switchProduct('alumsal')">&#129693; Salvage Aluminum (AS/BS)</div>
+  <div class="product-tab" id="alumsalProductTab" onclick="switchProduct('alumsal')">&#129693; Salvage Aluminum (AS/BS/GS)</div>
   <div class="product-tab" id="evProductTab" onclick="switchProduct('ev')">&#9889; Electric Vehicles (A/B)</div>
   <div class="product-tab" id="evsalProductTab" onclick="switchProduct('evsal')">&#9889; Salvage EV (AS/BS)</div>
   <div class="product-tab" id="allProductTab" onclick="switchProduct('all')">&#128204; All Combined</div>
@@ -227,7 +228,7 @@ tr.hidden{display:none}
   <div id="topBarAlumSal">
     <h1>&#129693; Salvage Aluminum Class Guide</h1>
     <input type="text" class="guideName" id="guideNameAlumSal" value="Salvage Aluminum Guide 1">
-    <div style="color:#888;font-size:11px">Same 3,212 vehicles &middot; Rate AS / Rate BS only &mdash; no tiers, one nationwide rate per vehicle</div>
+    <div style="color:#888;font-size:11px">Same 3,212 vehicles &middot; Alum AS / Alum BS / Alum GS &mdash; no tiers, one nationwide rate per vehicle</div>
   </div>
   <div class="alum-banner">&#129693; Salvage / Branded Title Aluminum plan &middot; applies uniformly across all states &mdash; no tier variation.</div>
   <div class="toolbar">
@@ -1052,10 +1053,10 @@ const alumPanelObj = makePanel({
 });
 
 const alumsalPanelObj = makePanel({
-  panelLabel: 'Salvage Aluminum (AS/BS)',
-  trKeys: NO_TIER_RATE_LIST.map(r => r+'S'),
-  colHeaderLabel: trKey => 'Rate ' + trKey,
-  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-alumsal' : 'rb-alumsal'),
+  panelLabel: 'Salvage Aluminum (AS/BS/GS)',
+  trKeys: RATE_LIST.map(r => r+'S'), // 3 rates (AS/BS/GS), matching the real AAS file's "Alum AS/BS/GS" columns — not just A/B
+  colHeaderLabel: trKey => 'Alum ' + trKey, // literally "Alum AS" etc — matches the real import file's own headers
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-alumsal' : trKey[0]==='B' ? 'rb-alumsal' : 'rg-alumsal'),
   ids: { table:'gridTableAlumSal', tbody:'tbodyElAlumSal', count:'countAlumSal', editCount:'editCountAlumSal', guideName:'guideNameAlumSal', search:'searchAlumSal', importFile:'importFileAlumSal', editedFilterBtn:'editedFilterBtnAlumSal', gridWrap:'gridWrapAlumSal', offOnlyImport:'offOnlyImportAlumSal' },
   mirrorFrom: 'alum',
   lazy: true
@@ -1115,7 +1116,7 @@ const ALL_GROUPS = [
   { prefix: 'STD',     label: 'Std',   keys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })() },
   { prefix: 'SAL',     label: 'Sal',   keys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'S'))); return a; })() },
   { prefix: 'ALUM',    label: 'Alum',  keys: NO_TIER_RATE_LIST.slice() },
-  { prefix: 'ALUMSAL', label: 'AlumS', keys: NO_TIER_RATE_LIST.map(r => r+'S') },
+  { prefix: 'ALUMSAL', label: 'AlumS', keys: RATE_LIST.map(r => r+'S') },
   { prefix: 'EV',      label: 'EV',    keys: NO_TIER_RATE_LIST.slice() },
   { prefix: 'EVSAL',   label: 'EVS',   keys: NO_TIER_RATE_LIST.map(r => r+'S') },
   { prefix: 'FL',      label: 'FL',    keys: RATE_LIST.slice() },
