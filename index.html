@@ -27,6 +27,10 @@ body{font-family:system-ui,sans-serif;font-size:12px;background:#f0f0f0;height:1
 .product-tab:hover{color:#ccc}
 .product-tab.std-active{color:#fff;border-bottom-color:#0a84ff}
 .product-tab.sal-active{color:#fff;border-bottom-color:#ff9f0a}
+.product-tab.alum-active{color:#fff;border-bottom-color:#9e9e9e}
+.product-tab.alumsal-active{color:#fff;border-bottom-color:#757575}
+.product-tab.ev-active{color:#fff;border-bottom-color:#30d158}
+.product-tab.evsal-active{color:#fff;border-bottom-color:#1f8f3d}
 .panel{display:flex;flex-direction:column;flex:1;overflow:hidden}
 .panel.hidden{display:none}
 
@@ -66,6 +70,16 @@ td.offall{background:#f5f5f5}
 th.t1{background:#0a3550;color:#90caf9}
 th.t2{background:#1a3a1a;color:#a5d6a7}
 th.t3{background:#3a2012;color:#ffcc80}
+th.ra-alum{background:#4a4a4d;color:#e0e0e0}
+th.rb-alum{background:#333335;color:#c7c7c9}
+th.ra-alumsal{background:#3a3a3c;color:#d6d6d8}
+th.rb-alumsal{background:#282829;color:#b5b5b7}
+th.ra-ev{background:#0d3d1f;color:#8fe3a8}
+th.rb-ev{background:#092b16;color:#6fcf8e}
+th.ra-evsal{background:#0a3316;color:#82d69b}
+th.rb-evsal{background:#062210;color:#63bd7d}
+.alum-banner{background:#2c2c2e;color:#d6d6d8;padding:6px 16px;font-size:11px;font-weight:700;flex-shrink:0;border-bottom:2px solid #9e9e9e}
+.ev-banner{background:#0d2314;color:#8fe3a8;padding:6px 16px;font-size:11px;font-weight:700;flex-shrink:0;border-bottom:2px solid #30d158}
 td.cls{height:32px}
 td.cls select{width:100%;height:100%;border:none;background:transparent;font-weight:800;font-size:12px;text-align:center;cursor:pointer;color:#333}
 td.cls.na select{color:#aaa}
@@ -93,13 +107,17 @@ tr.hidden{display:none}
 <div id="productBar">
   <div class="product-tab std-active" id="stdProductTab" onclick="switchProduct('std')">&#128663; Standard (A/B/G)</div>
   <div class="product-tab" id="salProductTab" onclick="switchProduct('sal')">&#128296; Salvage / Branded Title (S)</div>
+  <div class="product-tab" id="alumProductTab" onclick="switchProduct('alum')">&#129693; Aluminum (A/B)</div>
+  <div class="product-tab" id="alumsalProductTab" onclick="switchProduct('alumsal')">&#129693; Salvage Aluminum (AS/BS)</div>
+  <div class="product-tab" id="evProductTab" onclick="switchProduct('ev')">&#9889; Electric Vehicles (A/B)</div>
+  <div class="product-tab" id="evsalProductTab" onclick="switchProduct('evsal')">&#9889; Salvage EV (AS/BS)</div>
 </div>
 
 <div class="panel" id="stdPanel">
   <div id="topBar">
     <h1>&#128663; Class Guide Builder</h1>
     <input type="text" class="guideName" id="guideName" value="Branded Title Guide 1">
-    <div style="color:#888;font-size:11px">3,746 vehicle/model-year rows &middot; source: AAS2012 as of 11/12/24 &middot; edit any Tier/Rate cell to build a custom class guide, then export and hand off to AAS</div>
+    <div style="color:#888;font-size:11px">3,212 vehicle/model-year rows &middot; source: AAS2012 as of 08/05/26 &middot; edit any Tier/Rate cell to build a custom class guide, then export and hand off to AAS</div>
   </div>
   <div class="toolbar">
     <input type="text" id="search" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
@@ -126,7 +144,7 @@ tr.hidden{display:none}
   <div id="topBarSal">
     <h1>&#128296; Salvage / Branded Title Class Guide</h1>
     <input type="text" class="guideName" id="guideNameSal" value="Salvage Title Guide 1">
-    <div style="color:#888;font-size:11px">Same 3,746 vehicles, same editing &mdash; just the nine Salvage/Branded Title tiers (1AS&ndash;3GS) instead of A/B/G</div>
+    <div style="color:#888;font-size:11px">Same 3,212 vehicles, same editing &mdash; just the nine Salvage/Branded Title tiers (1AS&ndash;3GS) instead of A/B/G</div>
   </div>
   <div class="sal-banner">&#128296; $500 Deductible &middot; 6-Month / $1,000 Preliminary Deductible applies across every Salvage/Branded Title tier below.</div>
   <div class="toolbar">
@@ -149,6 +167,118 @@ tr.hidden{display:none}
     <table id="gridTableSal"><colgroup><col class="c-desc"></colgroup></table>
   </div>
 </div><!-- end salPanel -->
+
+<div class="panel hidden" id="alumPanel">
+  <div id="topBarAlum">
+    <h1>&#129693; Aluminum Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameAlum" value="Aluminum Guide 1">
+    <div style="color:#888;font-size:11px">Same 3,212 vehicles &middot; Rate A / Rate B only &mdash; no tiers, one nationwide rate per vehicle</div>
+  </div>
+  <div class="alum-banner">&#129693; Aluminum plan &middot; applies uniformly across all states &mdash; no tier variation.</div>
+  <div class="toolbar">
+    <input type="text" id="searchAlum" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
+    <button class="btn blue" onclick="alumPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileAlum" style="display:none" accept=".xlsx,.csv"></label>
+    <button class="btn red" onclick="alumPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnAlum" onclick="alumPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countAlum"></span>
+    <span id="editCountAlum" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Current AAS2012 class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every rate on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its base classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapAlum">
+    <table id="gridTableAlum"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end alumPanel -->
+
+<div class="panel hidden" id="alumsalPanel">
+  <div id="topBarAlumSal">
+    <h1>&#129693; Salvage Aluminum Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameAlumSal" value="Salvage Aluminum Guide 1">
+    <div style="color:#888;font-size:11px">Same 3,212 vehicles &middot; Rate AS / Rate BS only &mdash; no tiers, one nationwide rate per vehicle</div>
+  </div>
+  <div class="alum-banner">&#129693; Salvage / Branded Title Aluminum plan &middot; applies uniformly across all states &mdash; no tier variation.</div>
+  <div class="toolbar">
+    <input type="text" id="searchAlumSal" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
+    <button class="btn blue" onclick="alumsalPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileAlumSal" style="display:none" accept=".xlsx,.csv"></label>
+    <button class="btn red" onclick="alumsalPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnAlumSal" onclick="alumsalPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countAlumSal"></span>
+    <span id="editCountAlumSal" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Mirrors the matching Aluminum rate's class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this Salvage Aluminum guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every rate on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its base classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapAlumSal">
+    <table id="gridTableAlumSal"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end alumsalPanel -->
+
+<div class="panel hidden" id="evPanel">
+  <div id="topBarEv">
+    <h1>&#9889; Electric Vehicle Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameEv" value="EV Guide 1">
+    <div style="color:#888;font-size:11px">EV-only vehicles (class E0&ndash;E9) &middot; Rate A / Rate B only &mdash; no tiers, one nationwide rate per vehicle</div>
+  </div>
+  <div class="ev-banner">&#9889; Electric vehicle plan &middot; vehicles identified by an "E" class (E0&ndash;E9) &middot; applies uniformly across all states.</div>
+  <div class="toolbar">
+    <input type="text" id="searchEv" placeholder="Search make/model (e.g. TESL MODEL 3, CHEV BOLT)...">
+    <button class="btn blue" onclick="evPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileEv" style="display:none" accept=".xlsx,.csv"></label>
+    <button class="btn red" onclick="evPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnEv" onclick="evPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countEv"></span>
+    <span id="editCountEv" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Current AAS2012 class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every rate on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its base classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapEv">
+    <table id="gridTableEv"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end evPanel -->
+
+<div class="panel hidden" id="evsalPanel">
+  <div id="topBarEvSal">
+    <h1>&#9889; Salvage EV Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameEvSal" value="Salvage EV Guide 1">
+    <div style="color:#888;font-size:11px">EV-only vehicles (class E0&ndash;E9) &middot; Rate AS / Rate BS only &mdash; no tiers, one nationwide rate per vehicle</div>
+  </div>
+  <div class="ev-banner">&#9889; Salvage / Branded Title Electric Vehicle plan &middot; vehicles identified by an "E" class (E0&ndash;E9) &middot; applies uniformly across all states.</div>
+  <div class="toolbar">
+    <input type="text" id="searchEvSal" placeholder="Search make/model (e.g. TESL MODEL 3, CHEV BOLT)...">
+    <button class="btn blue" onclick="evsalPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileEvSal" style="display:none" accept=".xlsx,.csv"></label>
+    <button class="btn red" onclick="evsalPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnEvSal" onclick="evsalPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countEvSal"></span>
+    <span id="editCountEvSal" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Mirrors the matching EV rate's class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this Salvage EV guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every rate on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its base classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapEvSal">
+    <table id="gridTableEvSal"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end evsalPanel -->
 
 </div><!-- end app -->
 
@@ -174,22 +304,49 @@ const VEHICLES = [{"d":"ACUR ADX,4 cyl,Turbo","baseDesc":"ACUR ADX,4 cyl,Turbo",
 const CLASS_OPTIONS = ['0','1','2','3','4','5','6','7','8','9','10','11','12','1T','E0','E1','E2','E3','E4','E5','E6','E7','E8','E9'];
 const TIER_LIST = ['1','2','3'];
 const RATE_LIST = ['A','B','G'];
+const NO_TIER_RATE_LIST = ['A','B']; // Aluminum / EV: no tiers, just Rate A and Rate B, same nationwide rate
+
+// Every panel registers itself here (keyed by its tbody element id) so the
+// shared focusin/click/change delegates below can find the right instance
+// without hardcoding each panel's id one-by-one.
+const PANEL_REGISTRY = {};
+
+// Registry of every product tab: panelId/tabId/activeClass drive the DOM toggle,
+// getObj lazily returns that tab's makePanel() instance (built on first visit).
+const PRODUCT_TABS = {
+  std:     { panelId: 'stdPanel',     tabId: 'stdProductTab',     activeClass: 'std-active',     getObj: () => stdPanelObj },
+  sal:     { panelId: 'salPanel',     tabId: 'salProductTab',     activeClass: 'sal-active',     getObj: () => salPanelObj },
+  alum:    { panelId: 'alumPanel',    tabId: 'alumProductTab',    activeClass: 'alum-active',    getObj: () => alumPanelObj },
+  alumsal: { panelId: 'alumsalPanel', tabId: 'alumsalProductTab', activeClass: 'alumsal-active', getObj: () => alumsalPanelObj },
+  ev:      { panelId: 'evPanel',      tabId: 'evProductTab',      activeClass: 'ev-active',      getObj: () => evPanelObj },
+  evsal:   { panelId: 'evsalPanel',   tabId: 'evsalProductTab',   activeClass: 'evsal-active',   getObj: () => evsalPanelObj },
+};
 
 function switchProduct(which){
-  document.getElementById('stdPanel').classList.toggle('hidden', which!=='std');
-  document.getElementById('salPanel').classList.toggle('hidden', which!=='sal');
-  document.getElementById('stdProductTab').classList.toggle('std-active', which==='std');
-  document.getElementById('salProductTab').classList.toggle('sal-active', which==='sal');
-  if (which === 'sal') salPanelObj.ensureBuilt();
+  Object.keys(PRODUCT_TABS).forEach(key => {
+    const t = PRODUCT_TABS[key];
+    document.getElementById(t.panelId).classList.toggle('hidden', which!==key);
+    document.getElementById(t.tabId).classList.toggle(t.activeClass, which===key);
+  });
+  PRODUCT_TABS[which].getObj().ensureBuilt();
 }
 
 // A "panel" is one editable class-guide grid (vehicle desc on the left, N tier
 // columns on the right). Standard and Salvage are two instances of the same logic.
 function makePanel(opts){
-  const { trKeys, ids, guideDefault, mirrorFrom } = opts;
+  const { trKeys, ids, guideDefault, mirrorFrom, vehicleFilter } = opts;
+  // Header label/CSS class per column. Standard/Salvage default to the original
+  // "Tier 1A" / t1,t2,t3 styling; rate-only panels (Aluminum, EV) pass their own.
+  const colHeaderLabel = opts.colHeaderLabel || (trKey => 'Tier ' + trKey);
+  const colHeaderClass = opts.colHeaderClass || (trKey => 't'+trKey[0]);
   const overrides = {};  // idx -> { 'TRKEY': classNum|null }
   let searchTerm = '';
   let showOnlyEdited = false;
+
+  // Which global VEHICLES indices this panel operates on at all (e.g. EV panels
+  // only ever show/export/import the E0–E9 class vehicles). Computed once.
+  const vehicleIndices = [];
+  VEHICLES.forEach((v, idx) => { if (!vehicleFilter || vehicleFilter(v)) vehicleIndices.push(idx); });
 
   function baseClass(idx, trKey){
     // Salvage panels mirror the matching Standard tier/rate's class by default
@@ -234,9 +391,8 @@ function makePanel(opts){
     let cols = ['<col class="c-desc">', '<col class="c-offall">'];
     let row = '<tr><th class="desc">Vehicle (Make Model, engine/drive)</th><th class="offallhead">Off All</th>';
     trKeys.forEach(trKey => {
-      const tierClass = 't'+trKey[0];
       cols.push('<col class="c-cell">');
-      row += `<th class="${tierClass}">Tier ${trKey}</th>`;
+      row += `<th class="${colHeaderClass(trKey)}">${colHeaderLabel(trKey)}</th>`;
     });
     row += '</tr>';
     return '<colgroup>' + cols.join('') + '</colgroup><thead>' + row + '</thead>';
@@ -256,8 +412,8 @@ function makePanel(opts){
 
   function computeFilteredList(){
     filteredList = [];
-    VEHICLES.forEach((v, idx) => { if (matchesFilter(v, idx)) filteredList.push(idx); });
-    document.getElementById(ids.count).textContent = filteredList.length.toLocaleString() + ' of ' + VEHICLES.length.toLocaleString() + ' vehicles shown';
+    vehicleIndices.forEach(idx => { if (matchesFilter(VEHICLES[idx], idx)) filteredList.push(idx); });
+    document.getElementById(ids.count).textContent = filteredList.length.toLocaleString() + ' of ' + vehicleIndices.length.toLocaleString() + ' vehicles shown';
   }
 
   function rowHtml(idx){
@@ -392,8 +548,9 @@ function makePanel(opts){
     const secondTierStart = col;
     trKeys.forEach((trKey, i) => C(6,secondTierStart+i,'Tier '+trKey, sHdrPlain));
 
-    VEHICLES.forEach((v, idx) => {
-      const r = 7+idx;
+    vehicleIndices.forEach((idx, row0) => {
+      const v = VEHICLES[idx];
+      const r = 7+row0;
       C(r,3,'SUM', sCenter);
       C(r,4,v.baseDesc, sLeft);
       C(r,5,v.my, sCenter);
@@ -491,7 +648,8 @@ function makePanel(opts){
       byKey[key] = vals;
     }
     let matched = 0, changedCells = 0, unmatched = 0;
-    VEHICLES.forEach((v, idx) => {
+    vehicleIndices.forEach(idx => {
+      const v = VEHICLES[idx];
       const incoming = byKey[v.d];
       if (!incoming) { unmatched++; return; }
       matched++;
@@ -615,31 +773,31 @@ function makePanel(opts){
     if (showOnlyEdited) refreshList();
   }
 
-  return { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, ensureBuilt, populateOptions, toggleOffAll };
+  const panelApi = { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, ensureBuilt, populateOptions, toggleOffAll };
+  PANEL_REGISTRY[ids.tbody] = panelApi;
+  return panelApi;
 }
 
 // Populate a cell's full option list right before it opens — see populateOptions()
 // above for why this is deferred instead of baked into every cell up front.
 document.addEventListener('focusin', function(e){
   if (e.target.tagName === 'SELECT' && e.target.closest('td.cls')) {
-    if (e.target.dataset.panel === 'tbodyEl') stdPanelObj.populateOptions(e.target);
-    else if (e.target.dataset.panel === 'tbodyElSal') salPanelObj.populateOptions(e.target);
+    const panel = PANEL_REGISTRY[e.target.dataset.panel];
+    if (panel) panel.populateOptions(e.target);
   }
 });
 
 document.addEventListener('click', function(e){
   const btn = e.target.closest('.offAllBtn');
   if (!btn) return;
-  const idx = btn.dataset.idx;
-  if (btn.dataset.panel === 'tbodyEl') stdPanelObj.toggleOffAll(idx, btn);
-  else if (btn.dataset.panel === 'tbodyElSal') salPanelObj.toggleOffAll(idx, btn);
+  const panel = PANEL_REGISTRY[btn.dataset.panel];
+  if (panel) panel.toggleOffAll(btn.dataset.idx, btn);
 });
 
 document.addEventListener('change', function(e){
   if (e.target.tagName !== 'SELECT' || !e.target.closest('td.cls')) return;
-  const panelTbodyId = e.target.dataset.panel;
-  if (panelTbodyId === 'tbodyEl') stdPanelObj.handleChange(e.target);
-  else if (panelTbodyId === 'tbodyElSal') salPanelObj.handleChange(e.target);
+  const panel = PANEL_REGISTRY[e.target.dataset.panel];
+  if (panel) panel.handleChange(e.target);
 });
 
 const stdPanelObj = makePanel({
@@ -652,6 +810,49 @@ const salPanelObj = makePanel({
   trKeys: (() => { const a=[]; TIER_LIST.forEach(t=>RATE_LIST.forEach(r=>a.push(t+r+'S'))); return a; })(),
   ids: { table:'gridTableSal', tbody:'tbodyElSal', count:'countSal', editCount:'editCountSal', guideName:'guideNameSal', search:'searchSal', importFile:'importFileSal', editedFilterBtn:'editedFilterBtnSal', gridWrap:'gridWrapSal' },
   mirrorFrom: 'std',
+  lazy: true
+});
+
+// Aluminum & EV: no tiers, just Rate A / Rate B (one nationwide rate per vehicle),
+// each with its own Salvage/Branded Title counterpart — same shape as std/sal
+// above, just a 2-column rate-only grid instead of the 9-column tier x rate grid.
+const isEvVehicle = v => v.conf === 'ev'; // classes E0–E9, per how EVs are identified in this guide
+
+const alumPanelObj = makePanel({
+  trKeys: NO_TIER_RATE_LIST.slice(),
+  colHeaderLabel: trKey => 'Rate ' + trKey,
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-alum' : 'rb-alum'),
+  ids: { table:'gridTableAlum', tbody:'tbodyElAlum', count:'countAlum', editCount:'editCountAlum', guideName:'guideNameAlum', search:'searchAlum', importFile:'importFileAlum', editedFilterBtn:'editedFilterBtnAlum', gridWrap:'gridWrapAlum' },
+  mirrorFrom: null,
+  lazy: true
+});
+
+const alumsalPanelObj = makePanel({
+  trKeys: NO_TIER_RATE_LIST.map(r => r+'S'),
+  colHeaderLabel: trKey => 'Rate ' + trKey,
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-alumsal' : 'rb-alumsal'),
+  ids: { table:'gridTableAlumSal', tbody:'tbodyElAlumSal', count:'countAlumSal', editCount:'editCountAlumSal', guideName:'guideNameAlumSal', search:'searchAlumSal', importFile:'importFileAlumSal', editedFilterBtn:'editedFilterBtnAlumSal', gridWrap:'gridWrapAlumSal' },
+  mirrorFrom: 'alum',
+  lazy: true
+});
+
+const evPanelObj = makePanel({
+  trKeys: NO_TIER_RATE_LIST.slice(),
+  colHeaderLabel: trKey => 'Rate ' + trKey,
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-ev' : 'rb-ev'),
+  vehicleFilter: isEvVehicle,
+  ids: { table:'gridTableEv', tbody:'tbodyElEv', count:'countEv', editCount:'editCountEv', guideName:'guideNameEv', search:'searchEv', importFile:'importFileEv', editedFilterBtn:'editedFilterBtnEv', gridWrap:'gridWrapEv' },
+  mirrorFrom: null,
+  lazy: true
+});
+
+const evsalPanelObj = makePanel({
+  trKeys: NO_TIER_RATE_LIST.map(r => r+'S'),
+  colHeaderLabel: trKey => 'Rate ' + trKey,
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-evsal' : 'rb-evsal'),
+  vehicleFilter: isEvVehicle,
+  ids: { table:'gridTableEvSal', tbody:'tbodyElEvSal', count:'countEvSal', editCount:'editCountEvSal', guideName:'guideNameEvSal', search:'searchEvSal', importFile:'importFileEvSal', editedFilterBtn:'editedFilterBtnEvSal', gridWrap:'gridWrapEvSal' },
+  mirrorFrom: 'ev',
   lazy: true
 });
 </script>
