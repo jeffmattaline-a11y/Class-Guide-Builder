@@ -31,6 +31,7 @@ body{font-family:system-ui,sans-serif;font-size:12px;background:#f0f0f0;height:1
 .product-tab.alumsal-active{color:#fff;border-bottom-color:#757575}
 .product-tab.ev-active{color:#fff;border-bottom-color:#30d158}
 .product-tab.evsal-active{color:#fff;border-bottom-color:#1f8f3d}
+.product-tab.all-active{color:#fff;border-bottom-color:#bb86fc}
 .panel{display:flex;flex-direction:column;flex:1;overflow:hidden}
 .panel.hidden{display:none}
 
@@ -80,6 +81,13 @@ th.ra-evsal{background:#0a3316;color:#82d69b}
 th.rb-evsal{background:#062210;color:#63bd7d}
 .alum-banner{background:#2c2c2e;color:#d6d6d8;padding:6px 16px;font-size:11px;font-weight:700;flex-shrink:0;border-bottom:2px solid #9e9e9e}
 .ev-banner{background:#0d2314;color:#8fe3a8;padding:6px 16px;font-size:11px;font-weight:700;flex-shrink:0;border-bottom:2px solid #30d158}
+th.allgrp-std{background:#0a3550;color:#90caf9}
+th.allgrp-sal{background:#3a2012;color:#ffcc80}
+th.allgrp-alum{background:#4a4a4d;color:#e0e0e0}
+th.allgrp-alumsal{background:#3a3a3c;color:#d6d6d8}
+th.allgrp-ev{background:#0d3d1f;color:#8fe3a8}
+th.allgrp-evsal{background:#0a3316;color:#82d69b}
+.all-banner{background:#241b33;color:#d6b8ff;padding:6px 16px;font-size:11px;font-weight:700;flex-shrink:0;border-bottom:2px solid #bb86fc}
 td.cls{height:32px}
 td.cls select{width:100%;height:100%;border:none;background:transparent;font-weight:800;font-size:12px;text-align:center;cursor:pointer;color:#333}
 td.cls.na select{color:#aaa}
@@ -111,6 +119,7 @@ tr.hidden{display:none}
   <div class="product-tab" id="alumsalProductTab" onclick="switchProduct('alumsal')">&#129693; Salvage Aluminum (AS/BS)</div>
   <div class="product-tab" id="evProductTab" onclick="switchProduct('ev')">&#9889; Electric Vehicles (A/B)</div>
   <div class="product-tab" id="evsalProductTab" onclick="switchProduct('evsal')">&#9889; Salvage EV (AS/BS)</div>
+  <div class="product-tab" id="allProductTab" onclick="switchProduct('all')">&#128204; All Combined</div>
 </div>
 
 <div class="panel" id="stdPanel">
@@ -280,6 +289,34 @@ tr.hidden{display:none}
   </div>
 </div><!-- end evsalPanel -->
 
+<div class="panel hidden" id="allPanel">
+  <div id="topBarAll">
+    <h1>&#128204; All Combined Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameAll" value="All Combined Guide 1">
+    <div style="color:#888;font-size:11px">All 3,212 vehicles &middot; every Standard, Salvage, Aluminum, Salvage Aluminum, EV and Salvage EV column side by side &mdash; edits here are independent of the individual tabs</div>
+  </div>
+  <div class="all-banner">&#128204; Combined view for reference/bulk editing &middot; columns are grouped and color-coded: Std, Sal, Alum, AlumS, EV, EVS &middot; each group's underlying rate/tier meaning matches its own tab.</div>
+  <div class="toolbar">
+    <input type="text" id="searchAll" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
+    <button class="btn blue" onclick="allPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileAll" style="display:none" accept=".xlsx,.csv"></label>
+    <button class="btn red" onclick="allPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnAll" onclick="allPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countAll"></span>
+    <span id="editCountAll" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Current AAS2012 class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this column</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every column on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its base classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapAll">
+    <table id="gridTableAll"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end allPanel -->
+
 </div><!-- end app -->
 
 <script>
@@ -320,6 +357,7 @@ const PRODUCT_TABS = {
   alumsal: { panelId: 'alumsalPanel', tabId: 'alumsalProductTab', activeClass: 'alumsal-active', getObj: () => alumsalPanelObj },
   ev:      { panelId: 'evPanel',      tabId: 'evProductTab',      activeClass: 'ev-active',      getObj: () => evPanelObj },
   evsal:   { panelId: 'evsalPanel',   tabId: 'evsalProductTab',   activeClass: 'evsal-active',   getObj: () => evsalPanelObj },
+  all:     { panelId: 'allPanel',     tabId: 'allProductTab',     activeClass: 'all-active',     getObj: () => allPanelObj },
 };
 
 function switchProduct(which){
@@ -910,6 +948,36 @@ const evsalPanelObj = makePanel({
   vehicleFilter: isEvVehicle,
   ids: { table:'gridTableEvSal', tbody:'tbodyElEvSal', count:'countEvSal', editCount:'editCountEvSal', guideName:'guideNameEvSal', search:'searchEvSal', importFile:'importFileEvSal', editedFilterBtn:'editedFilterBtnEvSal', gridWrap:'gridWrapEvSal' },
   mirrorFrom: 'ev',
+  lazy: true
+});
+
+// "All Combined" — every column from every tab above, side by side, on all 3,212
+// vehicles. Internal keys are namespaced per source tab (e.g. "ALUM:A" vs "EV:A")
+// since Aluminum/EV and their Salvage counterparts otherwise share bare "A"/"B"/
+// "AS"/"BS" keys — without the prefix their overrides would collide with each
+// other once merged into one panel's storage.
+const ALL_GROUPS = [
+  { prefix: 'STD',     label: 'Std',   keys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })() },
+  { prefix: 'SAL',     label: 'Sal',   keys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'S'))); return a; })() },
+  { prefix: 'ALUM',    label: 'Alum',  keys: NO_TIER_RATE_LIST.slice() },
+  { prefix: 'ALUMSAL', label: 'AlumS', keys: NO_TIER_RATE_LIST.map(r => r+'S') },
+  { prefix: 'EV',      label: 'EV',    keys: NO_TIER_RATE_LIST.slice() },
+  { prefix: 'EVSAL',   label: 'EVS',   keys: NO_TIER_RATE_LIST.map(r => r+'S') },
+];
+const allTrKeys = [];
+ALL_GROUPS.forEach(g => g.keys.forEach(k => allTrKeys.push(g.prefix + ':' + k)));
+
+const allPanelObj = makePanel({
+  panelLabel: 'All Combined',
+  trKeys: allTrKeys,
+  colHeaderLabel: trKey => {
+    const [prefix, raw] = trKey.split(':');
+    const g = ALL_GROUPS.find(g => g.prefix === prefix);
+    return (g ? g.label : prefix) + ' ' + raw;
+  },
+  colHeaderClass: trKey => 'allgrp-' + trKey.split(':')[0].toLowerCase(),
+  ids: { table:'gridTableAll', tbody:'tbodyElAll', count:'countAll', editCount:'editCountAll', guideName:'guideNameAll', search:'searchAll', importFile:'importFileAll', editedFilterBtn:'editedFilterBtnAll', gridWrap:'gridWrapAll' },
+  mirrorFrom: null,
   lazy: true
 });
 </script>
