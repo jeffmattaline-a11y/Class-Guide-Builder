@@ -616,17 +616,6 @@ function makePanel(opts){
   }
 
   function importGuideRows(rows2d, guideNameFromFile){
-    let headerIdx = -1, descCol = -1, myCol = -1;
-    for (let i=0; i<rows2d.length; i++){
-      const row = rows2d[i];
-      const dc = row.indexOf('Description');
-      if (dc !== -1 && row[dc+1] === 'Model Year'){ headerIdx = i; descCol = dc; myCol = dc+1; break; }
-    }
-    if (headerIdx === -1){
-      alert('Could not find the "Description / Model Year / ...columns" header row — is this a class guide exported from this tool?');
-      return;
-    }
-    const header = rows2d[headerIdx];
     // Belt-and-suspenders tab check #1: every export since this feature stamps its
     // own tab name into a title cell ("Forte Class Guides: AAS2012 — <panelLabel>").
     // If we can read that stamp and it names a different tab, refuse outright —
@@ -644,10 +633,41 @@ function makePanel(opts){
         }
       }
     }
-    // Belt-and-suspenders tab check #2: only recognize columns that literally
-    // match THIS panel's own column labels (e.g. Salvage looks for "Tier 1AS",
-    // Aluminum looks for "Rate A") — catches older exports with no tab stamp above.
+
+    // Belt-and-suspenders tab check #2 doubles as header detection: only ever look
+    // for columns that literally match THIS panel's own labels (e.g. Salvage wants
+    // "Tier 1AS", Aluminum wants "Rate A"). A file for a different tab simply has
+    // none of these, so it can't bleed edits into a tab it wasn't meant for.
     const expectedLabels = trKeys.map(trKey => colHeaderLabel(trKey));
+
+    let headerIdx = -1, descCol = -1, myCol = -1;
+    // Preferred: this tool's own canonical export layout — a "Description" column
+    // immediately followed by "Model Year".
+    for (let i=0; i<rows2d.length; i++){
+      const row = rows2d[i];
+      const dc = row.indexOf('Description');
+      if (dc !== -1 && row[dc+1] === 'Model Year'){ headerIdx = i; descCol = dc; myCol = dc+1; break; }
+    }
+    // Fallback: any row carrying at least one of this panel's own column labels —
+    // covers simpler sheets (e.g. copy/pasted straight from the on-screen grid,
+    // header "Vehicle (Make Model, engine/drive)", no separate Model Year column).
+    if (headerIdx === -1){
+      for (let i=0; i<rows2d.length; i++){
+        const row = rows2d[i];
+        if (row.some(cell => expectedLabels.includes(cell))){
+          headerIdx = i;
+          descCol = row.indexOf('Description');
+          if (descCol === -1) descCol = 0; // assume the leftmost column is the vehicle description
+          myCol = -1; // no Model Year column in this layout — every vehicle here is "All" anyway
+          break;
+        }
+      }
+    }
+    if (headerIdx === -1){
+      alert(`Could not find a header row with columns matching the "${panelLabel}" tab (expected something like "${expectedLabels[0]}") — is this a class guide for this tab?`);
+      return;
+    }
+    const header = rows2d[headerIdx];
     const trPositions = [];
     header.forEach((h, c) => {
       const trKeyIdx = expectedLabels.indexOf(h);
@@ -657,17 +677,24 @@ function makePanel(opts){
       alert(`This file has no columns matching the "${panelLabel}" tab you're on (expected columns like "${expectedLabels[0]}"). Nothing was imported — switch to the matching tab and try again, or re-export from the tab this file came from.`);
       return;
     }
+    // "Off"/"OFF"/"off" all mean the same thing — normalize case so it round-trips
+    // through the dropdown and export correctly instead of showing up as a raw,
+    // unrecognized value.
+    function normalizeCellValue(v){
+      if (v===undefined || v===null || v==='') return null;
+      const s = String(v).trim();
+      return s.toLowerCase() === 'off' ? 'Off' : s;
+    }
     const byKey = {};
     for (let i=headerIdx+1; i<rows2d.length; i++){
       const row = rows2d[i];
       const baseDesc = row[descCol];
       if (!baseDesc) continue;
-      const my = row[myCol];
+      const my = myCol === -1 ? null : row[myCol];
       const key = (my && my !== 'All') ? `${baseDesc} (${my})` : baseDesc;
       const vals = {};
       trPositions.forEach(([trKey, c]) => {
-        const v = row[c];
-        vals[trKey] = (v===undefined || v===null || v==='') ? null : String(v);
+        vals[trKey] = normalizeCellValue(row[c]);
       });
       byKey[key] = vals;
     }
