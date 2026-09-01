@@ -687,18 +687,32 @@ function makePanel(opts){
       if (dc !== -1 && row[dc+1] === 'Model Year'){ headerIdx = i; descCol = dc; myCol = dc+1; break; }
     }
     // Fallback: any row carrying at least one of this panel's own column labels —
-    // covers simpler sheets (e.g. copy/pasted straight from the on-screen grid,
-    // header "Vehicle (Make Model, engine/drive)", no separate Model Year column).
+    // covers sheets that aren't this tool's exact canonical layout (different
+    // column offsets, extra leading columns like Note/Typ, "Vehicle (...)"
+    // instead of "Description", etc).
     if (headerIdx === -1){
       for (let i=0; i<rows2d.length; i++){
         const row = rows2d[i];
-        if (row.some(cell => expectedLabels.includes(cell))){
-          headerIdx = i;
-          descCol = row.indexOf('Description');
-          if (descCol === -1) descCol = 0; // assume the leftmost column is the vehicle description
-          myCol = -1; // no Model Year column in this layout — every vehicle here is "All" anyway
-          break;
+        const trCols = [];
+        row.forEach((cell, c) => { if (expectedLabels.includes(cell)) trCols.push(c); });
+        if (trCols.length === 0) continue;
+        headerIdx = i;
+        // Prefer an explicit description-ish header ("Description" or anything
+        // containing "Vehicle") wherever it actually sits in the row — don't
+        // assume it's the leftmost column, since exports often have extra
+        // columns (Note, Typ, ...) further left than that.
+        let dc = row.findIndex(cell => typeof cell === 'string' && /description|vehicle/i.test(cell));
+        const myIdx = row.findIndex(cell => typeof cell === 'string' && cell.trim().toLowerCase() === 'model year');
+        if (dc === -1){
+          // No recognizable description header either — fall back to position:
+          // a "Model Year" column always sits immediately right of Description,
+          // so use that; otherwise assume Description is immediately left of
+          // the first recognized Tier/Rate column.
+          dc = (myIdx !== -1) ? myIdx - 1 : Math.min(...trCols) - 1;
         }
+        descCol = Math.max(0, dc);
+        myCol = myIdx; // -1 if there's no Model Year column — every vehicle here is "All" anyway
+        break;
       }
     }
     if (headerIdx === -1){
