@@ -801,13 +801,13 @@ document.addEventListener('change', function(e){
 });
 
 const stdPanelObj = makePanel({
-  trKeys: (() => { const a=[]; TIER_LIST.forEach(t=>RATE_LIST.forEach(r=>a.push(t+r))); return a; })(),
+  trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })(), // Rate-major order: 1A,2A,3A,1B,2B,3B,1G,2G,3G
   ids: { table:'gridTable', tbody:'tbodyEl', count:'count', editCount:'editCount', guideName:'guideName', search:'search', importFile:'importFile', editedFilterBtn:'editedFilterBtn', gridWrap:'gridWrap' },
   mirrorFrom: null
 });
 
 const salPanelObj = makePanel({
-  trKeys: (() => { const a=[]; TIER_LIST.forEach(t=>RATE_LIST.forEach(r=>a.push(t+r+'S'))); return a; })(),
+  trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'S'))); return a; })(), // Rate-major order: 1AS,2AS,3AS,1BS,2BS,3BS,1GS,2GS,3GS
   ids: { table:'gridTableSal', tbody:'tbodyElSal', count:'countSal', editCount:'editCountSal', guideName:'guideNameSal', search:'searchSal', importFile:'importFileSal', editedFilterBtn:'editedFilterBtnSal', gridWrap:'gridWrapSal' },
   mirrorFrom: 'std',
   lazy: true
