@@ -1377,9 +1377,17 @@ const evsalPanelObj = makePanel({
   lazy: true
 });
 
-// Florida: its own admin/coverage codes and filed separately from Tiers 1–3,
-// but built on the exact same underlying vehicle class — same shape as
-// Aluminum/EV (no tiers, just a rate), except Florida keeps the G rate too.
+const evridePanelObj = makePanel({
+  panelLabel: 'EV RideShare',
+  trKeys: NO_TIER_RATE_LIST.map(r => r+'R'),
+  colHeaderLabel: trKey => 'Rate ' + trKey,
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-evride' : 'rb-evride'),
+  vehicleFilter: isEvVehicle,
+  ids: { table:'gridTableEvRide', tbody:'tbodyElEvRide', count:'countEvRide', editCount:'editCountEvRide', guideName:'guideNameEvRide', search:'searchEvRide', importFile:'importFileEvRide', editedFilterBtn:'editedFilterBtnEvRide', gridWrap:'gridWrapEvRide', offOnlyImport:'offOnlyImportEvRide' },
+  mirrorFrom: 'ev',
+  lazy: true
+});
+
 const flPanelObj = makePanel({
   panelLabel: 'Florida (A/B/G)',
   trKeys: RATE_LIST.slice(),
