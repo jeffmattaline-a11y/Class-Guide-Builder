@@ -70,6 +70,12 @@ col.c-offall{width:64px}
 col.c-cell{width:70px}
 th,td{border:1px solid #e2e2e2;text-align:center;padding:0;font-size:11px;overflow:hidden}
 thead th{color:#fff;padding:7px 3px;font-weight:800;position:sticky;top:0;z-index:9}
+thead tr.bandrow th.grpband{top:0;z-index:9;height:24px;font-size:10px;letter-spacing:.3px;border-bottom:2px solid #111}
+thead tr.colrow th{top:26px;z-index:9}
+th.allgrp-diamondsal{background:#4a2a12;color:#ffcc80}
+th.allgrp-platinumsal{background:#3f2410;color:#f0c078}
+th.allgrp-goldselectsal{background:#352011;color:#e0b070}
+th.allgrp-silversal{background:#2b1b0e;color:#d0a068}
 th.desc,td.desc{text-align:left;padding-left:8px;position:sticky;left:0;z-index:10;background:#232326;color:#eee;font-weight:600}
 td.desc{background:#fff;color:#1a1a1a;font-weight:600}
 th.offallhead,td.offall{text-align:center;position:sticky;left:340px;z-index:10;background:#2c2c2e}
@@ -429,9 +435,9 @@ tr.hidden{display:none}
   <div id="topBarAll">
     <h1>&#128204; All Combined Class Guide</h1>
     <input type="text" class="guideName" id="guideNameAll" value="All Combined Guide 1">
-    <div style="color:#888;font-size:11px">All 3,212 vehicles &middot; every Standard, Salvage, Aluminum, Salvage Aluminum, EV and Salvage EV column side by side &mdash; edits here are independent of the individual tabs</div>
+    <div style="color:#888;font-size:11px">All 3,212 vehicles &middot; every guide side by side, one column set each &mdash; column names match the Excel sheets; edits here are independent of the individual tabs</div>
   </div>
-  <div class="all-banner">&#128204; Combined view for reference/bulk editing &middot; columns are grouped and color-coded: Std, Sal, Alum, AlumS, EV, EVS &middot; each group's underlying rate/tier meaning matches its own tab.</div>
+  <div class="all-banner">&#128204; Combined view for reference/bulk editing &middot; the top header row names the guide, the row beneath gives its exact Excel column name &middot; Salvage / Branded columns are pre-loaded with what is currently filed, matching each guide's own tab.</div>
   <div class="toolbar">
     <input type="text" id="searchAll" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
     <button class="btn blue" onclick="allPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
@@ -739,6 +745,7 @@ function makePanel(opts){
   // Header label/CSS class per column. Standard/Salvage default to the original
   // "Tier 1A" / t1,t2,t3 styling; rate-only panels (Aluminum, EV) pass their own.
   const colHeaderLabel = opts.colHeaderLabel || (trKey => 'Tier ' + trKey);
+  const groupBandLabel = opts.groupBandLabel || null; // set only by All Combined
   const colHeaderClass = opts.colHeaderClass || (trKey => 'r'+trKey[1].toLowerCase()); // color by Rate letter (A/B/G), so 1A/2A/3A share a color, 1B/2B/3B share another, etc.
   const overrides = {};  // idx -> { 'TRKEY': classNum|null }
   // Some panels ship with a starting set of overrides already applied (e.g. the
@@ -815,13 +822,27 @@ function makePanel(opts){
   }
   function buildHeader(){
     let cols = ['<col class="c-desc">', '<col class="c-offall">'];
-    let row = '<tr><th class="desc">Vehicle (Make Model, engine/drive)</th><th class="offallhead">Off All</th>';
-    trKeys.forEach(trKey => {
-      cols.push('<col class="c-cell">');
-      row += `<th class="${colHeaderClass(trKey)}">${colHeaderLabel(trKey)}</th>`;
-    });
-    row += '</tr>';
-    return '<colgroup>' + cols.join('') + '</colgroup><thead>' + row + '</thead>';
+    trKeys.forEach(() => cols.push('<col class="c-cell">'));
+    const colCells = trKeys.map(trKey => `<th class="${colHeaderClass(trKey)}">${colHeaderLabel(trKey)}</th>`).join('');
+    // Single-row header (every per-plan tab): column names stand alone.
+    if (!groupBandLabel){
+      const row = '<tr><th class="desc">Vehicle (Make Model, engine/drive)</th><th class="offallhead">Off All</th>' + colCells + '</tr>';
+      return '<colgroup>' + cols.join('') + '</colgroup><thead>' + row + '</thead>';
+    }
+    // Two-row header (All Combined): a band naming the guide sits above the exact
+    // column names, because the column names alone are ambiguous across guides --
+    // Aluminum and EV both label their Standard columns "Rate A" / "Rate B".
+    let band = '', i = 0;
+    while (i < trKeys.length){
+      const lbl = groupBandLabel(trKeys[i]);
+      let span = 1;
+      while (i + span < trKeys.length && groupBandLabel(trKeys[i+span]) === lbl) span++;
+      band += `<th class="grpband ${colHeaderClass(trKeys[i])}" colspan="${span}">${lbl}</th>`;
+      i += span;
+    }
+    const r1 = '<tr class="bandrow"><th class="desc" rowspan="2">Vehicle (Make Model, engine/drive)</th><th class="offallhead" rowspan="2">Off All</th>' + band + '</tr>';
+    const r2 = '<tr class="colrow">' + colCells + '</tr>';
+    return '<colgroup>' + cols.join('') + '</colgroup><thead>' + r1 + r2 + '</thead>';
   }
   function hasAnyEdit(idx){
     const o = overrides[idx];
@@ -1501,20 +1522,41 @@ const flridePanelObj = makePanel({
   lazy: true
 });
 
+// One column set per guide. `band` is the grouping row shown above the columns;
+// `hdr` + the raw key produces the EXACT column name used on the Excel sheets
+// (e.g. "Tier 1AS", "Rate A", "Alum AS", "FL GR") -- deliberately not renamed here.
+const TIER9   = (sfx) => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+sfx))); return a; };
 const ALL_GROUPS = [
-  { prefix: 'STD',      label: 'Std',   keys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })() },
-  { prefix: 'SAL',      label: 'Sal',   keys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'S'))); return a; })() },
-  { prefix: 'RIDE',     label: 'Ride',  keys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'R'))); return a; })() },
-  { prefix: 'ALUM',     label: 'Alum',  keys: NO_TIER_RATE_LIST.slice() },
-  { prefix: 'ALUMSAL',  label: 'AlumS', keys: NO_TIER_RATE_LIST.map(r => r+'S') },
-  { prefix: 'ALUMRIDE', label: 'AlumR', keys: NO_TIER_RATE_LIST.map(r => r+'R') },
-  { prefix: 'EV',       label: 'EV',    keys: NO_TIER_RATE_LIST.slice() },
-  { prefix: 'EVSAL',    label: 'EVS',   keys: NO_TIER_RATE_LIST.map(r => r+'S') },
-  { prefix: 'EVRIDE',   label: 'EVR',   keys: NO_TIER_RATE_LIST.map(r => r+'R') },
-  { prefix: 'FL',       label: 'FL',    keys: RATE_LIST.slice() },
-  { prefix: 'FLSAL',    label: 'FLS',   keys: RATE_LIST.map(r => r+'S') },
-  { prefix: 'FLRIDE',   label: 'FLR',   keys: RATE_LIST.map(r => r+'R') },
+  { prefix: 'STD',           band: 'Standard',                    hdr: 'Tier ', keys: TIER9('')  },
+  { prefix: 'DIAMONDSAL',    band: 'Diamond Salvage / Branded',   hdr: 'Tier ', keys: TIER9('S') },
+  { prefix: 'PLATINUMSAL',   band: 'Platinum Salvage / Branded',  hdr: 'Tier ', keys: TIER9('S') },
+  { prefix: 'GOLDSELECTSAL', band: 'Gold Select Salvage / Branded', hdr: 'Tier ', keys: TIER9('S') },
+  { prefix: 'SILVERSAL',     band: 'Silver Salvage / Branded',    hdr: 'Tier ', keys: TIER9('S') },
+  { prefix: 'RIDE',          band: 'RideShare',                   hdr: 'Tier ', keys: TIER9('R') },
+  { prefix: 'ALUM',          band: 'Aluminum',                    hdr: 'Rate ', keys: NO_TIER_RATE_LIST.slice() },
+  { prefix: 'ALUMSAL',       band: 'Aluminum Salvage Branded',    hdr: 'Alum ', keys: NO_TIER_RATE_LIST.map(r => r+'S') },
+  { prefix: 'ALUMRIDE',      band: 'Aluminum RideShare',          hdr: 'Alum ', keys: NO_TIER_RATE_LIST.map(r => r+'R') },
+  { prefix: 'EV',            band: 'EV',                          hdr: 'Rate ', keys: NO_TIER_RATE_LIST.slice() },
+  { prefix: 'EVSAL',         band: 'EV Salvage / Branded',        hdr: 'Rate ', keys: NO_TIER_RATE_LIST.map(r => r+'S') },
+  { prefix: 'EVRIDE',        band: 'EV RideShare',                hdr: 'Rate ', keys: NO_TIER_RATE_LIST.map(r => r+'R') },
+  { prefix: 'FL',            band: 'Florida',                     hdr: 'FL ',   keys: RATE_LIST.slice() },
+  { prefix: 'FLSAL',         band: 'Florida Salvage / Branded',   hdr: 'FL ',   keys: RATE_LIST.map(r => r+'S') },
+  { prefix: 'FLRIDE',        band: 'Florida RideShare',           hdr: 'FL ',   keys: RATE_LIST.map(r => r+'R') },
 ];
+const ALL_GROUP_BY_PREFIX = {};
+ALL_GROUPS.forEach(g => { ALL_GROUP_BY_PREFIX[g.prefix] = g; });
+
+// The currently-filed guides, folded into All Combined's namespaced key space
+// (e.g. "DIAMONDSAL:1AS") so this view shows the same baseline as each own tab.
+const ALL_INSTALLED_OFF = {};
+[['DIAMONDSAL', INSTALLED_DIAMOND_SAL], ['PLATINUMSAL', INSTALLED_PLATINUM_SAL],
+ ['GOLDSELECTSAL', INSTALLED_GOLDSELECT_SAL], ['SILVERSAL', INSTALLED_SILVER_SAL],
+ ['ALUMSAL', INSTALLED_ALUM_SAL], ['EVSAL', INSTALLED_EV_SAL]].forEach(([prefix, src]) => {
+  Object.keys(src).forEach(idx => {
+    if (!ALL_INSTALLED_OFF[idx]) ALL_INSTALLED_OFF[idx] = [];
+    src[idx].forEach(k => ALL_INSTALLED_OFF[idx].push(prefix + ':' + k));
+  });
+});
 const allTrKeys = [];
 ALL_GROUPS.forEach(g => g.keys.forEach(k => allTrKeys.push(g.prefix + ':' + k)));
 
@@ -1523,12 +1565,17 @@ const allPanelObj = makePanel({
   trKeys: allTrKeys,
   colHeaderLabel: trKey => {
     const [prefix, raw] = trKey.split(':');
-    const g = ALL_GROUPS.find(g => g.prefix === prefix);
-    return (g ? g.label : prefix) + ' ' + raw;
+    const g = ALL_GROUP_BY_PREFIX[prefix];
+    return (g ? g.hdr : '') + raw; // exact Excel column name, e.g. "Tier 1AS"
+  },
+  groupBandLabel: trKey => {
+    const g = ALL_GROUP_BY_PREFIX[trKey.split(':')[0]];
+    return g ? g.band : trKey.split(':')[0];
   },
   colHeaderClass: trKey => 'allgrp-' + trKey.split(':')[0].toLowerCase(),
   ids: { table:'gridTableAll', tbody:'tbodyElAll', count:'countAll', editCount:'editCountAll', guideName:'guideNameAll', search:'searchAll', importFile:'importFileAll', editedFilterBtn:'editedFilterBtnAll', gridWrap:'gridWrapAll', offOnlyImport:'offOnlyImportAll' },
   mirrorFrom: null,
+  installedOff: ALL_INSTALLED_OFF,
   lazy: true
 });
 </script>
