@@ -168,6 +168,19 @@ th.allgrp-diamondflride{background:#00596e;color:#e8f4ff}
 th.allgrp-platinumflride{background:#00475a;color:#e8f4ff}
 th.allgrp-goldselectflride{background:#003846;color:#e8f4ff}
 th.allgrp-silverflride{background:#002b36;color:#e8f4ff}
+.allfilter{background:#1f1f22;padding:6px 14px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:11px;color:#ccc;flex-shrink:0;border-bottom:1px solid #333}
+.allfilter label{display:inline-flex;align-items:center;gap:5px;cursor:pointer;user-select:none}
+.allfilter input{cursor:pointer;margin:0}
+.aflbl{color:#666;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.afsep{width:1px;height:14px;background:#444}
+th.allgrp-diamondstd{background:#0a3a6e;color:#dbe9ff}
+th.allgrp-platinumstd{background:#0a3260;color:#dbe9ff}
+th.allgrp-goldselectstd{background:#092a50;color:#dbe9ff}
+th.allgrp-silverstd{background:#082240;color:#dbe9ff}
+th.allgrp-diamondflstd{background:#00596e;color:#dbe9ff}
+th.allgrp-platinumflstd{background:#005063;color:#dbe9ff}
+th.allgrp-goldselectflstd{background:#004757;color:#dbe9ff}
+th.allgrp-silverflstd{background:#003e4c;color:#dbe9ff}
 td.cls{height:32px}
 td.cls select{width:100%;height:100%;border:none;background:transparent;font-weight:800;font-size:12px;text-align:center;cursor:pointer;color:#333}
 td.cls.na select{color:#aaa}
@@ -480,7 +493,7 @@ tr.hidden{display:none}
     <input type="text" class="guideName" id="guideNameAll" value="All Combined Guide 1">
     <div style="color:#888;font-size:11px">All 3,212 vehicles &middot; every guide side by side, one column set each &mdash; column names match the Excel sheets; edits here are independent of the individual tabs</div>
   </div>
-  <div class="all-banner">&#128204; Combined view for reference/bulk editing &middot; the top header row names the guide, the row beneath gives its exact Excel column name &middot; Salvage / Branded columns are pre-loaded with what is currently filed, matching each guide's own tab.</div>
+  <div class="all-banner">&#128204; Combined view for reference/bulk editing &middot; columns run Diamond, Platinum, Gold Select, Silver, Aluminum, EV &mdash; each with its own Standard, Branded and RideShare, then the Florida equivalents. The top header row names the guide; the row beneath gives its exact Excel column name. Diamond, Platinum, Gold Select and Silver are still filed from one shared Standard guide, so those four Standard column sets read alike — an edit to one here does not carry to the others.</div>
   <div class="toolbar">
     <input type="text" id="searchAll" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
     <button class="btn blue" onclick="allPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
@@ -490,6 +503,37 @@ tr.hidden{display:none}
     <button class="btn filterbtn" id="editedFilterBtnAll" onclick="allPanelObj.toggleEditedFilter()">Show Only Edited</button>
     <span class="count" id="countAll"></span>
     <span id="editCountAll" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="allfilter">
+    <span class="aflbl">Region</span>
+    <label><input type="checkbox" class="afRegion" value="nonfl" checked onchange="applyAllFilters()"> Non-Florida</label>
+    <label><input type="checkbox" class="afRegion" value="fl" checked onchange="applyAllFilters()"> Florida</label>
+    <span class="afsep"></span>
+    <span class="aflbl">Rate card</span>
+    <label><input type="checkbox" class="afCard" value="std" checked onchange="applyAllFilters()"> Standard</label>
+    <label><input type="checkbox" class="afCard" value="sal" checked onchange="applyAllFilters()"> Branded</label>
+    <label><input type="checkbox" class="afCard" value="ride" checked onchange="applyAllFilters()"> RideShare</label>
+    <button class="btn" style="background:#3a3a3c;padding:3px 10px;font-size:10px" onclick="resetAllFilters()">Show All</button>
+    <span id="allFilterCount" style="color:#bb86fc;font-weight:700;font-size:10px"></span>
+  </div>
+  <div class="allfilter">
+    <span class="aflbl">Coverage</span>
+    <label><input type="checkbox" class="afPlan" value="diamond" checked onchange="applyAllFilters()"> Diamond</label>
+    <label><input type="checkbox" class="afPlan" value="platinum" checked onchange="applyAllFilters()"> Platinum</label>
+    <label><input type="checkbox" class="afPlan" value="goldselect" checked onchange="applyAllFilters()"> Gold Select</label>
+    <label><input type="checkbox" class="afPlan" value="silver" checked onchange="applyAllFilters()"> Silver</label>
+    <label><input type="checkbox" class="afPlan" value="alum" checked onchange="applyAllFilters()"> Aluminum</label>
+    <label><input type="checkbox" class="afPlan" value="ev" checked onchange="applyAllFilters()"> EV</label>
+    <span class="afsep"></span>
+    <span class="aflbl">Tier</span>
+    <label><input type="checkbox" class="afTier" value="1" checked onchange="applyAllFilters()"> 1</label>
+    <label><input type="checkbox" class="afTier" value="2" checked onchange="applyAllFilters()"> 2</label>
+    <label><input type="checkbox" class="afTier" value="3" checked onchange="applyAllFilters()"> 3</label>
+    <span class="afsep"></span>
+    <span class="aflbl">Rate</span>
+    <label><input type="checkbox" class="afRate" value="A" checked onchange="applyAllFilters()"> A</label>
+    <label><input type="checkbox" class="afRate" value="B" checked onchange="applyAllFilters()"> B</label>
+    <label><input type="checkbox" class="afRate" value="G" checked onchange="applyAllFilters()"> G</label>
   </div>
   <div class="legbar">
     <div class="li"><span class="sw" style="background:#fff"></span> Current AAS2012 class (unedited)</div>
@@ -1116,6 +1160,7 @@ tr.hidden{display:none}
   </div>
 </div><!-- end silverFlRidePanel -->
 
+
 </div><!-- end app -->
 
 <script>
@@ -1249,6 +1294,51 @@ const FLORIDA_PANEL_KEYS = new Set(['fl',
 
 let currentPanelKey = 'std'; // which panel is on screen right now
 
+// ---- All Combined column filters -------------------------------------------
+// Four axes. Region / Rate card / Coverage decide which guides appear; Tier and
+// Rate narrow the columns inside each guide. Filtering to Tier 1 + Rate A with
+// every coverage ticked lines up Tier 1A for Diamond, Platinum, Gold Select and
+// Silver next to each other, which is otherwise 40 columns apart.
+function afSel(cls){
+  return new Set([...document.querySelectorAll('.' + cls + ':checked')].map(c => c.value));
+}
+
+// A group's columns survive Tier/Rate. Tiered codes look like "1AS"; Florida
+// and Aluminum codes ("A", "AS", "AR") carry no tier, so Tier doesn't apply.
+function afKeepKey(key){
+  const tiers = afSel('afTier'), rates = afSel('afRate');
+  const raw = key.split(':')[1];
+  const hasTier = /^[123]/.test(raw);
+  if (hasTier && !tiers.has(raw[0])) return false;
+  return rates.has(hasTier ? raw[1] : raw[0]);
+}
+
+function applyAllFilters(){
+  const regions = afSel('afRegion'), cards = afSel('afCard'), plans = afSel('afPlan');
+  const groups = ALL_GROUPS.filter(g => regions.has(g.region) && cards.has(g.card) && plans.has(g.plan));
+  const keys = [];
+  groups.forEach(g => g.keys.forEach(k => {
+    const full = g.prefix + ':' + k;
+    if (afKeepKey(full)) keys.push(full);
+  }));
+  allPanelObj.setVisibleTrKeys(keys);
+  const el = document.getElementById('allFilterCount');
+  if (el){
+    const shown = groups.filter(g => g.keys.some(k => afKeepKey(g.prefix + ':' + k))).length;
+    el.textContent = keys.length === allTrKeys.length
+      ? `all ${allTrKeys.length} columns`
+      : `${keys.length} of ${allTrKeys.length} columns \u00b7 ${shown} guide${shown === 1 ? '' : 's'}`;
+  }
+}
+
+function resetAllFilters(){
+  document.querySelectorAll('.afRegion, .afCard, .afPlan, .afTier, .afRate').forEach(c => { c.checked = true; });
+  applyAllFilters();
+}
+
+
+
+
 function onDropdownChange(){
   const plan = document.getElementById('planSelect').value;
   const card = document.getElementById('cardSelect').value;
@@ -1272,6 +1362,7 @@ function switchProduct(which){
     document.getElementById(PRODUCT_TABS[key].panelId).classList.toggle('hidden', which !== key);
   });
   PRODUCT_TABS[which].getObj().ensureBuilt();
+  if (which === 'all') applyAllFilters();
   currentPanelKey = which;
   // Keep the All Combined checkbox honest: changing a dropdown while it's on
   // navigates away, so the box has to clear itself.
@@ -1292,10 +1383,15 @@ function toggleAllCombined(){
   else onDropdownChange();
 }
 
+
 // A "panel" is one editable class-guide grid (vehicle desc on the left, N tier
 // columns on the right). Standard and Salvage are two instances of the same logic.
 function makePanel(opts){
   const { trKeys, ids, guideDefault, mirrorFrom, vehicleFilter } = opts;
+  // Columns actually on screen. Same as trKeys unless a caller narrows it via
+  // setVisibleGroups (All Combined's filters). Kept separate from trKeys so
+  // export/import always cover the whole guide, filtered view or not.
+  let visibleTrKeys = trKeys.slice();
   const panelLabel = opts.panelLabel || 'this';
   // Header label/CSS class per column. Standard/Salvage default to the original
   // "Tier 1A" / t1,t2,t3 styling; rate-only panels (Aluminum, EV) pass their own.
@@ -1384,8 +1480,8 @@ function makePanel(opts){
   }
   function buildHeader(){
     let cols = ['<col class="c-desc">', '<col class="c-offall">'];
-    trKeys.forEach(() => cols.push('<col class="c-cell">'));
-    const colCells = trKeys.map(trKey => `<th class="${colHeaderClass(trKey)}">${colHeaderLabel(trKey)}</th>`).join('');
+    visibleTrKeys.forEach(() => cols.push('<col class="c-cell">'));
+    const colCells = visibleTrKeys.map(trKey => `<th class="${colHeaderClass(trKey)}">${colHeaderLabel(trKey)}</th>`).join('');
     // Single-row header (every per-plan tab): column names stand alone.
     if (!groupBandLabel){
       const row = '<tr><th class="desc">Vehicle (Make Model, engine/drive)</th><th class="offallhead">Off All</th>' + colCells + '</tr>';
@@ -1395,11 +1491,11 @@ function makePanel(opts){
     // column names, because the column names alone are ambiguous across guides --
     // Aluminum and EV both label their Standard columns "Rate A" / "Rate B".
     let band = '', i = 0;
-    while (i < trKeys.length){
-      const lbl = groupBandLabel(trKeys[i]);
+    while (i < visibleTrKeys.length){
+      const lbl = groupBandLabel(visibleTrKeys[i]);
       let span = 1;
-      while (i + span < trKeys.length && groupBandLabel(trKeys[i+span]) === lbl) span++;
-      band += `<th class="grpband ${colHeaderClass(trKeys[i])}" colspan="${span}">${lbl}</th>`;
+      while (i + span < visibleTrKeys.length && groupBandLabel(visibleTrKeys[i+span]) === lbl) span++;
+      band += `<th class="grpband ${colHeaderClass(visibleTrKeys[i])}" colspan="${span}">${lbl}</th>`;
       i += span;
     }
     const r1 = '<tr class="bandrow"><th class="desc" rowspan="2">Vehicle (Make Model, engine/drive)</th><th class="offallhead" rowspan="2">Off All</th>' + band + '</tr>';
@@ -1427,10 +1523,10 @@ function makePanel(opts){
 
   function rowHtml(idx){
     const v = VEHICLES[idx];
-    const allOff = trKeys.every(trKey => getEffClass(idx, trKey) === 'Off');
+    const allOff = visibleTrKeys.length > 0 && visibleTrKeys.every(trKey => getEffClass(idx, trKey) === 'Off');
     const btnLabel = allOff ? 'Back On' : 'Off All';
     let html = `<tr data-idx="${idx}"><td class="desc">${v.d}</td><td class="offall"><button class="offAllBtn ${allOff?'active':''}" data-idx="${idx}" data-panel="${ids.tbody}">${btnLabel}</button></td>`;
-    trKeys.forEach(trKey => {
+    visibleTrKeys.forEach(trKey => {
       const eff = getEffClass(idx, trKey);
       const edited = isEdited(idx, trKey);
       const naClass = (eff===null||eff===undefined||eff==='Off') ? 'na' : '';
@@ -1454,7 +1550,7 @@ function makePanel(opts){
     const visibleCount = Math.ceil(viewportH / ROW_H) + OVERSCAN * 2;
     const endIdx = Math.min(total, startIdx + visibleCount);
 
-    const colspan = trKeys.length + 2;
+    const colspan = visibleTrKeys.length + 2;
     let html = '';
     if (startIdx > 0) html += `<tr style="height:${startIdx*ROW_H}px"><td colspan="${colspan}" style="border:none;padding:0"></td></tr>`;
     for (let i = startIdx; i < endIdx; i++) html += rowHtml(filteredList[i]);
@@ -1844,7 +1940,7 @@ function makePanel(opts){
 
   function toggleOffAll(idx, btnEl){
     const tr = btnEl.closest('tr');
-    const allOff = trKeys.every(trKey => getEffClass(idx, trKey) === 'Off');
+    const allOff = visibleTrKeys.length > 0 && visibleTrKeys.every(trKey => getEffClass(idx, trKey) === 'Off');
     if (allOff) {
       // Already all "Off" — clicking again turns the row back on, meaning every
       // tier/rate returns to the vehicle's own AAS2012 class (the number shown on
@@ -1897,7 +1993,24 @@ function makePanel(opts){
     if (showOnlyEdited) refreshList();
   }
 
-  const panelApi = { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, ensureBuilt, populateOptions, toggleOffAll };
+  // Narrow (or restore) the columns on screen, then rebuild header + rows.
+  // Passing null shows every column again.
+  function setVisibleTrKeys(keys){
+    visibleTrKeys = keys ? keys.slice() : trKeys.slice();
+    const t = document.getElementById(ids.table);
+    t.innerHTML = buildHeader() + `<tbody id="${ids.tbody}"></tbody>`;
+    if (built) refreshList();
+  }
+
+  // Read-only accessors so other views (the Vehicle Lookup) can report this
+  // guide's live values -- filed baseline plus any edits made in this session --
+  // without the panel's grid ever having been opened.
+  const panelApi = { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, ensureBuilt, populateOptions, toggleOffAll, setVisibleTrKeys,
+    getEff: (idx, trKey) => getEffClass(idx, trKey),
+    isEditedCell: (idx, trKey) => isEdited(idx, trKey),
+    allKeys: () => trKeys.slice(),
+    codeLabel: trKey => colHeaderLabel(trKey),
+    coversVehicle: idx => !vehicleFilter || vehicleFilter(VEHICLES[idx]) };
   PANEL_REGISTRY[ids.tbody] = panelApi;
   return panelApi;
 }
@@ -2273,36 +2386,42 @@ const silverFlRidePanelObj = makePanel({
 
 const RATE3   = (sfx) => RATE_LIST.map(r => r+sfx);
 const ALL_GROUPS = [
-  { prefix: 'STD',              band: 'Standard',                              hdr: 'Tier ',    keys: TIER9('')  },
-  { prefix: 'DIAMONDSAL',       band: 'Diamond Salvage / Branded',             hdr: 'Tier ',    keys: TIER9('S') },
-  { prefix: 'PLATINUMSAL',      band: 'Platinum Salvage / Branded',            hdr: 'Tier ',    keys: TIER9('S') },
-  { prefix: 'GOLDSELECTSAL',    band: 'Gold Select Salvage / Branded',         hdr: 'Tier ',    keys: TIER9('S') },
-  { prefix: 'SILVERSAL',        band: 'Silver Salvage / Branded',              hdr: 'Tier ',    keys: TIER9('S') },
-  { prefix: 'DIAMONDRIDE',      band: 'Diamond RideShare',                     hdr: 'Tier ',    keys: TIER9('R') },
-  { prefix: 'PLATINUMRIDE',     band: 'Platinum RideShare',                    hdr: 'Tier ',    keys: TIER9('R') },
-  { prefix: 'GOLDSELECTRIDE',   band: 'Gold Select RideShare',                 hdr: 'Tier ',    keys: TIER9('R') },
-  { prefix: 'SILVERRIDE',       band: 'Silver RideShare',                      hdr: 'Tier ',    keys: TIER9('R') },
-  { prefix: 'ALUM',             band: 'Aluminum',                              hdr: 'Alum ',    keys: NO_TIER_RATE_LIST.slice() },
-  { prefix: 'ALUMSAL',          band: 'Aluminum Salvage Branded',              hdr: 'Alum ',    keys: NO_TIER_RATE_LIST.map(r => r+'S') },
-  { prefix: 'ALUMRIDE',         band: 'Aluminum RideShare',                    hdr: 'Alum ',    keys: NO_TIER_RATE_LIST.map(r => r+'R') },
-  { prefix: 'EV',               band: 'EV',                                    hdr: 'EV ',      keys: NO_TIER_RATE_LIST.slice() },
-  { prefix: 'EVSAL',            band: 'EV Salvage / Branded',                  hdr: 'EV ',      keys: NO_TIER_RATE_LIST.map(r => r+'S') },
-  { prefix: 'EVRIDE',           band: 'EV RideShare',                          hdr: 'EV ',      keys: NO_TIER_RATE_LIST.map(r => r+'R') },
-  { prefix: 'FL',               band: 'Florida',                               hdr: 'FL ',      keys: RATE_LIST.slice() },
-  { prefix: 'DIAMONDFLSAL',     band: 'Diamond Florida Salvage / Branded',     hdr: 'FL ',      keys: RATE3('S') },
-  { prefix: 'PLATINUMFLSAL',    band: 'Platinum Florida Salvage / Branded',    hdr: 'FL ',      keys: RATE3('S') },
-  { prefix: 'GOLDSELECTFLSAL',  band: 'Gold Select Florida Salvage / Branded', hdr: 'FL ',      keys: RATE3('S') },
-  { prefix: 'SILVERFLSAL',      band: 'Silver Florida Salvage / Branded',      hdr: 'FL ',      keys: RATE3('S') },
-  { prefix: 'DIAMONDFLRIDE',    band: 'Diamond Florida RideShare',             hdr: 'FL ',      keys: RATE3('R') },
-  { prefix: 'PLATINUMFLRIDE',   band: 'Platinum Florida RideShare',            hdr: 'FL ',      keys: RATE3('R') },
-  { prefix: 'GOLDSELECTFLRIDE', band: 'Gold Select Florida RideShare',         hdr: 'FL ',      keys: RATE3('R') },
-  { prefix: 'SILVERFLRIDE',     band: 'Silver Florida RideShare',              hdr: 'FL ',      keys: RATE3('R') },
-  { prefix: 'FLALUM',           band: 'Florida Aluminum',                      hdr: 'FL Alum ', keys: RATE_LIST.slice() },
-  { prefix: 'FLALUMSAL',        band: 'Florida Aluminum Salvage Branded',      hdr: 'FL Alum ', keys: RATE3('S') },
-  { prefix: 'FLALUMRIDE',       band: 'Florida Aluminum RideShare',            hdr: 'FL Alum ', keys: RATE3('R') },
-  { prefix: 'FLEV',             band: 'Florida EV',                            hdr: 'FL EV ',   keys: RATE_LIST.slice() },
-  { prefix: 'FLEVSAL',          band: 'Florida EV Salvage / Branded',          hdr: 'FL EV ',   keys: RATE3('S') },
-  { prefix: 'FLEVRIDE',         band: 'Florida EV RideShare',                  hdr: 'FL EV ',   keys: RATE3('R') },
+  { prefix: 'DIAMONDSTD',         band: 'Diamond Standard',         hdr: 'Tier ',     plan: 'diamond', region: 'nonfl', card: 'std', keys: TIER9('') },
+  { prefix: 'DIAMONDSAL',         band: 'Diamond Branded',          hdr: 'Tier ',     plan: 'diamond', region: 'nonfl', card: 'sal', keys: TIER9('S') },
+  { prefix: 'DIAMONDRIDE',        band: 'Diamond RideShare',        hdr: 'Tier ',     plan: 'diamond', region: 'nonfl', card: 'ride', keys: TIER9('R') },
+  { prefix: 'DIAMONDFLSTD',       band: 'Diamond FL Standard',      hdr: 'FL ',       plan: 'diamond', region: 'fl', card: 'std', keys: RATE_LIST.slice() },
+  { prefix: 'DIAMONDFLSAL',       band: 'Diamond FL Branded',       hdr: 'FL ',       plan: 'diamond', region: 'fl', card: 'sal', keys: RATE3('S') },
+  { prefix: 'DIAMONDFLRIDE',      band: 'Diamond FL RideShare',     hdr: 'FL ',       plan: 'diamond', region: 'fl', card: 'ride', keys: RATE3('R') },
+  { prefix: 'PLATINUMSTD',        band: 'Platinum Standard',        hdr: 'Tier ',     plan: 'platinum', region: 'nonfl', card: 'std', keys: TIER9('') },
+  { prefix: 'PLATINUMSAL',        band: 'Platinum Branded',         hdr: 'Tier ',     plan: 'platinum', region: 'nonfl', card: 'sal', keys: TIER9('S') },
+  { prefix: 'PLATINUMRIDE',       band: 'Platinum RideShare',       hdr: 'Tier ',     plan: 'platinum', region: 'nonfl', card: 'ride', keys: TIER9('R') },
+  { prefix: 'PLATINUMFLSTD',      band: 'Platinum FL Standard',     hdr: 'FL ',       plan: 'platinum', region: 'fl', card: 'std', keys: RATE_LIST.slice() },
+  { prefix: 'PLATINUMFLSAL',      band: 'Platinum FL Branded',      hdr: 'FL ',       plan: 'platinum', region: 'fl', card: 'sal', keys: RATE3('S') },
+  { prefix: 'PLATINUMFLRIDE',     band: 'Platinum FL RideShare',    hdr: 'FL ',       plan: 'platinum', region: 'fl', card: 'ride', keys: RATE3('R') },
+  { prefix: 'GOLDSELECTSTD',      band: 'Gold Select Standard',     hdr: 'Tier ',     plan: 'goldselect', region: 'nonfl', card: 'std', keys: TIER9('') },
+  { prefix: 'GOLDSELECTSAL',      band: 'Gold Select Branded',      hdr: 'Tier ',     plan: 'goldselect', region: 'nonfl', card: 'sal', keys: TIER9('S') },
+  { prefix: 'GOLDSELECTRIDE',     band: 'Gold Select RideShare',    hdr: 'Tier ',     plan: 'goldselect', region: 'nonfl', card: 'ride', keys: TIER9('R') },
+  { prefix: 'GOLDSELECTFLSTD',    band: 'Gold Select FL Standard',  hdr: 'FL ',       plan: 'goldselect', region: 'fl', card: 'std', keys: RATE_LIST.slice() },
+  { prefix: 'GOLDSELECTFLSAL',    band: 'Gold Select FL Branded',   hdr: 'FL ',       plan: 'goldselect', region: 'fl', card: 'sal', keys: RATE3('S') },
+  { prefix: 'GOLDSELECTFLRIDE',   band: 'Gold Select FL RideShare', hdr: 'FL ',       plan: 'goldselect', region: 'fl', card: 'ride', keys: RATE3('R') },
+  { prefix: 'SILVERSTD',          band: 'Silver Standard',          hdr: 'Tier ',     plan: 'silver', region: 'nonfl', card: 'std', keys: TIER9('') },
+  { prefix: 'SILVERSAL',          band: 'Silver Branded',           hdr: 'Tier ',     plan: 'silver', region: 'nonfl', card: 'sal', keys: TIER9('S') },
+  { prefix: 'SILVERRIDE',         band: 'Silver RideShare',         hdr: 'Tier ',     plan: 'silver', region: 'nonfl', card: 'ride', keys: TIER9('R') },
+  { prefix: 'SILVERFLSTD',        band: 'Silver FL Standard',       hdr: 'FL ',       plan: 'silver', region: 'fl', card: 'std', keys: RATE_LIST.slice() },
+  { prefix: 'SILVERFLSAL',        band: 'Silver FL Branded',        hdr: 'FL ',       plan: 'silver', region: 'fl', card: 'sal', keys: RATE3('S') },
+  { prefix: 'SILVERFLRIDE',       band: 'Silver FL RideShare',      hdr: 'FL ',       plan: 'silver', region: 'fl', card: 'ride', keys: RATE3('R') },
+  { prefix: 'ALUM',               band: 'Aluminum Standard',        hdr: 'Alum ',     plan: 'alum', region: 'nonfl', card: 'std', keys: NO_TIER_RATE_LIST.slice() },
+  { prefix: 'ALUMSAL',            band: 'Aluminum Branded',         hdr: 'Alum ',     plan: 'alum', region: 'nonfl', card: 'sal', keys: NO_TIER_RATE_LIST.map(r => r+'S') },
+  { prefix: 'ALUMRIDE',           band: 'Aluminum RideShare',       hdr: 'Alum ',     plan: 'alum', region: 'nonfl', card: 'ride', keys: NO_TIER_RATE_LIST.map(r => r+'R') },
+  { prefix: 'FLALUM',             band: 'Aluminum FL Standard',     hdr: 'FL Alum ',  plan: 'alum', region: 'fl', card: 'std', keys: RATE_LIST.slice() },
+  { prefix: 'FLALUMSAL',          band: 'Aluminum FL Branded',      hdr: 'FL Alum ',  plan: 'alum', region: 'fl', card: 'sal', keys: RATE3('S') },
+  { prefix: 'FLALUMRIDE',         band: 'Aluminum FL RideShare',    hdr: 'FL Alum ',  plan: 'alum', region: 'fl', card: 'ride', keys: RATE3('R') },
+  { prefix: 'EV',                 band: 'EV Standard',              hdr: 'EV ',       plan: 'ev', region: 'nonfl', card: 'std', keys: NO_TIER_RATE_LIST.slice() },
+  { prefix: 'EVSAL',              band: 'EV Branded',               hdr: 'EV ',       plan: 'ev', region: 'nonfl', card: 'sal', keys: NO_TIER_RATE_LIST.map(r => r+'S') },
+  { prefix: 'EVRIDE',             band: 'EV RideShare',             hdr: 'EV ',       plan: 'ev', region: 'nonfl', card: 'ride', keys: NO_TIER_RATE_LIST.map(r => r+'R') },
+  { prefix: 'FLEV',               band: 'EV FL Standard',           hdr: 'FL EV ',    plan: 'ev', region: 'fl', card: 'std', keys: RATE_LIST.slice() },
+  { prefix: 'FLEVSAL',            band: 'EV FL Branded',            hdr: 'FL EV ',    plan: 'ev', region: 'fl', card: 'sal', keys: RATE3('S') },
+  { prefix: 'FLEVRIDE',           band: 'EV FL RideShare',          hdr: 'FL EV ',    plan: 'ev', region: 'fl', card: 'ride', keys: RATE3('R') },
 ];
 const ALL_GROUP_BY_PREFIX = {};
 ALL_GROUPS.forEach(g => { ALL_GROUP_BY_PREFIX[g.prefix] = g; });
