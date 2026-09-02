@@ -27,7 +27,10 @@ body{font-family:system-ui,sans-serif;font-size:12px;background:#f0f0f0;height:1
 .navLbl{color:#666;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
 .navSelect{background:#1c1c1e;color:#fff;border:1px solid #555;border-radius:6px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;min-width:170px}
 .navSelect:hover{border-color:#0a84ff}
-#navAllLink{margin-left:auto;color:#bb86fc;font-size:11px;font-weight:700;cursor:pointer;user-select:none;white-space:nowrap}
+#navAllLink{margin-left:auto;color:#bb86fc;font-size:11px;font-weight:700;cursor:pointer;user-select:none;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid transparent;border-radius:6px}
+#productBar.allOn #navAllLink{background:#241b33;border-color:#bb86fc}
+#allToggle{cursor:pointer;margin:0}
+#productBar.allOn .navSelect,#productBar.allOn .navLbl{opacity:.45}
 #navAllLink:hover{text-decoration:underline}
 .product-tab{padding:9px 28px;cursor:pointer;font-size:13px;font-weight:700;color:#555;letter-spacing:.3px;border-bottom:3px solid transparent;margin-bottom:-2px;user-select:none;transition:color .15s}
 .product-tab:hover{color:#ccc}
@@ -172,7 +175,7 @@ tr.hidden{display:none}
     <option value="sal">Salvage / Branded</option>
     <option value="ride">RideShare</option>
   </select>
-  <span id="navAllLink" onclick="switchProduct('all')">&#128204; All Combined</span>
+  <label id="navAllLink"><input type="checkbox" id="allToggle" onchange="toggleAllCombined()">&#128204; All Combined</label>
 </div>
 
 <div class="panel" id="stdPanel">
@@ -715,6 +718,8 @@ const PRODUCT_TABS = {
   all:      { panelId: 'allPanel',      getObj: () => allPanelObj },
 };
 
+let currentPanelKey = 'std'; // which panel is on screen right now
+
 function onDropdownChange(){
   const plan = document.getElementById('planSelect').value;
   const card = document.getElementById('cardSelect').value;
@@ -735,6 +740,20 @@ function switchProduct(which){
     document.getElementById(PRODUCT_TABS[key].panelId).classList.toggle('hidden', which !== key);
   });
   PRODUCT_TABS[which].getObj().ensureBuilt();
+  currentPanelKey = which;
+  // Keep the All Combined checkbox honest: changing a dropdown while it's on
+  // navigates away, so the box has to clear itself.
+  const box = document.getElementById('allToggle');
+  if (box) box.checked = (which === 'all');
+  document.getElementById('productBar').classList.toggle('allOn', which === 'all');
+}
+
+// Checking the box opens All Combined; unchecking returns to whatever the two
+// dropdowns currently say. Re-picking the same dropdown value fires no change
+// event, so without this there'd be no way back out.
+function toggleAllCombined(){
+  if (document.getElementById('allToggle').checked) switchProduct('all');
+  else onDropdownChange();
 }
 
 // A "panel" is one editable class-guide grid (vehicle desc on the left, N tier
