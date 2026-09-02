@@ -132,6 +132,30 @@ th.allgrp-alumride{background:#3f3f42;color:#8fd6ff}
 th.allgrp-evride{background:#0d3d1f;color:#8fd6ff}
 th.allgrp-flride{background:#00596e;color:#8fd6ff}
 .ride-banner{background:#0a2a3e;color:#8fd6ff;padding:6px 16px;font-size:11px;font-weight:700;flex-shrink:0;border-bottom:2px solid #0a84ff}
+th.ra-flalum{background:#00596e;color:#8fecff}
+th.rb-flalum{background:#00475a;color:#7bdcf0}
+th.rg-flalum{background:#003846;color:#67cadd}
+th.allgrp-flalum{background:#00596e;color:#8fecff}
+th.ra-flalumsal{background:#00596e;color:#8fecff}
+th.rb-flalumsal{background:#00475a;color:#7bdcf0}
+th.rg-flalumsal{background:#003846;color:#67cadd}
+th.allgrp-flalumsal{background:#00596e;color:#8fecff}
+th.ra-flalumride{background:#00596e;color:#8fecff}
+th.rb-flalumride{background:#00475a;color:#7bdcf0}
+th.rg-flalumride{background:#003846;color:#67cadd}
+th.allgrp-flalumride{background:#00596e;color:#8fecff}
+th.ra-flev{background:#00596e;color:#8fecff}
+th.rb-flev{background:#00475a;color:#7bdcf0}
+th.rg-flev{background:#003846;color:#67cadd}
+th.allgrp-flev{background:#00596e;color:#8fecff}
+th.ra-flevsal{background:#00596e;color:#8fecff}
+th.rb-flevsal{background:#00475a;color:#7bdcf0}
+th.rg-flevsal{background:#003846;color:#67cadd}
+th.allgrp-flevsal{background:#00596e;color:#8fecff}
+th.ra-flevride{background:#00596e;color:#8fecff}
+th.rb-flevride{background:#00475a;color:#7bdcf0}
+th.rg-flevride{background:#003846;color:#67cadd}
+th.allgrp-flevride{background:#00596e;color:#8fecff}
 td.cls{height:32px}
 td.cls select{width:100%;height:100%;border:none;background:transparent;font-weight:800;font-size:12px;text-align:center;cursor:pointer;color:#333}
 td.cls.na select{color:#aaa}
@@ -159,6 +183,11 @@ tr.hidden{display:none}
 
 <div id="productBar">
   <span class="brandTag">&#128737; CARSHIELD</span>
+  <span class="navLbl">Region</span>
+  <select id="regionSelect" class="navSelect" onchange="onDropdownChange()">
+    <option value="nonfl">Non-FL</option>
+    <option value="fl">Florida</option>
+  </select>
   <span class="navLbl">Plan</span>
   <select id="planSelect" class="navSelect" onchange="onDropdownChange()">
     <option value="diamond">Diamond</option>
@@ -167,7 +196,6 @@ tr.hidden{display:none}
     <option value="silver">Silver</option>
     <option value="alum">Aluminum</option>
     <option value="ev">EV</option>
-    <option value="fl">Florida</option>
   </select>
   <span class="navLbl">Rate Card</span>
   <select id="cardSelect" class="navSelect" onchange="onDropdownChange()">
@@ -465,11 +493,11 @@ tr.hidden{display:none}
 
 <div class="panel hidden" id="flPanel">
   <div id="topBarFl">
-    <h1>&#127477; Florida Class Guide</h1>
+    <h1>Florida Class Guide</h1>
     <input type="text" class="guideName" id="guideNameFl" value="Florida Guide 1">
     <div style="color:#888;font-size:11px">All 3,212 vehicles &middot; Florida has its own admin/coverage codes and files separately from Tiers 1&ndash;3, but uses the same underlying vehicle class &middot; Rate A / Rate B / Rate G, no tiers</div>
   </div>
-  <div class="fl-banner">&#127477; Florida-specific filing &middot; same vehicle classes as Standard, tracked under Florida's own admin/coverage codes &middot; no Tier 1/2/3 split &mdash; just one statewide rate per class.</div>
+  <div class="fl-banner">Florida-specific filing &middot; same vehicle classes as Standard, tracked under Florida's own admin/coverage codes &middot; no Tier 1/2/3 split &mdash; just one statewide rate per class.</div>
   <div class="toolbar">
     <input type="text" id="searchFl" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
     <button class="btn blue" onclick="flPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
@@ -494,11 +522,11 @@ tr.hidden{display:none}
 
 <div class="panel hidden" id="flsalPanel">
   <div id="topBarFlSal">
-    <h1>&#127477; Salvage Florida Class Guide</h1>
+    <h1>Salvage Florida Class Guide</h1>
     <input type="text" class="guideName" id="guideNameFlSal" value="Salvage Florida Guide 1">
     <div style="color:#888;font-size:11px">All 3,212 vehicles &middot; Florida's Salvage/Branded Title filing &middot; Rate AS / Rate BS / Rate GS, no tiers</div>
   </div>
-  <div class="fl-banner">&#127477; Salvage / Branded Title, Florida filing &middot; same vehicle classes as Salvage, tracked under Florida's own admin/coverage codes &middot; no Tier 1/2/3 split.</div>
+  <div class="fl-banner">Salvage / Branded Title, Florida filing &middot; same vehicle classes as Salvage, tracked under Florida's own admin/coverage codes &middot; no Tier 1/2/3 split.</div>
   <div class="toolbar">
     <input type="text" id="searchFlSal" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
     <button class="btn blue" onclick="flsalPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
@@ -638,6 +666,180 @@ tr.hidden{display:none}
   </div>
 </div><!-- end flridePanel -->
 
+<div class="panel hidden" id="flalumPanel">
+  <div id="topBarFlAlum">
+    <h1>Florida Aluminum Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameFlAlum" value="Florida Aluminum Guide 1">
+    <div style="color:#888;font-size:11px">All 3,212 vehicles &middot; FL Alum A, FL Alum B, FL Alum G &mdash; Florida filing, no Tier 1/2/3 split</div>
+  </div>
+  <div class="fl-banner">Florida Aluminum &middot; Florida&rsquo;s own admin/coverage codes &middot; keeps the G rate, unlike the non-Florida Aluminum plan.</div>
+  <div class="toolbar">
+    <input type="text" id="searchFlAlum" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
+    <button class="btn blue" onclick="flalumPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileFlAlum" style="display:none" accept=".xlsx,.csv"></label>
+    <label class="offonly-label"><input type="checkbox" id="offOnlyImportFlAlum"> Only import Off values</label>
+    <button class="btn red" onclick="flalumPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnFlAlum" onclick="flalumPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countFlAlum"></span>
+    <span id="editCountFlAlum" style="color:#00b8d4;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Current class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; not offered for this Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every rate on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapFlAlum">
+    <table id="gridTableFlAlum"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end flalumPanel -->
+
+<div class="panel hidden" id="flalumsalPanel">
+  <div id="topBarFlAlumSal">
+    <h1>Florida Aluminum Salvage Branded Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameFlAlumSal" value="Florida Aluminum Salvage Branded Guide 1">
+    <div style="color:#888;font-size:11px">All 3,212 vehicles &middot; FL Alum AS, FL Alum BS, FL Alum GS &mdash; Florida filing, no Tier 1/2/3 split</div>
+  </div>
+  <div class="fl-banner">Florida Aluminum Salvage Branded &middot; Florida&rsquo;s own admin/coverage codes &middot; keeps the G rate, unlike the non-Florida Aluminum plan.</div>
+  <div class="toolbar">
+    <input type="text" id="searchFlAlumSal" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
+    <button class="btn blue" onclick="flalumsalPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileFlAlumSal" style="display:none" accept=".xlsx,.csv"></label>
+    <label class="offonly-label"><input type="checkbox" id="offOnlyImportFlAlumSal"> Only import Off values</label>
+    <button class="btn red" onclick="flalumsalPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnFlAlumSal" onclick="flalumsalPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countFlAlumSal"></span>
+    <span id="editCountFlAlumSal" style="color:#00b8d4;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Current class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; not offered for this Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every rate on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapFlAlumSal">
+    <table id="gridTableFlAlumSal"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end flalumsalPanel -->
+
+<div class="panel hidden" id="flalumridePanel">
+  <div id="topBarFlAlumRide">
+    <h1>Florida Aluminum RideShare Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameFlAlumRide" value="Florida Aluminum RideShare Guide 1">
+    <div style="color:#888;font-size:11px">All 3,212 vehicles &middot; FL Alum AR, FL Alum BR, FL Alum GR &mdash; Florida filing, no Tier 1/2/3 split</div>
+  </div>
+  <div class="fl-banner">Florida Aluminum RideShare &middot; Florida&rsquo;s own admin/coverage codes &middot; keeps the G rate, unlike the non-Florida Aluminum plan.</div>
+  <div class="toolbar">
+    <input type="text" id="searchFlAlumRide" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
+    <button class="btn blue" onclick="flalumridePanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileFlAlumRide" style="display:none" accept=".xlsx,.csv"></label>
+    <label class="offonly-label"><input type="checkbox" id="offOnlyImportFlAlumRide"> Only import Off values</label>
+    <button class="btn red" onclick="flalumridePanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnFlAlumRide" onclick="flalumridePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countFlAlumRide"></span>
+    <span id="editCountFlAlumRide" style="color:#00b8d4;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Current class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; not offered for this Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every rate on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapFlAlumRide">
+    <table id="gridTableFlAlumRide"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end flalumridePanel -->
+
+<div class="panel hidden" id="flevPanel">
+  <div id="topBarFlEv">
+    <h1>Florida EV Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameFlEv" value="Florida EV Guide 1">
+    <div style="color:#888;font-size:11px">EV-only vehicles (class E0&ndash;E9) &middot; FL EV A, FL EV B, FL EV G &mdash; Florida filing, no Tier 1/2/3 split</div>
+  </div>
+  <div class="fl-banner">Florida EV &middot; Florida&rsquo;s own admin/coverage codes &middot; keeps the G rate, unlike the non-Florida EV plan.</div>
+  <div class="toolbar">
+    <input type="text" id="searchFlEv" placeholder="Search make/model (e.g. TESL MODEL 3)...">
+    <button class="btn blue" onclick="flevPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileFlEv" style="display:none" accept=".xlsx,.csv"></label>
+    <label class="offonly-label"><input type="checkbox" id="offOnlyImportFlEv"> Only import Off values</label>
+    <button class="btn red" onclick="flevPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnFlEv" onclick="flevPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countFlEv"></span>
+    <span id="editCountFlEv" style="color:#00b8d4;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Current class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; not offered for this Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every rate on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapFlEv">
+    <table id="gridTableFlEv"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end flevPanel -->
+
+<div class="panel hidden" id="flevsalPanel">
+  <div id="topBarFlEvSal">
+    <h1>Florida EV Salvage / Branded Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameFlEvSal" value="Florida EV Salvage / Branded Guide 1">
+    <div style="color:#888;font-size:11px">EV-only vehicles (class E0&ndash;E9) &middot; FL EV AS, FL EV BS, FL EV GS &mdash; Florida filing, no Tier 1/2/3 split</div>
+  </div>
+  <div class="fl-banner">Florida EV Salvage / Branded &middot; Florida&rsquo;s own admin/coverage codes &middot; keeps the G rate, unlike the non-Florida EV plan.</div>
+  <div class="toolbar">
+    <input type="text" id="searchFlEvSal" placeholder="Search make/model (e.g. TESL MODEL 3)...">
+    <button class="btn blue" onclick="flevsalPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileFlEvSal" style="display:none" accept=".xlsx,.csv"></label>
+    <label class="offonly-label"><input type="checkbox" id="offOnlyImportFlEvSal"> Only import Off values</label>
+    <button class="btn red" onclick="flevsalPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnFlEvSal" onclick="flevsalPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countFlEvSal"></span>
+    <span id="editCountFlEvSal" style="color:#00b8d4;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Current class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; not offered for this Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every rate on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapFlEvSal">
+    <table id="gridTableFlEvSal"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end flevsalPanel -->
+
+<div class="panel hidden" id="flevridePanel">
+  <div id="topBarFlEvRide">
+    <h1>Florida EV RideShare Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameFlEvRide" value="Florida EV RideShare Guide 1">
+    <div style="color:#888;font-size:11px">EV-only vehicles (class E0&ndash;E9) &middot; FL EV AR, FL EV BR, FL EV GR &mdash; Florida filing, no Tier 1/2/3 split</div>
+  </div>
+  <div class="fl-banner">Florida EV RideShare &middot; Florida&rsquo;s own admin/coverage codes &middot; keeps the G rate, unlike the non-Florida EV plan.</div>
+  <div class="toolbar">
+    <input type="text" id="searchFlEvRide" placeholder="Search make/model (e.g. TESL MODEL 3)...">
+    <button class="btn blue" onclick="flevridePanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileFlEvRide" style="display:none" accept=".xlsx,.csv"></label>
+    <label class="offonly-label"><input type="checkbox" id="offOnlyImportFlEvRide"> Only import Off values</label>
+    <button class="btn red" onclick="flevridePanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnFlEvRide" onclick="flevridePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countFlEvRide"></span>
+    <span id="editCountFlEvRide" style="color:#00b8d4;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Current class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; not offered for this Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every rate on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapFlEvRide">
+    <table id="gridTableFlEvRide"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end flevridePanel -->
+
 </div><!-- end app -->
 
 <script>
@@ -685,16 +887,26 @@ const INSTALLED_EV_SAL = {"86":["AS","BS"],"87":["AS","BS"],"109":["AS","BS"],"1
 // Dropdown-driven navigation. Plan dropdown x Rate Card dropdown selects one
 // panel. Diamond / Platinum / Gold Select / Silver share the same tiered grids --
 // the plan name is what you type into the guide-name box, not a separate dataset.
+// Plan x Rate Card picks the guide; the Florida checkbox swaps the whole thing
+// over to Florida's separately-filed equivalent. Florida is not tier-split, so
+// Diamond / Platinum / Gold Select / Silver all land on the same Florida grid.
 const PLAN_CARD_MAP = {
   diamond:    { std: 'std',  sal: 'diamondSal',    ride: 'ride' },
   platinum:   { std: 'std',  sal: 'platinumSal',   ride: 'ride' },
   goldselect: { std: 'std',  sal: 'goldselectSal', ride: 'ride' },
   silver:     { std: 'std',  sal: 'silverSal',     ride: 'ride' },
-  alum:       { std: 'alum', sal: 'alumsal', ride: 'alumride' },
-  ev:         { std: 'ev',   sal: 'evsal',   ride: 'evride' },
-  fl:         { std: 'fl',   sal: 'flsal',   ride: 'flride' },
+  alum:       { std: 'alum', sal: 'alumsal',       ride: 'alumride' },
+  ev:         { std: 'ev',   sal: 'evsal',         ride: 'evride' },
 };
-const PLAN_LABELS = { diamond:'Diamond', platinum:'Platinum', goldselect:'Gold Select', silver:'Silver', alum:'Aluminum', ev:'EV', fl:'Florida' };
+const PLAN_CARD_MAP_FL = {
+  diamond:    { std: 'fl',     sal: 'flsal',       ride: 'flride' },
+  platinum:   { std: 'fl',     sal: 'flsal',       ride: 'flride' },
+  goldselect: { std: 'fl',     sal: 'flsal',       ride: 'flride' },
+  silver:     { std: 'fl',     sal: 'flsal',       ride: 'flride' },
+  alum:       { std: 'flalum', sal: 'flalumsal',   ride: 'flalumride' },
+  ev:         { std: 'flev',   sal: 'flevsal',     ride: 'flevride' },
+};
+const PLAN_LABELS = { diamond:'Diamond', platinum:'Platinum', goldselect:'Gold Select', silver:'Silver', alum:'Aluminum', ev:'EV' };
 const CARD_LABELS = { std:'Standard', sal:'Salvage / Branded', ride:'RideShare' };
 
 // panelId drives the DOM show/hide; getObj lazily returns that panel's
@@ -715,19 +927,31 @@ const PRODUCT_TABS = {
   fl:       { panelId: 'flPanel',       getObj: () => flPanelObj },
   flsal:    { panelId: 'flsalPanel',    getObj: () => flsalPanelObj },
   flride:   { panelId: 'flridePanel',   getObj: () => flridePanelObj },
+  flalum:     { panelId: 'flalumPanel',     getObj: () => flalumPanelObj },
+  flalumsal:  { panelId: 'flalumsalPanel',  getObj: () => flalumsalPanelObj },
+  flalumride: { panelId: 'flalumridePanel', getObj: () => flalumridePanelObj },
+  flev:       { panelId: 'flevPanel',       getObj: () => flevPanelObj },
+  flevsal:    { panelId: 'flevsalPanel',    getObj: () => flevsalPanelObj },
+  flevride:   { panelId: 'flevridePanel',   getObj: () => flevridePanelObj },
   all:      { panelId: 'allPanel',      getObj: () => allPanelObj },
 };
+
+// Every panel that is a Florida filing -- drives the Florida pill's lit state.
+const FLORIDA_PANEL_KEYS = new Set(['fl','flsal','flride','flalum','flalumsal','flalumride','flev','flevsal','flevride']);
 
 let currentPanelKey = 'std'; // which panel is on screen right now
 
 function onDropdownChange(){
   const plan = document.getElementById('planSelect').value;
   const card = document.getElementById('cardSelect').value;
-  const key  = PLAN_CARD_MAP[plan][card];
+  const isFl = document.getElementById('regionSelect').value === 'fl';
+  const key  = (isFl ? PLAN_CARD_MAP_FL : PLAN_CARD_MAP)[plan][card];
   switchProduct(key);
-  // Prefill the guide name from plan + card, unless it's been typed over by hand.
+  // Prefill the guide name from Florida + plan + card, unless typed over by hand.
   const gn = document.getElementById(PRODUCT_TABS[key].panelId).querySelector('.guideName');
-  if (gn && !gn.dataset.userEdited) gn.value = PLAN_LABELS[plan] + ' ' + CARD_LABELS[card] + ' Guide 1';
+  if (gn && !gn.dataset.userEdited){
+    gn.value = (isFl ? 'Florida ' : '') + PLAN_LABELS[plan] + ' ' + CARD_LABELS[card] + ' Guide 1';
+  }
 }
 
 // Once a guide name is edited manually, stop overwriting it on later switches.
@@ -745,7 +969,11 @@ function switchProduct(which){
   // navigates away, so the box has to clear itself.
   const box = document.getElementById('allToggle');
   if (box) box.checked = (which === 'all');
-  document.getElementById('productBar').classList.toggle('allOn', which === 'all');
+  const bar = document.getElementById('productBar');
+  bar.classList.toggle('allOn', which === 'all');
+  // Keep the Region dropdown showing what's actually on screen.
+  const region = document.getElementById('regionSelect');
+  if (region && which !== 'all') region.value = FLORIDA_PANEL_KEYS.has(which) ? 'fl' : 'nonfl';
 }
 
 // Checking the box opens All Combined; unchecking returns to whatever the two
@@ -1550,6 +1778,69 @@ const flridePanelObj = makePanel({
   lazy: true
 });
 
+const flalumPanelObj = makePanel({
+  panelLabel: 'Florida Aluminum',
+  trKeys: RATE_LIST.slice(), // Florida keeps the G rate on Aluminum and EV, unlike the non-Florida plans
+  colHeaderLabel: trKey => 'FL Alum ' + trKey,
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flalum' : trKey[0]==='B' ? 'rb-flalum' : 'rg-flalum'),
+  ids: { table:'gridTableFlAlum', tbody:'tbodyElFlAlum', count:'countFlAlum', editCount:'editCountFlAlum', guideName:'guideNameFlAlum', search:'searchFlAlum', importFile:'importFileFlAlum', editedFilterBtn:'editedFilterBtnFlAlum', gridWrap:'gridWrapFlAlum', offOnlyImport:'offOnlyImportFlAlum' },
+  mirrorFrom: null,
+  lazy: true
+});
+
+const flalumsalPanelObj = makePanel({
+  panelLabel: 'Florida Aluminum Salvage Branded',
+  trKeys: RATE_LIST.map(r => r+'S'), // Florida keeps the G rate on Aluminum and EV, unlike the non-Florida plans
+  colHeaderLabel: trKey => 'FL Alum ' + trKey,
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flalumsal' : trKey[0]==='B' ? 'rb-flalumsal' : 'rg-flalumsal'),
+  ids: { table:'gridTableFlAlumSal', tbody:'tbodyElFlAlumSal', count:'countFlAlumSal', editCount:'editCountFlAlumSal', guideName:'guideNameFlAlumSal', search:'searchFlAlumSal', importFile:'importFileFlAlumSal', editedFilterBtn:'editedFilterBtnFlAlumSal', gridWrap:'gridWrapFlAlumSal', offOnlyImport:'offOnlyImportFlAlumSal' },
+  mirrorFrom: 'flalum',
+  lazy: true
+});
+
+const flalumridePanelObj = makePanel({
+  panelLabel: 'Florida Aluminum RideShare',
+  trKeys: RATE_LIST.map(r => r+'R'), // Florida keeps the G rate on Aluminum and EV, unlike the non-Florida plans
+  colHeaderLabel: trKey => 'FL Alum ' + trKey,
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flalumride' : trKey[0]==='B' ? 'rb-flalumride' : 'rg-flalumride'),
+  ids: { table:'gridTableFlAlumRide', tbody:'tbodyElFlAlumRide', count:'countFlAlumRide', editCount:'editCountFlAlumRide', guideName:'guideNameFlAlumRide', search:'searchFlAlumRide', importFile:'importFileFlAlumRide', editedFilterBtn:'editedFilterBtnFlAlumRide', gridWrap:'gridWrapFlAlumRide', offOnlyImport:'offOnlyImportFlAlumRide' },
+  mirrorFrom: 'flalum',
+  lazy: true
+});
+
+const flevPanelObj = makePanel({
+  panelLabel: 'Florida EV',
+  trKeys: RATE_LIST.slice(), // Florida keeps the G rate on Aluminum and EV, unlike the non-Florida plans
+  colHeaderLabel: trKey => 'FL EV ' + trKey,
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flev' : trKey[0]==='B' ? 'rb-flev' : 'rg-flev'),
+  vehicleFilter: isEvVehicle,
+  ids: { table:'gridTableFlEv', tbody:'tbodyElFlEv', count:'countFlEv', editCount:'editCountFlEv', guideName:'guideNameFlEv', search:'searchFlEv', importFile:'importFileFlEv', editedFilterBtn:'editedFilterBtnFlEv', gridWrap:'gridWrapFlEv', offOnlyImport:'offOnlyImportFlEv' },
+  mirrorFrom: null,
+  lazy: true
+});
+
+const flevsalPanelObj = makePanel({
+  panelLabel: 'Florida EV Salvage / Branded',
+  trKeys: RATE_LIST.map(r => r+'S'), // Florida keeps the G rate on Aluminum and EV, unlike the non-Florida plans
+  colHeaderLabel: trKey => 'FL EV ' + trKey,
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flevsal' : trKey[0]==='B' ? 'rb-flevsal' : 'rg-flevsal'),
+  vehicleFilter: isEvVehicle,
+  ids: { table:'gridTableFlEvSal', tbody:'tbodyElFlEvSal', count:'countFlEvSal', editCount:'editCountFlEvSal', guideName:'guideNameFlEvSal', search:'searchFlEvSal', importFile:'importFileFlEvSal', editedFilterBtn:'editedFilterBtnFlEvSal', gridWrap:'gridWrapFlEvSal', offOnlyImport:'offOnlyImportFlEvSal' },
+  mirrorFrom: 'flev',
+  lazy: true
+});
+
+const flevridePanelObj = makePanel({
+  panelLabel: 'Florida EV RideShare',
+  trKeys: RATE_LIST.map(r => r+'R'), // Florida keeps the G rate on Aluminum and EV, unlike the non-Florida plans
+  colHeaderLabel: trKey => 'FL EV ' + trKey,
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flevride' : trKey[0]==='B' ? 'rb-flevride' : 'rg-flevride'),
+  vehicleFilter: isEvVehicle,
+  ids: { table:'gridTableFlEvRide', tbody:'tbodyElFlEvRide', count:'countFlEvRide', editCount:'editCountFlEvRide', guideName:'guideNameFlEvRide', search:'searchFlEvRide', importFile:'importFileFlEvRide', editedFilterBtn:'editedFilterBtnFlEvRide', gridWrap:'gridWrapFlEvRide', offOnlyImport:'offOnlyImportFlEvRide' },
+  mirrorFrom: 'flev',
+  lazy: true
+});
+
 // One column set per guide. `band` is the grouping row shown above the columns;
 // `hdr` + the raw key produces the EXACT column name used on the Excel sheets
 // (e.g. "Tier 1AS", "Rate A", "Alum AS", "FL GR") -- deliberately not renamed here.
@@ -1570,6 +1861,12 @@ const ALL_GROUPS = [
   { prefix: 'FL',            band: 'Florida',                     hdr: 'FL ',   keys: RATE_LIST.slice() },
   { prefix: 'FLSAL',         band: 'Florida Salvage / Branded',   hdr: 'FL ',   keys: RATE_LIST.map(r => r+'S') },
   { prefix: 'FLRIDE',        band: 'Florida RideShare',           hdr: 'FL ',   keys: RATE_LIST.map(r => r+'R') },
+  { prefix: 'FLALUM',        band: 'Florida Aluminum',            hdr: 'FL Alum ', keys: RATE_LIST.slice() },
+  { prefix: 'FLALUMSAL',     band: 'Florida Aluminum Salvage Branded', hdr: 'FL Alum ', keys: RATE_LIST.map(r => r+'S') },
+  { prefix: 'FLALUMRIDE',    band: 'Florida Aluminum RideShare',  hdr: 'FL Alum ', keys: RATE_LIST.map(r => r+'R') },
+  { prefix: 'FLEV',          band: 'Florida EV',                  hdr: 'FL EV ', keys: RATE_LIST.slice() },
+  { prefix: 'FLEVSAL',       band: 'Florida EV Salvage / Branded', hdr: 'FL EV ', keys: RATE_LIST.map(r => r+'S') },
+  { prefix: 'FLEVRIDE',      band: 'Florida EV RideShare',        hdr: 'FL EV ', keys: RATE_LIST.map(r => r+'R') },
 ];
 const ALL_GROUP_BY_PREFIX = {};
 ALL_GROUPS.forEach(g => { ALL_GROUP_BY_PREFIX[g.prefix] = g; });
