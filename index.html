@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Class Guide Builder</title>
+<title>CarShield Vehicle Class Guide Builder</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <style>
@@ -102,6 +102,20 @@ th.ra-flsal{background:#003d4d;color:#7bdcf0}
 th.rb-flsal{background:#002e3a;color:#67cadd}
 th.rg-flsal{background:#001f27;color:#53b7c9}
 .fl-banner{background:#00272f;color:#8fecff;padding:6px 16px;font-size:11px;font-weight:700;flex-shrink:0;border-bottom:2px solid #00b8d4}
+th.ra-ride{background:#0a2a3e;color:#80d8ff}
+th.rb-ride{background:#072030;color:#66c8f0}
+th.rg-ride{background:#051825;color:#4db8dd}
+th.ra-alumride{background:#3a3a3c;color:#80d8ff}
+th.rb-alumride{background:#282829;color:#66c8f0}
+th.ra-evride{background:#0d3d1f;color:#80d8ff}
+th.rb-evride{background:#092b16;color:#66c8f0}
+th.ra-flride{background:#00596e;color:#80d8ff}
+th.rb-flride{background:#00475a;color:#66c8f0}
+th.rg-flride{background:#003846;color:#4db8dd}
+th.allgrp-ride{background:#0a2a3e;color:#80d8ff}
+th.allgrp-alumride{background:#3a3a3c;color:#80d8ff}
+th.allgrp-evride{background:#0d3d1f;color:#80d8ff}
+th.allgrp-flride{background:#00596e;color:#80d8ff}
 td.cls{height:32px}
 td.cls select{width:100%;height:100%;border:none;background:transparent;font-weight:800;font-size:12px;text-align:center;cursor:pointer;color:#333}
 td.cls.na select{color:#aaa}
@@ -114,8 +128,8 @@ tr.hidden{display:none}
 
 <div id="loginScreen">
   <div class="login-box">
-    <div class="login-logo">&#128663;</div>
-    <h1>Class Guide Builder</h1>
+    <div class="login-logo">&#128737;</div>
+    <h1>CarShield Vehicle Class Guide Builder</h1>
     <p>CarShield internal tool &mdash; enter your access password</p>
     <input type="password" id="pwInput" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()">
     <button class="login-submit" onclick="checkPw()">Sign in</button>
@@ -127,22 +141,30 @@ tr.hidden{display:none}
 <div id="app">
 
 <div id="productBar">
-  <div class="product-tab std-active" id="stdProductTab" onclick="switchProduct('std')">&#128663; Standard (A/B/G)</div>
-  <div class="product-tab" id="salProductTab" onclick="switchProduct('sal')">&#128296; Salvage / Branded Title (S)</div>
-  <div class="product-tab" id="alumProductTab" onclick="switchProduct('alum')">&#129693; Aluminum (A/B)</div>
-  <div class="product-tab" id="alumsalProductTab" onclick="switchProduct('alumsal')">&#129693; Salvage Aluminum (AS/BS)</div>
-  <div class="product-tab" id="evProductTab" onclick="switchProduct('ev')">&#9889; Electric Vehicles (A/B)</div>
-  <div class="product-tab" id="evsalProductTab" onclick="switchProduct('evsal')">&#9889; Salvage EV (AS/BS)</div>
-  <div class="product-tab" id="allProductTab" onclick="switchProduct('all')">&#128204; All Combined</div>
-  <div class="product-tab" id="flProductTab" onclick="switchProduct('fl')">&#127477; Florida (A/B/G)</div>
-  <div class="product-tab" id="flsalProductTab" onclick="switchProduct('flsal')">&#127477; Salvage Florida (AS/BS/GS)</div>
+  <div style="display:flex;align-items:center;gap:14px;padding:8px 16px;flex:1">
+    <span style="color:#999;font-size:11px;font-weight:700;letter-spacing:.5px">&#128737; CARSHIELD</span>
+    <select id="planSelect" onchange="onDropdownChange()" style="background:#1c1c1e;color:#fff;border:1px solid #555;border-radius:6px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;min-width:160px">
+      <option value="diamond">Diamond</option>
+      <option value="platinum">Platinum</option>
+      <option value="goldselect">Gold Select</option>
+      <option value="silver">Silver</option>
+      <option value="alum">Aluminum</option>
+      <option value="ev">EV</option>
+      <option value="fl">Florida</option>
+    </select>
+    <select id="cardSelect" onchange="onDropdownChange()" style="background:#1c1c1e;color:#fff;border:1px solid #555;border-radius:6px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;min-width:180px">
+      <option value="std">Standard</option>
+      <option value="sal">Salvage / Branded</option>
+      <option value="ride">RideShare</option>
+    </select>
+  </div>
 </div>
 
 <div class="panel" id="stdPanel">
   <div id="topBar">
-    <h1>&#128663; Class Guide Builder</h1>
-    <input type="text" class="guideName" id="guideName" value="Branded Title Guide 1">
-    <div style="color:#888;font-size:11px">3,212 vehicle/model-year rows &middot; source: AAS2012 as of 08/05/26 &middot; edit any Tier/Rate cell to build a custom class guide, then export and hand off to AAS</div>
+    <h1>&#128737; CarShield Vehicle Class Guide Builder</h1>
+    <input type="text" class="guideName" id="guideName" value="Standard Guide 1">
+    <div style="color:#888;font-size:11px">3,212 vehicles &middot; Tier 1A through Tier 3G &mdash; 3 tiers, 9 columns per vehicle</div>
   </div>
   <div class="toolbar">
     <input type="text" id="search" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
@@ -168,9 +190,9 @@ tr.hidden{display:none}
 
 <div class="panel hidden" id="salPanel">
   <div id="topBarSal">
-    <h1>&#128296; Salvage / Branded Title Class Guide</h1>
+    <h1>&#128737; Salvage / Branded Class Guide</h1>
     <input type="text" class="guideName" id="guideNameSal" value="Salvage Title Guide 1">
-    <div style="color:#888;font-size:11px">Same 3,212 vehicles, same editing &mdash; just the nine Salvage/Branded Title tiers (1AS&ndash;3GS) instead of A/B/G</div>
+    <div style="color:#888;font-size:11px">Same 3,212 vehicles &middot; Tier 1AS through Tier 3GS &mdash; Salvage/Branded rate card</div>
   </div>
   <div class="sal-banner">&#128296; $500 Deductible &middot; 6-Month / $1,000 Preliminary Deductible applies across every Salvage/Branded Title tier below.</div>
   <div class="toolbar">
@@ -197,7 +219,7 @@ tr.hidden{display:none}
 
 <div class="panel hidden" id="alumPanel">
   <div id="topBarAlum">
-    <h1>&#129693; Aluminum Class Guide</h1>
+    <h1>&#128737; Aluminum Class Guide</h1>
     <input type="text" class="guideName" id="guideNameAlum" value="Aluminum Guide 1">
     <div style="color:#888;font-size:11px">Same 3,212 vehicles &middot; Rate A / Rate B only &mdash; no tiers, one nationwide rate per vehicle</div>
   </div>
@@ -226,9 +248,9 @@ tr.hidden{display:none}
 
 <div class="panel hidden" id="alumsalPanel">
   <div id="topBarAlumSal">
-    <h1>&#129693; Salvage Aluminum Class Guide</h1>
+    <h1>&#128737; Aluminum Salvage Branded Class Guide</h1>
     <input type="text" class="guideName" id="guideNameAlumSal" value="Salvage Aluminum Guide 1">
-    <div style="color:#888;font-size:11px">Same 3,212 vehicles &middot; Alum AS / Alum BS &mdash; no tiers, one nationwide rate per vehicle</div>
+    <div style="color:#888;font-size:11px">Same 3,212 vehicles &middot; Alum AS / Alum BS &mdash; Salvage Branded rate card</div>
   </div>
   <div class="alum-banner">&#129693; Salvage / Branded Title Aluminum plan &middot; applies uniformly across all states &mdash; no tier variation.</div>
   <div class="toolbar">
@@ -255,7 +277,7 @@ tr.hidden{display:none}
 
 <div class="panel hidden" id="evPanel">
   <div id="topBarEv">
-    <h1>&#9889; Electric Vehicle Class Guide</h1>
+    <h1>&#128737; EV Class Guide</h1>
     <input type="text" class="guideName" id="guideNameEv" value="EV Guide 1">
     <div style="color:#888;font-size:11px">EV-only vehicles (class E0&ndash;E9) &middot; Rate A / Rate B only &mdash; no tiers, one nationwide rate per vehicle</div>
   </div>
@@ -284,7 +306,7 @@ tr.hidden{display:none}
 
 <div class="panel hidden" id="evsalPanel">
   <div id="topBarEvSal">
-    <h1>&#9889; Salvage EV Class Guide</h1>
+    <h1>&#128737; EV Salvage / Branded Class Guide</h1>
     <input type="text" class="guideName" id="guideNameEvSal" value="Salvage EV Guide 1">
     <div style="color:#888;font-size:11px">EV-only vehicles (class E0&ndash;E9) &middot; Rate AS / Rate BS only &mdash; no tiers, one nationwide rate per vehicle</div>
   </div>
@@ -313,7 +335,7 @@ tr.hidden{display:none}
 
 <div class="panel hidden" id="allPanel">
   <div id="topBarAll">
-    <h1>&#128204; All Combined Class Guide</h1>
+    <h1>&#128737; All Combined Class Guide</h1>
     <input type="text" class="guideName" id="guideNameAll" value="All Combined Guide 1">
     <div style="color:#888;font-size:11px">All 3,212 vehicles &middot; every Standard, Salvage, Aluminum, Salvage Aluminum, EV and Salvage EV column side by side &mdash; edits here are independent of the individual tabs</div>
   </div>
@@ -342,7 +364,7 @@ tr.hidden{display:none}
 
 <div class="panel hidden" id="flPanel">
   <div id="topBarFl">
-    <h1>&#127477; Florida Class Guide</h1>
+    <h1>&#128737; Florida Class Guide</h1>
     <input type="text" class="guideName" id="guideNameFl" value="Florida Guide 1">
     <div style="color:#888;font-size:11px">All 3,212 vehicles &middot; Florida has its own admin/coverage codes and files separately from Tiers 1&ndash;3, but uses the same underlying vehicle class &middot; Rate A / Rate B / Rate G, no tiers</div>
   </div>
@@ -371,7 +393,7 @@ tr.hidden{display:none}
 
 <div class="panel hidden" id="flsalPanel">
   <div id="topBarFlSal">
-    <h1>&#127477; Salvage Florida Class Guide</h1>
+    <h1>&#128737; Florida Salvage / Branded Class Guide</h1>
     <input type="text" class="guideName" id="guideNameFlSal" value="Salvage Florida Guide 1">
     <div style="color:#888;font-size:11px">All 3,212 vehicles &middot; Florida's Salvage/Branded Title filing &middot; Rate AS / Rate BS / Rate GS, no tiers</div>
   </div>
@@ -397,6 +419,120 @@ tr.hidden{display:none}
     <table id="gridTableFlSal"><colgroup><col class="c-desc"></colgroup></table>
   </div>
 </div><!-- end flsalPanel -->
+
+
+<div class="panel hidden" id="ridePanel">
+  <div id="topBarRide">
+    <h1>&#128737; RideShare Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameRide" value="RideShare Guide 1">
+    <div style="color:#888;font-size:11px">Same 3,212 vehicles &middot; Tier 1AR through Tier 3GR &mdash; RideShare rate card</div>
+  </div>
+  <div class="sal-banner" style="border-bottom-color:#00b0ff;background:#0a2a3e;color:#80d8ff">&#128737; RideShare rate card &middot; same tier structure as Standard, R-suffix columns.</div>
+  <div class="toolbar">
+    <input type="text" id="searchRide" placeholder="Search make/model (e.g. ACUR MDX, BMW 750)...">
+    <button class="btn blue" onclick="ridePanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileRide" style="display:none" accept=".xlsx,.csv"></label>
+    <label class="offonly-label"><input type="checkbox" id="offOnlyImportRide"> Only import Off values</label>
+    <button class="btn red" onclick="ridePanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnRide" onclick="ridePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countRide"></span>
+    <span id="editCountRide" style="color:#00b0ff;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Mirrors the matching Standard tier's class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this RideShare guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Tier/Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every tier on that row to Off</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapRide">
+    <table id="gridTableRide"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end ridePanel -->
+
+<div class="panel hidden" id="alumridePanel">
+  <div id="topBarAlumRide">
+    <h1>&#128737; Aluminum RideShare Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameAlumRide" value="Aluminum RideShare Guide 1">
+    <div style="color:#888;font-size:11px">Same 3,212 vehicles &middot; Alum AR / Alum BR &mdash; RideShare rate card</div>
+  </div>
+  <div class="alum-banner">&#128737; Aluminum RideShare plan &middot; applies uniformly across all states &mdash; no tier variation.</div>
+  <div class="toolbar">
+    <input type="text" id="searchAlumRide" placeholder="Search make/model...">
+    <button class="btn blue" onclick="alumridePanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileAlumRide" style="display:none" accept=".xlsx,.csv"></label>
+    <label class="offonly-label"><input type="checkbox" id="offOnlyImportAlumRide"> Only import Off values</label>
+    <button class="btn red" onclick="alumridePanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnAlumRide" onclick="alumridePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countAlumRide"></span>
+    <span id="editCountAlumRide" style="color:#00b0ff;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Mirrors the matching Aluminum rate (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off"</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapAlumRide">
+    <table id="gridTableAlumRide"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end alumridePanel -->
+
+<div class="panel hidden" id="evridePanel">
+  <div id="topBarEvRide">
+    <h1>&#128737; EV RideShare Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameEvRide" value="EV RideShare Guide 1">
+    <div style="color:#888;font-size:11px">EV-only vehicles &middot; Rate AR / Rate BR &mdash; RideShare rate card</div>
+  </div>
+  <div class="ev-banner">&#128737; EV RideShare plan &middot; applies uniformly across all states.</div>
+  <div class="toolbar">
+    <input type="text" id="searchEvRide" placeholder="Search make/model...">
+    <button class="btn blue" onclick="evridePanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileEvRide" style="display:none" accept=".xlsx,.csv"></label>
+    <label class="offonly-label"><input type="checkbox" id="offOnlyImportEvRide"> Only import Off values</label>
+    <button class="btn red" onclick="evridePanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnEvRide" onclick="evridePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countEvRide"></span>
+    <span id="editCountEvRide" style="color:#00b0ff;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Mirrors the matching EV rate (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off"</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapEvRide">
+    <table id="gridTableEvRide"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end evridePanel -->
+
+<div class="panel hidden" id="flridePanel">
+  <div id="topBarFlRide">
+    <h1>&#128737; Florida RideShare Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameFlRide" value="Florida RideShare Guide 1">
+    <div style="color:#888;font-size:11px">All 3,212 vehicles &middot; FL AR / FL BR / FL GR &mdash; Florida RideShare rate card</div>
+  </div>
+  <div class="fl-banner">&#128737; Florida RideShare filing &middot; FL AR / FL BR / FL GR.</div>
+  <div class="toolbar">
+    <input type="text" id="searchFlRide" placeholder="Search make/model...">
+    <button class="btn blue" onclick="flridePanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileFlRide" style="display:none" accept=".xlsx,.csv"></label>
+    <label class="offonly-label"><input type="checkbox" id="offOnlyImportFlRide"> Only import Off values</label>
+    <button class="btn red" onclick="flridePanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnFlRide" onclick="flridePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countFlRide"></span>
+    <span id="editCountFlRide" style="color:#00b0ff;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Mirrors FL rate (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off"</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapFlRide">
+    <table id="gridTableFlRide"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end flridePanel -->
 
 </div><!-- end app -->
 
@@ -434,27 +570,64 @@ const PANEL_REGISTRY = {};
 // Branded_from_Half.xlsx's "Diamond" sheet, merged against the current guide.
 const SALVAGE_OFF_SEED = {"7":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"8":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"12":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"13":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"14":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"15":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"18":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"19":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"20":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"21":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"32":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"33":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"34":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"35":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"36":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"37":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"88":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"89":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"90":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"91":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"92":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"93":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"94":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"95":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"96":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"197":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"198":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"199":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"200":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"201":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"202":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"203":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"219":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"220":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"221":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"222":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"227":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"228":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"229":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"250":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"251":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"252":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"253":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"254":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"255":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"259":["3BS","1GS","2GS","3GS"],"260":["3BS","1GS","2GS","3GS"],"261":["3BS","1GS","2GS","3GS"],"262":["3BS","1GS","2GS","3GS"],"325":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"326":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"327":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"328":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"329":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"330":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"332":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"333":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"334":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"335":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"336":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"337":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"338":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"339":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"340":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"341":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"342":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"343":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"344":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"345":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"346":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"347":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"348":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"349":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"350":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"351":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"352":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"353":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"354":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"355":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"356":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"357":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"358":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"379":["2GS","3GS"],"380":["2GS","3GS"],"381":["2GS","3GS"],"382":["2GS","3GS"],"383":["2BS","3BS","1GS","2GS","3GS"],"384":["2BS","3BS","1GS","2GS","3GS"],"385":["2BS","3BS","1GS","2GS","3GS"],"386":["2BS","3BS","1GS","2GS","3GS"],"430":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"434":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"435":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"436":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"437":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"438":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"439":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"440":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"441":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"442":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"443":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"444":["1BS","2BS","3BS","1GS","2GS","3GS"],"445":["1BS","2BS","3BS","1GS","2GS","3GS"],"446":["1BS","2BS","3BS","1GS","2GS","3GS"],"447":["1BS","2BS","3BS","1GS","2GS","3GS"],"448":["1BS","2BS","3BS","1GS","2GS","3GS"],"449":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"455":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"456":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"479":["3BS","3GS"],"480":["3BS","3GS"],"481":["3BS","3GS"],"482":["3BS","3GS"],"483":["3BS","3GS"],"493":["3BS","3GS"],"494":["3BS","3GS"],"495":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"496":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"497":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"498":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"499":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"500":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"501":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"502":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"503":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"504":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"506":["3BS","1GS","2GS","3GS"],"507":["3BS","1GS","2GS","3GS"],"508":["3BS","1GS","2GS","3GS"],"529":["3GS"],"530":["3GS"],"531":["3GS"],"532":["3GS"],"533":["3GS"],"534":["3GS"],"535":["3GS"],"536":["3GS"],"537":["3GS"],"552":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"553":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"554":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"555":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"556":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"557":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"571":["3GS"],"572":["3GS"],"573":["3GS"],"574":["3GS"],"575":["3GS"],"576":["3GS"],"577":["3GS"],"578":["3GS"],"579":["3GS"],"580":["3GS"],"581":["3GS"],"582":["3GS"],"585":["3AS","3BS","3GS"],"586":["3AS","3BS","3GS"],"587":["3AS","3BS","3GS"],"588":["3AS","3BS","3GS"],"589":["3AS","3BS","3GS"],"590":["3AS","3BS","3GS"],"591":["3AS","3BS","3GS"],"594":["3AS","3BS","3GS"],"663":["1BS","2BS","3BS","1GS","2GS","3GS"],"665":["1BS","2BS","3BS","1GS","2GS","3GS"],"666":["1BS","2BS","3BS","1GS","2GS","3GS"],"682":["1GS","2GS","3GS"],"683":["1GS","2GS","3GS"],"684":["1GS","2GS","3GS"],"685":["1GS","2GS","3GS"],"686":["1GS","2GS","3GS"],"687":["1GS","2GS","3GS"],"688":["1GS","2GS","3GS"],"689":["1GS","2GS","3GS"],"690":["1GS","2GS","3GS"],"691":["1GS","2GS","3GS"],"692":["1GS","2GS","3GS"],"693":["1GS","2GS","3GS"],"694":["1GS","2GS","3GS"],"696":["1GS","2GS","3GS"],"697":["1GS","2GS","3GS"],"698":["1GS","2GS","3GS"],"699":["1GS","2GS","3GS"],"700":["1GS","2GS","3GS"],"701":["1GS","2GS","3GS"],"702":["1GS","2GS","3GS"],"703":["1GS","2GS","3GS"],"704":["1GS","2GS","3GS"],"705":["1GS","2GS","3GS"],"706":["1GS","2GS","3GS"],"707":["1GS","2GS","3GS"],"708":["1GS","2GS","3GS"],"710":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"711":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"729":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"730":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"731":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"732":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"733":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"734":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"735":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"736":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"737":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"743":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"744":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"745":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"746":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"747":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"748":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"764":["3BS"],"765":["3BS"],"766":["3BS"],"780":["1BS","2BS","3BS","1GS","2GS","3GS"],"781":["1BS","2BS","3BS","1GS","2GS","3GS"],"795":["2AS","3AS","2BS","3BS","2GS","3GS"],"796":["2AS","3AS","2BS","3BS","2GS","3GS"],"797":["2AS","3AS","2BS","3BS","2GS","3GS"],"804":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"805":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"806":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"819":["1BS","2BS","3BS","1GS","2GS","3GS"],"820":["1BS","2BS","3BS","1GS","2GS","3GS"],"821":["1BS","2BS","3BS","1GS","2GS","3GS"],"822":["1BS","2BS","3BS","1GS","2GS","3GS"],"823":["1BS","2BS","3BS","1GS","2GS","3GS"],"824":["1BS","2BS","3BS","1GS","2GS","3GS"],"825":["1BS","2BS","3BS","1GS","2GS","3GS"],"826":["1BS","2BS","3BS","1GS","2GS","3GS"],"827":["1BS","2BS","3BS","1GS","2GS","3GS"],"828":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"829":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"830":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"831":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"832":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"833":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"834":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"835":["1BS","2BS","3BS"],"836":["1BS","2BS","3BS"],"838":["1BS","2BS","3BS"],"839":["1BS","2BS","3BS"],"850":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"851":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"852":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"854":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"855":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"856":["2BS","3BS"],"857":["2BS","3BS"],"858":["2BS","3BS"],"859":["2BS","3BS"],"860":["2BS","3BS"],"868":["3BS","3GS"],"869":["3BS","3GS"],"870":["3BS","3GS"],"871":["3BS","3GS"],"881":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"882":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"883":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"884":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"885":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"886":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"887":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"888":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"889":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"890":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"891":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"892":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"893":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"944":["3BS","3GS"],"945":["3BS","3GS"],"1006":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1007":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1008":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1009":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1010":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1011":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1012":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1013":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1014":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1015":["3BS","1GS","2GS","3GS"],"1016":["3BS","1GS","2GS","3GS"],"1017":["3BS","1GS","2GS","3GS"],"1018":["3BS","1GS","2GS","3GS"],"1019":["3BS","1GS","2GS","3GS"],"1020":["3BS","1GS","2GS","3GS"],"1021":["3BS","1GS","2GS","3GS"],"1022":["3BS","1GS","2GS","3GS"],"1023":["3BS","1GS","2GS","3GS"],"1024":["3BS","1GS","2GS","3GS"],"1025":["3AS","2BS","3BS","1GS","2GS","3GS"],"1026":["3AS","2BS","3BS","1GS","2GS","3GS"],"1027":["3AS","2BS","3BS","1GS","2GS","3GS"],"1028":["3AS","2BS","3BS","1GS","2GS","3GS"],"1029":["3AS","2BS","3BS","1GS","2GS","3GS"],"1030":["3AS","2BS","3BS","1GS","2GS","3GS"],"1031":["3AS","2BS","3BS","1GS","2GS","3GS"],"1032":["3AS","2BS","3BS","1GS","2GS","3GS"],"1033":["3AS","2BS","3BS","1GS","2GS","3GS"],"1034":["3AS","2BS","3BS","1GS","2GS","3GS"],"1035":["3AS","2BS","3BS","1GS","2GS","3GS"],"1036":["3AS","2BS","3BS","1GS","2GS","3GS"],"1037":["3AS","2BS","3BS","1GS","2GS","3GS"],"1038":["3AS","2BS","3BS","1GS","2GS","3GS"],"1039":["3AS","2BS","3BS","1GS","2GS","3GS"],"1040":["3AS","2BS","3BS","1GS","2GS","3GS"],"1041":["3AS","2BS","3BS","1GS","2GS","3GS"],"1042":["3AS","2BS","3BS","1GS","2GS","3GS"],"1043":["3AS","2BS","3BS","1GS","2GS","3GS"],"1044":["3AS","2BS","3BS","1GS","2GS","3GS"],"1045":["3AS","2BS","3BS","1GS","2GS","3GS"],"1046":["3AS","2BS","3BS","1GS","2GS","3GS"],"1047":["3AS","2BS","3BS","1GS","2GS","3GS"],"1048":["3AS","2BS","3BS","1GS","2GS","3GS"],"1049":["2BS","3BS","2GS","3GS"],"1050":["2BS","3BS","2GS","3GS"],"1051":["2BS","3BS","2GS","3GS"],"1052":["2BS","3BS","2GS","3GS"],"1053":["2BS","3BS","2GS","3GS"],"1054":["2BS","3BS","2GS","3GS"],"1055":["2BS","3BS","2GS","3GS"],"1056":["2BS","3BS","2GS","3GS"],"1057":["2BS","3BS","2GS","3GS"],"1058":["2BS","3BS","2GS","3GS"],"1059":["2BS","3BS","2GS","3GS"],"1060":["1BS","2BS","3BS","1GS","2GS","3GS"],"1061":["1BS","2BS","3BS","1GS","2GS","3GS"],"1062":["1BS","2BS","3BS","1GS","2GS","3GS"],"1063":["1BS","2BS","3BS","1GS","2GS","3GS"],"1064":["1BS","2BS","3BS","1GS","2GS","3GS"],"1065":["1BS","2BS","3BS","1GS","2GS","3GS"],"1066":["1BS","2BS","3BS","1GS","2GS","3GS"],"1067":["1BS","2BS","3BS","1GS","2GS","3GS"],"1081":["3BS","3GS"],"1082":["3BS","3GS"],"1083":["3BS","3GS"],"1084":["3BS","3GS"],"1085":["3BS","3GS"],"1086":["3BS","3GS"],"1090":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1091":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1109":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1110":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1111":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1112":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1113":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1116":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1119":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1120":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1160":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1161":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1162":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1163":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1164":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1165":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1166":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1297":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1298":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1299":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1300":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1301":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1302":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1303":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1304":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1305":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1306":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1307":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1308":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1309":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1310":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1311":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1312":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1313":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1314":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1315":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1316":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1317":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1318":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1319":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1320":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1321":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1322":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1323":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1324":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1325":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1326":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1327":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1328":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1329":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1330":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1331":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1332":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1333":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1334":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1335":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1336":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1337":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1338":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1339":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1340":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1341":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1342":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1344":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1346":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1347":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1348":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1400":["3BS","1GS","2GS","3GS"],"1401":["3BS","1GS","2GS","3GS"],"1402":["3BS","1GS","2GS","3GS"],"1403":["3BS","1GS","2GS","3GS"],"1405":["3BS","1GS","2GS","3GS"],"1432":["3BS","3GS"],"1433":["3BS","3GS"],"1472":["3BS","3GS"],"1473":["3BS","3GS"],"1474":["3BS","3GS"],"1475":["3BS","3GS"],"1476":["3BS","3GS"],"1479":["1BS","2BS","3BS","1GS","2GS","3GS"],"1480":["1BS","2BS","3BS","1GS","2GS","3GS"],"1495":["1GS","2GS","3GS"],"1497":["1GS","2GS","3GS"],"1498":["1GS","2GS","3GS"],"1499":["1GS","2GS","3GS"],"1502":["3BS","3GS"],"1503":["3BS","3GS"],"1504":["3BS","3GS"],"1505":["3BS","3GS"],"1506":["3BS","3GS"],"1507":["3BS","3GS"],"1508":["3BS","3GS"],"1509":["3BS","3GS"],"1533":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1534":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1552":["3BS","1GS","2GS","3GS"],"1553":["3BS","1GS","2GS","3GS"],"1554":["3BS","1GS","2GS","3GS"],"1555":["3BS","1GS","2GS","3GS"],"1556":["3BS","1GS","2GS","3GS"],"1557":["3BS","1GS","2GS","3GS"],"1558":["3BS","1GS","2GS","3GS"],"1559":["3BS","1GS","2GS","3GS"],"1586":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1587":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1588":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1589":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1590":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1591":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1686":["3GS"],"1687":["3GS"],"1689":["3GS"],"1690":["3GS"],"1691":["3GS"],"1692":["3GS"],"1697":["3GS"],"1698":["3GS"],"1699":["3GS"],"1700":["3GS"],"1704":["2BS","1GS","2GS","3GS"],"1707":["2BS","1GS","2GS","3GS"],"1708":["2BS","1GS","2GS","3GS"],"1709":["2BS","1GS","2GS","3GS"],"1710":["2BS","1GS","2GS","3GS"],"1711":["2BS","1GS","2GS","3GS"],"1712":["2BS","1GS","2GS","3GS"],"1713":["2BS","1GS","2GS","3GS"],"1714":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1715":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1716":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1717":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1718":["3AS","3BS","3GS"],"1719":["3AS","3BS","3GS"],"1720":["3AS","3BS","3GS"],"1721":["3AS","3BS","3GS"],"1722":["3AS","3BS","3GS"],"1726":["3BS","3GS"],"1727":["3BS","3GS"],"1728":["3BS","3GS"],"1729":["3BS","3GS"],"1730":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1731":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1732":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1733":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1734":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1750":["3AS","3BS","1GS","2GS","3GS"],"1774":["3GS"],"1809":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1810":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1823":["1BS","2BS","3BS","1GS","2GS","3GS"],"1824":["1BS","2BS","3BS","1GS","2GS","3GS"],"1825":["1BS","2BS","3BS","1GS","2GS","3GS"],"1826":["1BS","2BS","3BS","1GS","2GS","3GS"],"1827":["1BS","2BS","3BS","1GS","2GS","3GS"],"1828":["1BS","2BS","3BS","1GS","2GS","3GS"],"1829":["1BS","2BS","3BS","1GS","2GS","3GS"],"1830":["1BS","2BS","3BS","1GS","2GS","3GS"],"1831":["1BS","2BS","3BS","1GS","2GS","3GS"],"1832":["1BS","2BS","3BS","1GS","2GS","3GS"],"1841":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1842":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1843":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1855":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1856":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1857":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1858":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1894":["3BS","3GS"],"1895":["3BS","3GS"],"1938":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1939":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1950":["1BS","2BS","3BS","1GS","2GS","3GS"],"1951":["1BS","2BS","3BS","1GS","2GS","3GS"],"1952":["1BS","2BS","3BS","1GS","2GS","3GS"],"1953":["1BS","2BS","3BS","1GS","2GS","3GS"],"1954":["3BS","3GS"],"1955":["3BS","3GS"],"1956":["3BS","3GS"],"1957":["3BS","3GS"],"1958":["3BS","3GS"],"1959":["3BS","3GS"],"1960":["3BS","3GS"],"1962":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1963":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1964":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1965":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1988":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1997":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1998":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"1999":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2000":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2001":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2002":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2056":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2057":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2058":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2059":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2225":["2BS","3BS","3GS"],"2226":["2BS","3BS","3GS"],"2227":["2BS","3BS","3GS"],"2228":["2BS","3BS","3GS"],"2229":["2BS","3BS","3GS"],"2230":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2231":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2232":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2280":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2281":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2282":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2328":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2329":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2330":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2331":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2332":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2333":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2334":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2335":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2486":["3BS","3GS"],"2487":["3BS","3GS"],"2488":["3BS","3GS"],"2491":["3BS","3GS"],"2492":["3BS","3GS"],"2515":["3GS"],"2516":["3GS"],"2517":["3GS"],"2518":["3GS"],"2519":["3GS"],"2581":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2582":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2583":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2584":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2589":["3BS","3GS"],"2699":["1GS","2GS","3GS"],"2700":["1GS","2GS","3GS"],"2701":["1GS","2GS","3GS"],"2702":["1GS","2GS","3GS"],"2703":["1GS","2GS","3GS"],"2704":["1GS","2GS","3GS"],"2705":["1GS","2GS","3GS"],"2706":["1GS","2GS","3GS"],"2707":["1GS","2GS","3GS"],"2712":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2713":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2714":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2715":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2716":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2730":["3BS","3GS"],"2731":["3BS","3GS"],"2732":["3BS","3GS"],"2733":["3BS","3GS"],"2736":["3BS","3GS"],"2737":["3BS","3GS"],"2738":["3BS","3GS"],"2753":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2754":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2755":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2756":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2757":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2758":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2759":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2760":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2838":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2847":["3BS","3GS"],"2848":["3BS","3GS"],"2849":["3BS","3GS"],"2914":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2915":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2919":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2920":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2921":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2922":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2934":["3BS","3GS"],"2935":["3BS","3GS"],"2936":["3BS","3GS"],"2937":["3BS","3GS"],"2939":["3BS","3GS"],"2997":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2998":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"2999":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"3000":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"3001":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"3002":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"3003":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"3004":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"3057":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"3058":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"3059":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"3060":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"3066":["1AS","2AS","3AS","1BS","2BS","3BS","1GS","2GS","3GS"],"3073":["2BS","3BS"],"3074":["2BS","3BS"],"3075":["2BS","3BS"],"3076":["2BS","3BS"],"3077":["2BS","3BS"],"3078":["2BS","3BS"],"3107":["1GS","2GS","3GS"],"3108":["1GS","2GS","3GS"],"3109":["1GS","2GS","3GS"],"3110":["1GS","2GS","3GS"]};
 
-// Registry of every product tab: panelId/tabId/activeClass drive the DOM toggle,
-// getObj lazily returns that tab's makePanel() instance (built on first visit).
-const PRODUCT_TABS = {
-  std:     { panelId: 'stdPanel',     tabId: 'stdProductTab',     activeClass: 'std-active',     getObj: () => stdPanelObj },
-  sal:     { panelId: 'salPanel',     tabId: 'salProductTab',     activeClass: 'sal-active',     getObj: () => salPanelObj },
-  alum:    { panelId: 'alumPanel',    tabId: 'alumProductTab',    activeClass: 'alum-active',    getObj: () => alumPanelObj },
-  alumsal: { panelId: 'alumsalPanel', tabId: 'alumsalProductTab', activeClass: 'alumsal-active', getObj: () => alumsalPanelObj },
-  ev:      { panelId: 'evPanel',      tabId: 'evProductTab',      activeClass: 'ev-active',      getObj: () => evPanelObj },
-  evsal:   { panelId: 'evsalPanel',   tabId: 'evsalProductTab',   activeClass: 'evsal-active',   getObj: () => evsalPanelObj },
-  all:     { panelId: 'allPanel',     tabId: 'allProductTab',     activeClass: 'all-active',     getObj: () => allPanelObj },
-  fl:      { panelId: 'flPanel',      tabId: 'flProductTab',      activeClass: 'fl-active',      getObj: () => flPanelObj },
-  flsal:   { panelId: 'flsalPanel',   tabId: 'flsalProductTab',   activeClass: 'flsal-active',   getObj: () => flsalPanelObj },
+// Dropdown-driven navigation: plan × card → panel key
+// Diamond/Platinum/Gold Select/Silver all map to the same tiered panels
+const PLAN_CARD_MAP = {
+  // plan → { card → panelKey }
+  diamond:    { std: 'std', sal: 'sal', ride: 'ride' },
+  platinum:   { std: 'std', sal: 'sal', ride: 'ride' },
+  goldselect: { std: 'std', sal: 'sal', ride: 'ride' },
+  silver:     { std: 'std', sal: 'sal', ride: 'ride' },
+  alum:       { std: 'alum', sal: 'alumsal', ride: 'alumride' },
+  ev:         { std: 'ev', sal: 'evsal', ride: 'evride' },
+  fl:         { std: 'fl', sal: 'flsal', ride: 'flride' },
 };
+
+const PLAN_LABELS = {
+  diamond: 'Diamond', platinum: 'Platinum', goldselect: 'Gold Select', silver: 'Silver',
+  alum: 'Aluminum', ev: 'EV', fl: 'Florida'
+};
+
+const CARD_LABELS = { std: 'Standard', sal: 'Salvage / Branded', ride: 'RideShare' };
+
+const PRODUCT_TABS = {
+  std:       { panelId: 'stdPanel',       getObj: () => stdPanelObj },
+  sal:       { panelId: 'salPanel',       getObj: () => salPanelObj },
+  ride:      { panelId: 'ridePanel',      getObj: () => ridePanelObj },
+  alum:      { panelId: 'alumPanel',      getObj: () => alumPanelObj },
+  alumsal:   { panelId: 'alumsalPanel',   getObj: () => alumsalPanelObj },
+  alumride:  { panelId: 'alumridePanel',  getObj: () => alumridePanelObj },
+  ev:        { panelId: 'evPanel',        getObj: () => evPanelObj },
+  evsal:     { panelId: 'evsalPanel',     getObj: () => evsalPanelObj },
+  evride:    { panelId: 'evridePanel',    getObj: () => evridePanelObj },
+  all:       { panelId: 'allPanel',       getObj: () => allPanelObj },
+  fl:        { panelId: 'flPanel',        getObj: () => flPanelObj },
+  flsal:     { panelId: 'flsalPanel',     getObj: () => flsalPanelObj },
+  flride:    { panelId: 'flridePanel',    getObj: () => flridePanelObj },
+};
+
+let currentPanelKey = 'std';
+
+function onDropdownChange(){
+  const plan = document.getElementById('planSelect').value;
+  const card = document.getElementById('cardSelect').value;
+  const key = PLAN_CARD_MAP[plan][card];
+  switchProduct(key);
+  // auto-set guide name
+  const tab = PRODUCT_TABS[key];
+  const gnEl = document.getElementById(tab.panelId).querySelector('.guideName');
+  if (gnEl && !gnEl.dataset.userEdited) {
+    gnEl.value = PLAN_LABELS[plan] + ' ' + CARD_LABELS[card] + ' Guide 1';
+  }
+}
 
 function switchProduct(which){
   Object.keys(PRODUCT_TABS).forEach(key => {
     const t = PRODUCT_TABS[key];
     document.getElementById(t.panelId).classList.toggle('hidden', which!==key);
-    document.getElementById(t.tabId).classList.toggle(t.activeClass, which===key);
   });
   PRODUCT_TABS[which].getObj().ensureBuilt();
+  currentPanelKey = which;
 }
 
 // A "panel" is one editable class-guide grid (vehicle desc on the left, N tier
@@ -1022,15 +1195,17 @@ document.addEventListener('change', function(e){
 });
 
 const stdPanelObj = makePanel({
-  panelLabel: 'Standard (A/B/G)',
-  trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })(), // Rate-major order: 1A,2A,3A,1B,2B,3B,1G,2G,3G
+  panelLabel: 'Standard',
+  trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })(),
+  colHeaderLabel: trKey => 'Tier ' + trKey,
   ids: { table:'gridTable', tbody:'tbodyEl', count:'count', editCount:'editCount', guideName:'guideName', search:'search', importFile:'importFile', editedFilterBtn:'editedFilterBtn', gridWrap:'gridWrap', offOnlyImport:'offOnlyImport' },
   mirrorFrom: null
 });
 
 const salPanelObj = makePanel({
-  panelLabel: 'Salvage / Branded Title (S)',
-  trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'S'))); return a; })(), // Rate-major order: 1AS,2AS,3AS,1BS,2BS,3BS,1GS,2GS,3GS
+  panelLabel: 'Salvage / Branded',
+  trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'S'))); return a; })(),
+  colHeaderLabel: trKey => 'Tier ' + trKey,
   ids: { table:'gridTableSal', tbody:'tbodyElSal', count:'countSal', editCount:'editCountSal', guideName:'guideNameSal', search:'searchSal', importFile:'importFileSal', editedFilterBtn:'editedFilterBtnSal', gridWrap:'gridWrapSal', offOnlyImport:'offOnlyImportSal' },
   mirrorFrom: 'std',
   seedOverrides: SALVAGE_OFF_SEED,
@@ -1053,11 +1228,31 @@ const alumPanelObj = makePanel({
 });
 
 const alumsalPanelObj = makePanel({
-  panelLabel: 'Salvage Aluminum (AS/BS)',
+  panelLabel: 'Aluminum Salvage Branded',
   trKeys: NO_TIER_RATE_LIST.map(r => r+'S'), // 2 rates (AS/BS) — Aluminum has no G rate, so its Salvage counterpart doesn't either
   colHeaderLabel: trKey => 'Alum ' + trKey, // literally "Alum AS" etc — matches the real import file's own headers
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-alumsal' : 'rb-alumsal'),
   ids: { table:'gridTableAlumSal', tbody:'tbodyElAlumSal', count:'countAlumSal', editCount:'editCountAlumSal', guideName:'guideNameAlumSal', search:'searchAlumSal', importFile:'importFileAlumSal', editedFilterBtn:'editedFilterBtnAlumSal', gridWrap:'gridWrapAlumSal', offOnlyImport:'offOnlyImportAlumSal' },
+  mirrorFrom: 'alum',
+  lazy: true
+});
+
+const ridePanelObj = makePanel({
+  panelLabel: 'RideShare',
+  trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'R'))); return a; })(),
+  colHeaderLabel: trKey => 'Tier ' + trKey,
+  colHeaderClass: trKey => (trKey.includes('A') ? 'ra-ride' : trKey.includes('B') ? 'rb-ride' : 'rg-ride'),
+  ids: { table:'gridTableRide', tbody:'tbodyElRide', count:'countRide', editCount:'editCountRide', guideName:'guideNameRide', search:'searchRide', importFile:'importFileRide', editedFilterBtn:'editedFilterBtnRide', gridWrap:'gridWrapRide', offOnlyImport:'offOnlyImportRide' },
+  mirrorFrom: 'std',
+  lazy: true
+});
+
+const alumridePanelObj = makePanel({
+  panelLabel: 'Aluminum RideShare',
+  trKeys: NO_TIER_RATE_LIST.map(r => r+'R'),
+  colHeaderLabel: trKey => 'Alum ' + trKey,
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-alumride' : 'rb-alumride'),
+  ids: { table:'gridTableAlumRide', tbody:'tbodyElAlumRide', count:'countAlumRide', editCount:'editCountAlumRide', guideName:'guideNameAlumRide', search:'searchAlumRide', importFile:'importFileAlumRide', editedFilterBtn:'editedFilterBtnAlumRide', gridWrap:'gridWrapAlumRide', offOnlyImport:'offOnlyImportAlumRide' },
   mirrorFrom: 'alum',
   lazy: true
 });
@@ -1074,7 +1269,7 @@ const evPanelObj = makePanel({
 });
 
 const evsalPanelObj = makePanel({
-  panelLabel: 'Salvage EV (AS/BS)',
+  panelLabel: 'EV Salvage / Branded',
   trKeys: NO_TIER_RATE_LIST.map(r => r+'S'),
   colHeaderLabel: trKey => 'Rate ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-evsal' : 'rb-evsal'),
@@ -1098,11 +1293,21 @@ const flPanelObj = makePanel({
 });
 
 const flsalPanelObj = makePanel({
-  panelLabel: 'Salvage Florida (AS/BS/GS)',
+  panelLabel: 'Florida Salvage / Branded',
   trKeys: RATE_LIST.map(r => r+'S'),
   colHeaderLabel: trKey => 'FL ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flsal' : trKey[0]==='B' ? 'rb-flsal' : 'rg-flsal'),
   ids: { table:'gridTableFlSal', tbody:'tbodyElFlSal', count:'countFlSal', editCount:'editCountFlSal', guideName:'guideNameFlSal', search:'searchFlSal', importFile:'importFileFlSal', editedFilterBtn:'editedFilterBtnFlSal', gridWrap:'gridWrapFlSal', offOnlyImport:'offOnlyImportFlSal' },
+  mirrorFrom: 'fl',
+  lazy: true
+});
+
+const flridePanelObj = makePanel({
+  panelLabel: 'Florida RideShare',
+  trKeys: RATE_LIST.map(r => r+'R'),
+  colHeaderLabel: trKey => 'FL ' + trKey,
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flride' : trKey[0]==='B' ? 'rb-flride' : 'rg-flride'),
+  ids: { table:'gridTableFlRide', tbody:'tbodyElFlRide', count:'countFlRide', editCount:'editCountFlRide', guideName:'guideNameFlRide', search:'searchFlRide', importFile:'importFileFlRide', editedFilterBtn:'editedFilterBtnFlRide', gridWrap:'gridWrapFlRide', offOnlyImport:'offOnlyImportFlRide' },
   mirrorFrom: 'fl',
   lazy: true
 });
@@ -1113,14 +1318,18 @@ const flsalPanelObj = makePanel({
 // "AS"/"BS" keys — without the prefix their overrides would collide with each
 // other once merged into one panel's storage.
 const ALL_GROUPS = [
-  { prefix: 'STD',     label: 'Std',   keys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })() },
-  { prefix: 'SAL',     label: 'Sal',   keys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'S'))); return a; })() },
-  { prefix: 'ALUM',    label: 'Alum',  keys: NO_TIER_RATE_LIST.slice() },
-  { prefix: 'ALUMSAL', label: 'AlumS', keys: NO_TIER_RATE_LIST.map(r => r+'S') },
-  { prefix: 'EV',      label: 'EV',    keys: NO_TIER_RATE_LIST.slice() },
-  { prefix: 'EVSAL',   label: 'EVS',   keys: NO_TIER_RATE_LIST.map(r => r+'S') },
-  { prefix: 'FL',      label: 'FL',    keys: RATE_LIST.slice() },
-  { prefix: 'FLSAL',   label: 'FLS',   keys: RATE_LIST.map(r => r+'S') },
+  { prefix: 'STD',      label: 'Std',      keys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })() },
+  { prefix: 'SAL',      label: 'Sal',      keys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'S'))); return a; })() },
+  { prefix: 'RIDE',     label: 'Ride',     keys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'R'))); return a; })() },
+  { prefix: 'ALUM',     label: 'Alum',     keys: NO_TIER_RATE_LIST.slice() },
+  { prefix: 'ALUMSAL',  label: 'AlumS',    keys: NO_TIER_RATE_LIST.map(r => r+'S') },
+  { prefix: 'ALUMRIDE', label: 'AlumR',    keys: NO_TIER_RATE_LIST.map(r => r+'R') },
+  { prefix: 'EV',       label: 'EV',       keys: NO_TIER_RATE_LIST.slice() },
+  { prefix: 'EVSAL',    label: 'EVS',      keys: NO_TIER_RATE_LIST.map(r => r+'S') },
+  { prefix: 'EVRIDE',   label: 'EVR',      keys: NO_TIER_RATE_LIST.map(r => r+'R') },
+  { prefix: 'FL',       label: 'FL',       keys: RATE_LIST.slice() },
+  { prefix: 'FLSAL',    label: 'FLS',      keys: RATE_LIST.map(r => r+'S') },
+  { prefix: 'FLRIDE',   label: 'FLR',      keys: RATE_LIST.map(r => r+'R') },
 ];
 const allTrKeys = [];
 ALL_GROUPS.forEach(g => g.keys.forEach(k => allTrKeys.push(g.prefix + ':' + k)));
