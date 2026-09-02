@@ -1106,6 +1106,11 @@ function makePanel(opts){
     // "Tier 1AS", Aluminum wants "Rate A"). A file for a different tab simply has
     // none of these, so it can't bleed edits into a tab it wasn't meant for.
     const expectedLabels = trKeys.map(trKey => colHeaderLabel(trKey));
+    // Files exported before the 09/02/26 code rename used "Rate A" / "Rate AS" for
+    // Aluminum and EV. Still accept those so older exports keep importing; the
+    // panelLabel stamp checked above is what tells Aluminum and EV apart.
+    (opts.legacyColHeaderLabel ? trKeys.map(trKey => opts.legacyColHeaderLabel(trKey)) : [])
+      .forEach(l => { if (!expectedLabels.includes(l)) expectedLabels.push(l); });
 
     let headerIdx = -1, descCol = -1, myCol = -1;
     // Preferred: this tool's own canonical export layout — a "Description" column
@@ -1431,10 +1436,11 @@ const isEvVehicle = v => v.conf === 'ev'; // classes E0–E9, per how EVs are id
 const alumPanelObj = makePanel({
   panelLabel: 'Aluminum (A/B)',
   trKeys: NO_TIER_RATE_LIST.slice(),
-  colHeaderLabel: trKey => 'Rate ' + trKey,
+  colHeaderLabel: trKey => 'Alum ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-alum' : 'rb-alum'),
   ids: { table:'gridTableAlum', tbody:'tbodyElAlum', count:'countAlum', editCount:'editCountAlum', guideName:'guideNameAlum', search:'searchAlum', importFile:'importFileAlum', editedFilterBtn:'editedFilterBtnAlum', gridWrap:'gridWrapAlum', offOnlyImport:'offOnlyImportAlum' },
   mirrorFrom: null,
+  legacyColHeaderLabel: trKey => 'Rate ' + trKey,
   lazy: true
 });
 
@@ -1472,23 +1478,25 @@ const alumridePanelObj = makePanel({
 const evPanelObj = makePanel({
   panelLabel: 'Electric Vehicles (A/B)',
   trKeys: NO_TIER_RATE_LIST.slice(),
-  colHeaderLabel: trKey => 'Rate ' + trKey,
+  colHeaderLabel: trKey => 'EV ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-ev' : 'rb-ev'),
   vehicleFilter: isEvVehicle,
   ids: { table:'gridTableEv', tbody:'tbodyElEv', count:'countEv', editCount:'editCountEv', guideName:'guideNameEv', search:'searchEv', importFile:'importFileEv', editedFilterBtn:'editedFilterBtnEv', gridWrap:'gridWrapEv', offOnlyImport:'offOnlyImportEv' },
   mirrorFrom: null,
+  legacyColHeaderLabel: trKey => 'Rate ' + trKey,
   lazy: true
 });
 
 const evsalPanelObj = makePanel({
   panelLabel: 'Salvage EV (AS/BS)',
   trKeys: NO_TIER_RATE_LIST.map(r => r+'S'),
-  colHeaderLabel: trKey => 'Rate ' + trKey,
+  colHeaderLabel: trKey => 'EV ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-evsal' : 'rb-evsal'),
   vehicleFilter: isEvVehicle,
   ids: { table:'gridTableEvSal', tbody:'tbodyElEvSal', count:'countEvSal', editCount:'editCountEvSal', guideName:'guideNameEvSal', search:'searchEvSal', importFile:'importFileEvSal', editedFilterBtn:'editedFilterBtnEvSal', gridWrap:'gridWrapEvSal', offOnlyImport:'offOnlyImportEvSal' },
   mirrorFrom: 'ev',
   installedOff: INSTALLED_EV_SAL,
+  legacyColHeaderLabel: trKey => 'Rate ' + trKey,
   lazy: true
 });
 
@@ -1498,11 +1506,12 @@ const evsalPanelObj = makePanel({
 const evridePanelObj = makePanel({
   panelLabel: 'EV RideShare',
   trKeys: NO_TIER_RATE_LIST.map(r => r+'R'),
-  colHeaderLabel: trKey => 'Rate ' + trKey,
+  colHeaderLabel: trKey => 'EV ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-evride' : 'rb-evride'),
   vehicleFilter: isEvVehicle,
   ids: { table:'gridTableEvRide', tbody:'tbodyElEvRide', count:'countEvRide', editCount:'editCountEvRide', guideName:'guideNameEvRide', search:'searchEvRide', importFile:'importFileEvRide', editedFilterBtn:'editedFilterBtnEvRide', gridWrap:'gridWrapEvRide', offOnlyImport:'offOnlyImportEvRide' },
   mirrorFrom: 'ev',
+  legacyColHeaderLabel: trKey => 'Rate ' + trKey,
   lazy: true
 });
 
@@ -1552,12 +1561,12 @@ const ALL_GROUPS = [
   { prefix: 'GOLDSELECTSAL', band: 'Gold Select Salvage / Branded', hdr: 'Tier ', keys: TIER9('S') },
   { prefix: 'SILVERSAL',     band: 'Silver Salvage / Branded',    hdr: 'Tier ', keys: TIER9('S') },
   { prefix: 'RIDE',          band: 'RideShare',                   hdr: 'Tier ', keys: TIER9('R') },
-  { prefix: 'ALUM',          band: 'Aluminum',                    hdr: 'Rate ', keys: NO_TIER_RATE_LIST.slice() },
+  { prefix: 'ALUM',          band: 'Aluminum',                    hdr: 'Alum ', keys: NO_TIER_RATE_LIST.slice() },
   { prefix: 'ALUMSAL',       band: 'Aluminum Salvage Branded',    hdr: 'Alum ', keys: NO_TIER_RATE_LIST.map(r => r+'S') },
   { prefix: 'ALUMRIDE',      band: 'Aluminum RideShare',          hdr: 'Alum ', keys: NO_TIER_RATE_LIST.map(r => r+'R') },
-  { prefix: 'EV',            band: 'EV',                          hdr: 'Rate ', keys: NO_TIER_RATE_LIST.slice() },
-  { prefix: 'EVSAL',         band: 'EV Salvage / Branded',        hdr: 'Rate ', keys: NO_TIER_RATE_LIST.map(r => r+'S') },
-  { prefix: 'EVRIDE',        band: 'EV RideShare',                hdr: 'Rate ', keys: NO_TIER_RATE_LIST.map(r => r+'R') },
+  { prefix: 'EV',            band: 'EV',                          hdr: 'EV ',   keys: NO_TIER_RATE_LIST.slice() },
+  { prefix: 'EVSAL',         band: 'EV Salvage / Branded',        hdr: 'EV ',   keys: NO_TIER_RATE_LIST.map(r => r+'S') },
+  { prefix: 'EVRIDE',        band: 'EV RideShare',                hdr: 'EV ',   keys: NO_TIER_RATE_LIST.map(r => r+'R') },
   { prefix: 'FL',            band: 'Florida',                     hdr: 'FL ',   keys: RATE_LIST.slice() },
   { prefix: 'FLSAL',         band: 'Florida Salvage / Branded',   hdr: 'FL ',   keys: RATE_LIST.map(r => r+'S') },
   { prefix: 'FLRIDE',        band: 'Florida RideShare',           hdr: 'FL ',   keys: RATE_LIST.map(r => r+'R') },
