@@ -497,9 +497,9 @@ td.edited .mileageDisplay{color:#8a6d00;font-weight:800}
   <div id="topBarAll">
     <h1>&#128204; All Combined Class Guide</h1>
     <input type="text" class="guideName" id="guideNameAll" value="All Combined Guide 1">
-    <div style="color:#888;font-size:11px">All 3,212 vehicles &middot; every guide side by side, one column set each &mdash; column names match the Excel sheets; edits here are independent of the individual tabs</div>
+    <div style="color:#888;font-size:11px">All 3,212 vehicles &middot; every guide side by side, one column set each &mdash; column names match the Excel sheets; this view is read-only and always mirrors what's currently on each guide's own tab</div>
   </div>
-  <div class="all-banner">&#128204; Combined view for reference/bulk editing &middot; columns run Diamond, Platinum, Gold Select, Silver, Aluminum, EV &mdash; each with its own Standard, Branded and RideShare, then the Florida equivalents. The top header row names the guide; the row beneath gives its exact Excel column name. Diamond, Platinum, Gold Select and Silver are still filed from one shared Standard guide, so those four Standard column sets read alike — an edit to one here does not carry to the others.</div>
+  <div class="all-banner">&#128204; Live, read-only view &middot; columns run Diamond, Platinum, Gold Select, Silver, Aluminum, EV &mdash; each with its own Standard, Branded and RideShare, then the Florida equivalents. The top header row names the guide; the row beneath gives its exact Excel column name. Diamond, Platinum, Gold Select and Silver share one Standard guide and one Florida Standard guide, so those four Standard/FL-Standard column sets always read alike &mdash; edit any one of those guide's own tab and all four update here together. Every cell here reflects that tab's live state (including edits, shown in yellow) &mdash; make changes on the individual tabs, not here.</div>
   <div class="toolbar">
     <input type="text" id="searchAll" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
     <button class="btn blue" onclick="allPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
@@ -549,9 +549,9 @@ td.edited .mileageDisplay{color:#8a6d00;font-weight:800}
   <div class="legbar">
     <div class="li"><span class="sw" style="background:#fff"></span> Current AAS2012 class (unedited)</div>
     <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
-    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today</div>
     <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this column</div>
-    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every column on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its base classes</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">View only</span> All Combined is reference-only &mdash; cells here can't be clicked or edited in either Class or Mileage limit mode; make edits on the individual guide tabs instead</div>
   </div>
   <div class="grid-wrap" id="gridWrapAll">
     <table id="gridTableAll"><colgroup><col class="c-desc"></colgroup></table>
@@ -1445,6 +1445,23 @@ function makePanel(opts){
   // effective class instead of the editable class dropdown.
   let mileageMode = false;
   const mileageLookup = opts.mileageLookup || null;
+  // View-only panels (currently just All Combined) never render an editable
+  // <select> or an Off-All button — every cell, in either display mode, is a
+  // plain read-out of the vehicle's effective class/mileage. Overrides never
+  // get written from this panel, so its own edit-count/highlighting logic
+  // simply stays inert (harmless, just never triggers).
+  const viewOnly = !!opts.viewOnly;
+  // When set (only by All Combined), this panel holds no edit state of its
+  // own at all -- every cell defers straight to the real source tab via
+  // PANEL_REGISTRY, keyed by that column's group prefix (the part of the
+  // trKey before ":"). That's what makes All Combined always match whatever
+  // is currently on each guide's own tab, edits included.
+  const delegateMap = opts.delegateMap || null;
+  function delegatedPanel(trKey){
+    if (!delegateMap) return null;
+    const tbodyId = delegateMap[trKey.split(':')[0]];
+    return tbodyId ? PANEL_REGISTRY[tbodyId] : null;
+  }
   function formatMileage(v){
     if (v === null || v === undefined) return null;
     if (v === 'Off') return 'Off';
@@ -1469,11 +1486,19 @@ function makePanel(opts){
   }
 
   function getEffClass(idx, trKey){
+    if (delegateMap){
+      const panel = delegatedPanel(trKey);
+      return panel ? panel.getEff(idx, trKey.split(':')[1]) : undefined;
+    }
     const o = overrides[idx];
     if (o && Object.prototype.hasOwnProperty.call(o, trKey)) return o[trKey];
     return baseClass(idx, trKey);
   }
   function isEdited(idx, trKey){
+    if (delegateMap){
+      const panel = delegatedPanel(trKey);
+      return !!(panel && panel.isEditedCell(idx, trKey.split(':')[1]));
+    }
     const o = overrides[idx];
     return !!(o && Object.prototype.hasOwnProperty.call(o, trKey));
   }
@@ -1504,9 +1529,10 @@ function makePanel(opts){
     let cols = ['<col class="c-desc">', '<col class="c-offall">'];
     visibleTrKeys.forEach(() => cols.push('<col class="c-cell">'));
     const colCells = visibleTrKeys.map(trKey => `<th class="${colHeaderClass(trKey)}">${colHeaderLabel(trKey)}</th>`).join('');
+    const offAllHeaderLabel = viewOnly ? '' : 'Off All'; // view-only panels have no Off-All action, so the column heads empty
     // Single-row header (every per-plan tab): column names stand alone.
     if (!groupBandLabel){
-      const row = '<tr><th class="desc">Vehicle (Make Model, engine/drive)</th><th class="offallhead">Off All</th>' + colCells + '</tr>';
+      const row = '<tr><th class="desc">Vehicle (Make Model, engine/drive)</th><th class="offallhead">' + offAllHeaderLabel + '</th>' + colCells + '</tr>';
       return '<colgroup>' + cols.join('') + '</colgroup><thead>' + row + '</thead>';
     }
     // Two-row header (All Combined): a band naming the guide sits above the exact
@@ -1520,11 +1546,12 @@ function makePanel(opts){
       band += `<th class="grpband ${colHeaderClass(visibleTrKeys[i])}" colspan="${span}">${lbl}</th>`;
       i += span;
     }
-    const r1 = '<tr class="bandrow"><th class="desc" rowspan="2">Vehicle (Make Model, engine/drive)</th><th class="offallhead" rowspan="2">Off All</th>' + band + '</tr>';
+    const r1 = '<tr class="bandrow"><th class="desc" rowspan="2">Vehicle (Make Model, engine/drive)</th><th class="offallhead" rowspan="2">' + offAllHeaderLabel + '</th>' + band + '</tr>';
     const r2 = '<tr class="colrow">' + colCells + '</tr>';
     return '<colgroup>' + cols.join('') + '</colgroup><thead>' + r1 + r2 + '</thead>';
   }
   function hasAnyEdit(idx){
+    if (delegateMap) return visibleTrKeys.some(trKey => isEdited(idx, trKey));
     const o = overrides[idx];
     return !!(o && Object.keys(o).length > 0);
   }
@@ -1547,7 +1574,13 @@ function makePanel(opts){
     const v = VEHICLES[idx];
     const allOff = visibleTrKeys.length > 0 && visibleTrKeys.every(trKey => getEffClass(idx, trKey) === 'Off');
     const btnLabel = allOff ? 'Back On' : 'Off All';
-    let html = `<tr data-idx="${idx}"><td class="desc">${v.d}</td><td class="offall"><button class="offAllBtn ${allOff?'active':''}" data-idx="${idx}" data-panel="${ids.tbody}">${btnLabel}</button></td>`;
+    // View-only panels render a plain, inert cell here instead of the clickable
+    // Off-All/Back-On button — that button writes overrides, which is exactly
+    // the kind of cell-editing this panel must never do.
+    const offAllHtml = viewOnly
+      ? '<td class="offall"></td>'
+      : `<td class="offall"><button class="offAllBtn ${allOff?'active':''}" data-idx="${idx}" data-panel="${ids.tbody}">${btnLabel}</button></td>`;
+    let html = `<tr data-idx="${idx}"><td class="desc">${v.d}</td>${offAllHtml}`;
     visibleTrKeys.forEach(trKey => {
       const eff = getEffClass(idx, trKey);
       const edited = isEdited(idx, trKey);
@@ -1558,6 +1591,11 @@ function makePanel(opts){
         const shown = formatMileage(raw);
         const cellNa = (shown===null||shown===undefined) ? 'na mina' : (shown==='Off' ? 'na off' : '');
         html += `<td class="cls ${edited?'edited':''} ${cellNa}"><div class="mileageDisplay">${shown===null||shown===undefined?'&mdash;':shown}</div></td>`;
+        return;
+      }
+      if (viewOnly){
+        const shownCls = (eff===null||eff===undefined) ? '&mdash;' : eff;
+        html += `<td class="cls ${edited?'edited':''} ${naClass} ${offClass}"><div class="mileageDisplay">${shownCls}</div></td>`;
         return;
       }
       html += `<td class="cls ${edited?'edited':''} ${naClass} ${offClass}"><select data-idx="${idx}" data-tr="${trKey}" data-panel="${ids.tbody}">${minimalOptionHtml(eff)}</select></td>`;
@@ -1599,6 +1637,14 @@ function makePanel(opts){
 
   function renderRows(){ refreshList(); } // kept as the external name other code already calls
   function updateEditCount(){
+    if (delegateMap){
+      // Delegated panels hold no override state to tally, and re-scanning every
+      // source tab on each scroll/render would be far too costly here -- this
+      // label just says what the view is instead of counting cells.
+      const el = document.getElementById(ids.editCount);
+      if (el) el.textContent = 'Live view — edits shown as made on each guide\'s own tab';
+      return;
+    }
     let cells = 0, veh = 0;
     Object.keys(overrides).forEach(idx => {
       const n = Object.keys(overrides[idx]).length;
@@ -2483,6 +2529,24 @@ const ALL_INSTALLED_OFF = {};
 const allTrKeys = [];
 ALL_GROUPS.forEach(g => g.keys.forEach(k => allTrKeys.push(g.prefix + ':' + k)));
 
+// Maps each All-Combined column's group prefix to the tbody id of the actual
+// tab that owns that data. All Combined never keeps its own edit state — for
+// every cell it looks up the live value (and edited/not-edited status) straight
+// from that source panel via PANEL_REGISTRY, so it always mirrors whatever is
+// currently on that tab, including edits made there in this session.
+const PREFIX_TO_TBODY = {
+  DIAMONDSTD:'tbodyEl', PLATINUMSTD:'tbodyEl', GOLDSELECTSTD:'tbodyEl', SILVERSTD:'tbodyEl',
+  DIAMONDFLSTD:'tbodyElFl', PLATINUMFLSTD:'tbodyElFl', GOLDSELECTFLSTD:'tbodyElFl', SILVERFLSTD:'tbodyElFl',
+  DIAMONDSAL:'tbodyElDiamondSal', PLATINUMSAL:'tbodyElPlatinumSal', GOLDSELECTSAL:'tbodyElGoldselectSal', SILVERSAL:'tbodyElSilverSal',
+  DIAMONDRIDE:'tbodyElDiamondRide', PLATINUMRIDE:'tbodyElPlatinumRide', GOLDSELECTRIDE:'tbodyElGoldselectRide', SILVERRIDE:'tbodyElSilverRide',
+  DIAMONDFLSAL:'tbodyElDiamondFlSal', PLATINUMFLSAL:'tbodyElPlatinumFlSal', GOLDSELECTFLSAL:'tbodyElGoldselectFlSal', SILVERFLSAL:'tbodyElSilverFlSal',
+  DIAMONDFLRIDE:'tbodyElDiamondFlRide', PLATINUMFLRIDE:'tbodyElPlatinumFlRide', GOLDSELECTFLRIDE:'tbodyElGoldselectFlRide', SILVERFLRIDE:'tbodyElSilverFlRide',
+  ALUM:'tbodyElAlum', ALUMSAL:'tbodyElAlumSal', ALUMRIDE:'tbodyElAlumRide',
+  FLALUM:'tbodyElFlAlum', FLALUMSAL:'tbodyElFlAlumSal', FLALUMRIDE:'tbodyElFlAlumRide',
+  EV:'tbodyElEv', EVSAL:'tbodyElEvSal', EVRIDE:'tbodyElEvRide',
+  FLEV:'tbodyElFlEv', FLEVSAL:'tbodyElFlEvSal', FLEVRIDE:'tbodyElFlEvRide',
+};
+
 // Mileage limits, keyed off the "Class by Mileage availability" tab (Non-FL
 // Standard rate card only). Structure: prefix -> class code -> raw tier/rate key
 // -> max mileage (number), or 'Off' if that class/tier/rate is fully blacked out
@@ -2526,9 +2590,9 @@ const allPanelObj = makePanel({
   colHeaderClass: trKey => 'allgrp-' + trKey.split(':')[0].toLowerCase(),
   ids: { table:'gridTableAll', tbody:'tbodyElAll', count:'countAll', editCount:'editCountAll', guideName:'guideNameAll', search:'searchAll', importFile:'importFileAll', editedFilterBtn:'editedFilterBtnAll', gridWrap:'gridWrapAll', offOnlyImport:'offOnlyImportAll' },
   mirrorFrom: null,
-  installedOff: ALL_INSTALLED_OFF,
-  installedAllOffFor: trKey => ALL_OFF_PREFIXES.has(trKey.split(':')[0]),
+  delegateMap: PREFIX_TO_TBODY,
   mileageLookup: allCombinedMileageLookup,
+  viewOnly: true,
   lazy: true
 });
 </script>
