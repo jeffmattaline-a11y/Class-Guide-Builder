@@ -188,6 +188,12 @@ td.cls.off select{color:#ff453a;font-weight:800}
 td.edited{background:#fff3b0}
 td.edited select{color:#8a6d00;font-weight:800}
 tr.hidden{display:none}
+td.cls .mileageDisplay{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#333}
+td.cls.na .mileageDisplay{color:#aaa}
+td.cls.off .mileageDisplay{color:#ff453a;font-weight:800}
+td.cls.mina .mileageDisplay{color:#777;font-weight:400;font-style:italic;font-size:9px}
+td.edited .mileageDisplay{color:#8a6d00;font-weight:800}
+.mileageModeLabel{display:inline-flex;align-items:center;gap:5px;color:#bb86fc;font-weight:700;font-size:11px;margin-left:8px}
 </style>
 </head>
 <body>
@@ -515,6 +521,11 @@ tr.hidden{display:none}
     <label><input type="checkbox" class="afCard" value="ride" checked onchange="applyAllFilters()"> RideShare</label>
     <button class="btn" style="background:#3a3a3c;padding:3px 10px;font-size:10px" onclick="resetAllFilters()">Show All</button>
     <span id="allFilterCount" style="color:#bb86fc;font-weight:700;font-size:10px"></span>
+    <span class="afsep"></span>
+    <span class="aflbl">Display</span>
+    <label><input type="radio" name="afDisplayMode" value="class" checked onchange="setAllDisplayMode('class')"> Class</label>
+    <label><input type="radio" name="afDisplayMode" value="mileage" onchange="setAllDisplayMode('mileage')"> Mileage limit</label>
+    <span class="mileageModeLabel" id="mileageModeNote" style="display:none">Mileage limit is only on file for Non-FL Standard guides (Diamond/Platinum/Gold Select/Silver/Aluminum/EV) &mdash; other columns show &mdash;</span>
   </div>
   <div class="allfilter">
     <span class="aflbl">Coverage</span>
@@ -1428,6 +1439,17 @@ function makePanel(opts){
   }
   let searchTerm = '';
   let showOnlyEdited = false;
+  // Mileage display mode: only ever turned on by the All Combined panel (via
+  // its Display toggle) since it's the only caller that passes mileageLookup.
+  // When on, cells show the max-mileage figure looked up for the vehicle's
+  // effective class instead of the editable class dropdown.
+  let mileageMode = false;
+  const mileageLookup = opts.mileageLookup || null;
+  function formatMileage(v){
+    if (v === null || v === undefined) return null;
+    if (v === 'Off') return 'Off';
+    return typeof v === 'number' ? v.toLocaleString() : v;
+  }
 
   // Which global VEHICLES indices this panel operates on at all (e.g. EV panels
   // only ever show/export/import the E0–E9 class vehicles). Computed once.
@@ -1531,6 +1553,13 @@ function makePanel(opts){
       const edited = isEdited(idx, trKey);
       const naClass = (eff===null||eff===undefined||eff==='Off') ? 'na' : '';
       const offClass = (eff==='Off') ? 'off' : ''; // "Off" prints red; a blank/N-A cell stays grey
+      if (mileageMode && mileageLookup){
+        const raw = mileageLookup(trKey, eff);
+        const shown = formatMileage(raw);
+        const cellNa = (shown===null||shown===undefined) ? 'na mina' : (shown==='Off' ? 'na off' : '');
+        html += `<td class="cls ${edited?'edited':''} ${cellNa}"><div class="mileageDisplay">${shown===null||shown===undefined?'&mdash;':shown}</div></td>`;
+        return;
+      }
       html += `<td class="cls ${edited?'edited':''} ${naClass} ${offClass}"><select data-idx="${idx}" data-tr="${trKey}" data-panel="${ids.tbody}">${minimalOptionHtml(eff)}</select></td>`;
     });
     html += '</tr>';
@@ -2005,7 +2034,11 @@ function makePanel(opts){
   // Read-only accessors so other views (the Vehicle Lookup) can report this
   // guide's live values -- filed baseline plus any edits made in this session --
   // without the panel's grid ever having been opened.
-  const panelApi = { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, ensureBuilt, populateOptions, toggleOffAll, setVisibleTrKeys,
+  function setMileageMode(on){
+    mileageMode = !!on && !!mileageLookup;
+    if (built) renderRows();
+  }
+  const panelApi = { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, ensureBuilt, populateOptions, toggleOffAll, setVisibleTrKeys, setMileageMode,
     getEff: (idx, trKey) => getEffClass(idx, trKey),
     isEditedCell: (idx, trKey) => isEdited(idx, trKey),
     allKeys: () => trKeys.slice(),
@@ -2450,6 +2483,34 @@ const ALL_INSTALLED_OFF = {};
 const allTrKeys = [];
 ALL_GROUPS.forEach(g => g.keys.forEach(k => allTrKeys.push(g.prefix + ':' + k)));
 
+// Mileage limits, keyed off the "Class by Mileage availability" tab (Non-FL
+// Standard rate card only). Structure: prefix -> class code -> raw tier/rate key
+// -> max mileage (number), or 'Off' if that class/tier/rate is fully blacked out
+// at every mileage band. A missing entry means the combination doesn't apply
+// (e.g. classes 10-12/1T on the tiered plans, or non-EV classes under EV).
+const MILEAGE_LOOKUP = {"DIAMONDSTD":{"0":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"1":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"2":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"3":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"4":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"5":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"6":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"7":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"8":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"9":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":40000,"3G":50000}},"PLATINUMSTD":{"0":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":100000,"3G":100000},"1":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":100000,"3G":"Off"},"2":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":100000,"3G":100000},"3":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":100000,"3G":100000},"4":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":100000,"3G":100000},"5":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":100000,"3G":"Off"},"6":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":100000,"3G":"Off"},"7":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":100000,"3G":"Off"},"8":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":90000,"3G":"Off"},"9":{"1A":100000,"2A":"Off","3A":90000,"1B":100000,"2B":"Off","3B":"Off","1G":"Off","2G":"Off","3G":"Off"}},"GOLDSELECTSTD":{"0":{"1A":175000,"2A":175000,"3A":175000,"1B":175000,"2B":175000,"3B":175000,"1G":150000,"2G":175000,"3G":150000},"1":{"1A":175000,"2A":175000,"3A":175000,"1B":175000,"2B":175000,"3B":175000,"1G":150000,"2G":150000,"3G":150000},"2":{"1A":175000,"2A":175000,"3A":175000,"1B":175000,"2B":175000,"3B":175000,"1G":150000,"2G":150000,"3G":150000},"3":{"1A":175000,"2A":175000,"3A":175000,"1B":175000,"2B":175000,"3B":175000,"1G":150000,"2G":150000,"3G":150000},"4":{"1A":175000,"2A":175000,"3A":175000,"1B":175000,"2B":175000,"3B":175000,"1G":"Off","2G":"Off","3G":"Off"},"5":{"1A":175000,"2A":175000,"3A":175000,"1B":175000,"2B":175000,"3B":175000,"1G":"Off","2G":"Off","3G":"Off"},"6":{"1A":175000,"2A":175000,"3A":175000,"1B":175000,"2B":175000,"3B":175000,"1G":"Off","2G":"Off","3G":"Off"},"7":{"1A":175000,"2A":175000,"3A":175000,"1B":125000,"2B":150000,"3B":175000,"1G":"Off","2G":"Off","3G":"Off"},"8":{"1A":175000,"2A":175000,"3A":175000,"1B":125000,"2B":150000,"3B":175000,"1G":"Off","2G":"Off","3G":"Off"},"9":{"1A":"Off","2A":"Off","3A":"Off","1B":"Off","2B":"Off","3B":"Off","1G":"Off","2G":"Off","3G":"Off"}},"SILVERSTD":{"0":{"1A":300000,"2A":300000,"3A":300000,"1B":300000,"2B":300000,"3B":300000,"1G":300000,"2G":200000,"3G":225000},"1":{"1A":300000,"2A":300000,"3A":300000,"1B":300000,"2B":300000,"3B":300000,"1G":300000,"2G":200000,"3G":225000},"2":{"1A":300000,"2A":300000,"3A":300000,"1B":300000,"2B":300000,"3B":300000,"1G":300000,"2G":200000,"3G":225000},"3":{"1A":300000,"2A":300000,"3A":300000,"1B":300000,"2B":300000,"3B":300000,"1G":300000,"2G":200000,"3G":225000},"4":{"1A":300000,"2A":300000,"3A":300000,"1B":300000,"2B":300000,"3B":225000,"1G":225000,"2G":200000,"3G":225000},"5":{"1A":300000,"2A":300000,"3A":300000,"1B":300000,"2B":300000,"3B":225000,"1G":225000,"2G":200000,"3G":100000},"6":{"1A":300000,"2A":300000,"3A":300000,"1B":300000,"2B":225000,"3B":150000,"1G":225000,"2G":200000,"3G":100000},"7":{"1A":300000,"2A":300000,"3A":300000,"1B":225000,"2B":150000,"3B":225000,"1G":225000,"2G":125000,"3G":100000},"8":{"1A":300000,"2A":300000,"3A":300000,"1B":225000,"2B":150000,"3B":150000,"1G":125000,"2G":125000,"3G":100000},"9":{"1A":300000,"2A":300000,"3A":300000,"1B":225000,"2B":150000,"3B":"Off","1G":125000,"2G":125000,"3G":"Off"}},"ALUM":{"0":{"A":225000,"B":225000},"1":{"A":225000,"B":225000},"2":{"A":225000,"B":225000},"3":{"A":225000,"B":225000},"4":{"A":225000,"B":225000},"5":{"A":225000,"B":225000},"6":{"A":225000,"B":225000},"7":{"A":225000,"B":225000},"8":{"A":225000,"B":225000},"9":{"A":225000,"B":225000},"10":{"A":225000,"B":225000},"11":{"A":225000,"B":225000},"12":{"A":225000,"B":225000},"1T":{"A":225000,"B":225000}},"EV":{"E1":{"A":200000,"B":200000},"E2":{"A":200000,"B":200000},"E3":{"A":200000,"B":200000},"E4":{"A":200000,"B":200000},"E5":{"A":200000,"B":200000},"E6":{"A":200000,"B":200000},"E7":{"A":200000,"B":200000},"E8":{"A":200000,"B":200000},"E9":{"A":200000,"B":200000}}};
+
+// Looks up the mileage limit for an All-Combined column ("PREFIX:raw", e.g.
+// "DIAMONDSTD:1A") given the vehicle's effective class in that cell. Returns a
+// number, 'Off', or undefined (no data — that class/guide combo isn't covered
+// by the mileage tab, so the caller should fall back to a blank display).
+function allCombinedMileageLookup(trKey, classCode){
+  if (classCode === null || classCode === undefined || classCode === 'Off') return classCode;
+  const [prefix, raw] = trKey.split(':');
+  const table = MILEAGE_LOOKUP[prefix];
+  if (!table) return undefined;
+  const row = table[classCode];
+  if (!row) return undefined;
+  return Object.prototype.hasOwnProperty.call(row, raw) ? row[raw] : undefined;
+}
+
+function setAllDisplayMode(mode){
+  const isMileage = mode === 'mileage';
+  const note = document.getElementById('mileageModeNote');
+  if (note) note.style.display = isMileage ? 'inline-flex' : 'none';
+  allPanelObj.setMileageMode(isMileage);
+}
+
 const allPanelObj = makePanel({
   panelLabel: 'All Combined',
   trKeys: allTrKeys,
@@ -2467,6 +2528,7 @@ const allPanelObj = makePanel({
   mirrorFrom: null,
   installedOff: ALL_INSTALLED_OFF,
   installedAllOffFor: trKey => ALL_OFF_PREFIXES.has(trKey.split(':')[0]),
+  mileageLookup: allCombinedMileageLookup,
   lazy: true
 });
 </script>
