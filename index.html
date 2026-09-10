@@ -2635,11 +2635,12 @@ const allPanelObj = makePanel({
 // master class guide file gets imported (new INSTALLED_* entries, vehicle
 // insertions, etc.) -- NOT a log of ad-hoc edits made on individual guide
 // tabs, which already show up as yellow highlighting there. Backfilled on
-// 09/10/26 with the two prior milestones (original AAS2012 baseline, and the
-// 09/02/26 master file expansion) by diffing the source workbooks directly;
-// everything from the 09/02/26 file forward is confirmed against the actual
-// spreadsheets, so this history is complete back to the original AAS2012
-// baseline. Add one entry per import going forward, newest first.
+// 09/10/26 with the three prior milestones (original AAS2012 baseline, the
+// 09/02/26 master file expansion, and the 09/09/26 Aluminum Branded refresh)
+// by diffing the source workbooks directly; every entry here is confirmed
+// against the actual spreadsheets, so this history is complete back to the
+// original AAS2012 baseline. Add one entry per import going forward, newest
+// first.
 const CHANGE_LOG = [
   {
     date: '2026-09-10',
@@ -2648,6 +2649,17 @@ const CHANGE_LOG = [
     items: [
       'CHEV SILVERADO 1500 &mdash; all 10 Class 5 trims &mdash; Alum AS/BS now XXXX',
       'FORD F150 &mdash; all 16 Class 5 trims (gas, turbo, diesel, hybrid, CNG, 6- &amp; 8-cyl) &mdash; Alum AS/BS now XXXX',
+    ],
+  },
+  {
+    date: '2026-09-09',
+    source: 'Class_Guide_Master_File_9_2_26_v04.xlsx',
+    summary: 'Aluminum Branded (non-FL &amp; FL): baseline refreshed with a large batch of Off/On changes',
+    items: [
+      'Non-Florida Alum Branded (Alum AS/BS): 1,636 vehicles changed vs. the 09/02/26 file &mdash; 1,610 newly turned Off (XXXX), 26 restored back On, including all 10 CHEV SILVERADO 1500 Class 5 trims and all 16 FORD F150 Class 5 trims returning to Class 5.',
+      'Florida Alum Branded (FL Alum AS/BS/GS): 1,297 vehicles changed &mdash; 1,264 newly turned Off, 33 restored back On, including the PONT FIREBIRD/FIREFLY/G-series/SUNFIRE family and several STRN AURA/ION/VUE trims.',
+      'No other plan or rate card touched, and the vehicle list was unchanged at 3,218 &mdash; this update only refreshed the Aluminum Branded baseline.',
+      'The CHEV SILVERADO 1500 and FORD F150 trims restored here were turned back Off one day later in the 09/10/26 (v05) update above.',
     ],
   },
   {
