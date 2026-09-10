@@ -2634,10 +2634,12 @@ const allPanelObj = makePanel({
 // Internal audit trail of baseline updates made to this tool when a new AAS
 // master class guide file gets imported (new INSTALLED_* entries, vehicle
 // insertions, etc.) -- NOT a log of ad-hoc edits made on individual guide
-// tabs, which already show up as yellow highlighting there. Tracking starts
-// with the v05 import (09/10/26); nothing before that was logged, so this
-// list is deliberately incomplete going backward. Add one entry per import
-// going forward, newest first.
+// tabs, which already show up as yellow highlighting there. Backfilled on
+// 09/10/26 with the two prior milestones (original AAS2012 baseline, and the
+// 09/02/26 master file expansion) by diffing the source workbooks directly;
+// everything from the 09/02/26 file forward is confirmed against the actual
+// spreadsheets, so this history is complete back to the original AAS2012
+// baseline. Add one entry per import going forward, newest first.
 const CHANGE_LOG = [
   {
     date: '2026-09-10',
@@ -2646,6 +2648,27 @@ const CHANGE_LOG = [
     items: [
       'CHEV SILVERADO 1500 &mdash; all 10 Class 5 trims &mdash; Alum AS/BS now XXXX',
       'FORD F150 &mdash; all 16 Class 5 trims (gas, turbo, diesel, hybrid, CNG, 6- &amp; 8-cyl) &mdash; Alum AS/BS now XXXX',
+    ],
+  },
+  {
+    date: '2026-09-02',
+    source: 'Class_Guide_Master_File_9_2_26.xlsx',
+    summary: 'Master file expanded: Branded &amp; RideShare guide data introduced for every plan',
+    items: [
+      'Added 116 new columns to the AAS2012 master file (24 &rarr; 140) &mdash; raw Branded and RideShare classes for Diamond, Platinum, Gold Select, Silver, Aluminum, and EV, across both Non-Florida and Florida.',
+      'This file is the source data behind the tool&rsquo;s Branded (BRT) and RideShare (CRS) rate card panels for every plan.',
+      'Added 6 new vehicles to the AAS2012 base list: AUDI SQ9, FORD F150 SSV 6cyl Turbo 4X4, FORD F150 SSV 8cyl 4X4, JEEP GRAND WAGONEER Elec 4X4, MERZ CLA220, MERZ GLC53 &mdash; later mirrored into this tool&rsquo;s VEHICLES array with full index remapping.',
+      'No raw Class values changed on the original 3,212 vehicles &mdash; this update was purely additive (new guide types + new vehicles), confirmed by a full cell-level diff against the original AAS2012 file.',
+    ],
+  },
+  {
+    date: '2026-08-06',
+    source: 'Original_AAS2012_class_guide.xlsx',
+    summary: 'Baseline: original AAS2012 class guide, 3,212 vehicles, Standard classes only',
+    items: [
+      'The starting "Class Guide Summary for AAS2012" workbook &mdash; 24 columns (Typ, Description, Class, Code, Cyl, 4WD, Tur, Fuel, PTM, MFG, model years 1994&ndash;2005, Chk, RentalEquivalent).',
+      'No Branded or RideShare guide data existed yet &mdash; those were introduced in the 09/02/26 update above.',
+      'This raw class data is still the direct source for every Standard guide in the tool today.',
     ],
   },
 ];
