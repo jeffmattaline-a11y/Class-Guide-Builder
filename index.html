@@ -86,6 +86,12 @@ th.desc,td.desc{text-align:left;padding-left:8px;position:sticky;left:0;z-index:
 td.desc{background:#fff;color:#1a1a1a;font-weight:600}
 th.offallhead,td.offall{text-align:center;position:sticky;left:340px;z-index:10;background:#2c2c2e}
 td.offall{background:#f5f5f5}
+/* Corner cells (sticky in BOTH directions) must out-rank the cells that are
+   only sticky one way, or a scrolling data row -- being later in the DOM,
+   and otherwise tied on z-index with the header above it -- paints over the
+   header text instead of staying underneath it. */
+thead th.desc{z-index:13}
+thead th.offallhead{z-index:13}
 .offAllBtn{background:#555;color:#fff;border:none;border-radius:3px;font-size:9px;font-weight:700;padding:3px 7px;cursor:pointer;white-space:nowrap}
 .offAllBtn:hover{background:#6b6b6b}
 .offAllBtn.active{background:#c62828}
