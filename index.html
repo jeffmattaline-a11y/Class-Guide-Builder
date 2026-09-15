@@ -201,6 +201,20 @@ th.allgrp-goldselectflstd{background:#004757;color:#dbe9ff}
 th.allgrp-silverflstd{background:#003e4c;color:#dbe9ff}
 td.cls{height:32px}
 td.cls select{width:100%;height:100%;border:none;background:transparent;font-weight:800;font-size:12px;text-align:center;cursor:pointer;color:#333}
+/* A mousedown on a native <select> opens its dropdown, which makes a click-drag
+   across cells impossible. So where the browser can open a picker on demand
+   (Chrome 121+), the selects ignore the mouse and the <td> handles it: click
+   opens that cell's dropdown, drag paints a range. Browsers without
+   showPicker() keep native select behaviour and use Shift+drag instead. */
+body.pickerOk td.cls select{pointer-events:none}
+body.pickerOk td.cls{cursor:cell;user-select:none}
+/* inset ring so the cell's own white / yellow / Off colouring still shows */
+td.cls.selcell{box-shadow:inset 0 0 0 2px #0a84ff}
+td.cls.selcell.selanchor{box-shadow:inset 0 0 0 2px #0a84ff, inset 0 0 0 4px rgba(10,132,255,.25)}
+.selbar{background:#0d2a4a;border-bottom:1px solid #1d4a7a;padding:6px 14px;display:flex;align-items:center;gap:10px;font-size:11px;color:#cfe4ff;flex-shrink:0}
+.selbar .selcount{font-weight:800;color:#fff}
+.selbar .btn{padding:3px 11px;font-size:10px}
+.selbar .hintk{color:#7fa8d6}
 td.cls.na select{color:#aaa}
 td.cls.off select{color:#ff453a;font-weight:800}
 td.edited{background:#fff3b0}
@@ -602,6 +616,14 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today</div>
     <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this column</div>
     <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Read-only cell</span> No editable guide behind it &mdash; an EV column on a non-EV vehicle</div>
+  </div>
+  <div class="selbar" id="selBarAll" style="display:none">
+    <span class="selcount" id="selCountAll"></span>
+    <button class="btn red" onclick="allPanelObj.setSelectionOff()">Set selected to Off</button>
+    <button class="btn" style="background:#1e7a34" onclick="allPanelObj.setSelectionOn()">Turn selected back on</button>
+    <button class="btn" style="background:#3a3a3c" onclick="allPanelObj.undoRangeApply()">Undo</button>
+    <button class="btn" style="background:#3a3a3c" onclick="allPanelObj.clearSelection()">Clear</button>
+    <span class="hintk">drag across cells to select &middot; Shift+click to extend &middot; press O to set Off, Esc to clear</span>
   </div>
   <div class="grid-wrap" id="gridWrapAll">
     <table id="gridTableAll"><colgroup><col class="c-desc"></colgroup></table>
@@ -1348,6 +1370,14 @@ const NO_TIER_RATE_LIST = ['A','B']; // Aluminum / EV: no tiers, just Rate A and
 // without hardcoding each panel's id one-by-one.
 const PANEL_REGISTRY = {};
 
+// Can we open a <select>'s dropdown on demand? If so the selects can ignore the
+// mouse (see body.pickerOk in the CSS) and the <td> drives everything: a click
+// opens that cell's dropdown, a drag paints a selection. Without it we leave
+// native select behaviour alone and range-select needs Shift held.
+const SUPPORTS_PICKER = typeof HTMLSelectElement !== 'undefined'
+  && typeof HTMLSelectElement.prototype.showPicker === 'function';
+if (SUPPORTS_PICKER && typeof document !== 'undefined' && document.body) document.body.classList.add('pickerOk');
+
 // Known Off decisions for the Branded tab, folded in as this tab's starting
 // state (idx -> array of trKeys that should start as "Off") — sourced from
 // Branded_from_Half.xlsx's "Diamond" sheet, merged against the current guide.
@@ -1616,7 +1646,12 @@ function makePanel(opts){
   function getEffClass(idx, trKey){
     if (delegateMap){
       const panel = delegatedPanel(trKey);
-      return panel ? panel.getEff(idx, trKey.split(':')[1]) : undefined;
+      if (!panel) return undefined;
+      // No guide covers this vehicle (an EV column on a petrol vehicle), so
+      // there is no class to show. Without this the EV columns fell back to the
+      // vehicle's ordinary class and printed a number that looked editable.
+      if (!panel.coversVehicle(idx)) return undefined;
+      return panel.getEff(idx, trKey.split(':')[1]);
     }
     const o = overrides[idx];
     if (o && Object.prototype.hasOwnProperty.call(o, trKey)) return o[trKey];
@@ -1665,6 +1700,120 @@ function makePanel(opts){
     const panel = delegatedPanel(trKey);
     return !!(panel && panel.coversVehicle(idx));
   }
+  // ---- rectangular cell selection -------------------------------------
+  // Coordinates are (row position in filteredList, column index in
+  // visibleTrKeys), not DOM nodes, so a selection stays correct while the
+  // virtual scroller recycles rows and while the user scrolls mid-drag.
+  let selA = null, selB = null, selDragging = false, selMoved = false, selPendTd = null;
+  let lastRange = null;   // [{idx, trKey, prev}] from the last range apply, for Undo
+  function selRect(){
+    if (!selA || !selB) return null;
+    return { r0: Math.min(selA.r, selB.r), r1: Math.max(selA.r, selB.r),
+             c0: Math.min(selA.c, selB.c), c1: Math.max(selA.c, selB.c) };
+  }
+  function inSelection(rowPos, colPos){
+    const R = selRect();
+    return !!R && rowPos >= R.r0 && rowPos <= R.r1 && colPos >= R.c0 && colPos <= R.c1;
+  }
+  // Every editable cell inside the rectangle. Read-only cells (an EV column on a
+  // petrol vehicle) are skipped rather than silently swallowing the change.
+  function selectionCells(){
+    const R = selRect();
+    if (!R) return [];
+    const out = [];
+    for (let r = R.r0; r <= R.r1; r++){
+      const idx = filteredList[r];
+      if (idx === undefined) continue;
+      for (let c = R.c0; c <= R.c1; c++){
+        const trKey = visibleTrKeys[c];
+        if (trKey === undefined) continue;
+        if (!cellEditable(idx, trKey)) continue;
+        out.push({ idx, trKey });
+      }
+    }
+    return out;
+  }
+  function tdCoords(td){
+    if (!td || td.dataset.idx === undefined) return null;
+    const idx = Number(td.dataset.idx), trKey = td.dataset.tr;
+    const r = filteredList.indexOf(idx), c = visibleTrKeys.indexOf(trKey);
+    return (r < 0 || c < 0) ? null : { r, c, idx, trKey };
+  }
+  function clearSelection(){
+    selA = selB = null;
+    paintSelection(); updateSelBar();
+  }
+  // Toggle classes on the cells already in the DOM rather than re-rendering the
+  // window -- a drag fires many moves and rebuilding ~7,000 cells each time is
+  // far too slow.
+  function paintSelection(){
+    const tb = document.getElementById(ids.tbody);
+    if (!tb || !tb.querySelectorAll) return;
+    tb.querySelectorAll('td.cls').forEach(td => {
+      const co = tdCoords(td);
+      const on = co && inSelection(co.r, co.c);
+      td.classList.toggle('selcell', !!on);
+      td.classList.toggle('selanchor', !!(on && selA && co.r === selA.r && co.c === selA.c));
+    });
+  }
+  function updateSelBar(){
+    const bar = ids.selBar && document.getElementById(ids.selBar);
+    if (!bar) return;
+    const R = selRect();
+    const rows = R ? R.r1 - R.r0 + 1 : 0, cols = R ? R.c1 - R.c0 + 1 : 0;
+    if (!R || rows * cols < 2){ bar.style.display = 'none'; return; }
+    const n = selectionCells().length;
+    const lbl = document.getElementById(ids.selCount);
+    if (lbl) lbl.textContent = `${n.toLocaleString()} editable cell${n===1?'':'s'} selected (${rows} row${rows===1?'':'s'} \u00d7 ${cols} column${cols===1?'':'s'})`;
+    bar.style.display = 'flex';
+  }
+  // Set every editable cell in the selection to Off, remembering what was there
+  // so Undo can put it back. Numeric values are not otherwise touched.
+  function setSelectionOff(){
+    const cells = selectionCells();
+    if (cells.length === 0) return;
+    const prefixes = new Set();
+    lastRange = [];
+    cells.forEach(({idx, trKey}) => {
+      lastRange.push({ idx, trKey, prev: getEffClass(idx, trKey) });
+      writeCell(idx, trKey, 'Off');
+      if (delegateMap) prefixes.add(trKey.split(':')[0]);
+    });
+    refreshSources(prefixes);
+    renderWindow(); paintSelection(); updateSelBar();
+    if (showOnlyEdited) refreshList();
+  }
+  // Turn the selection back on at each vehicle's original AAS2012 class. Undo
+  // only reaches back one action, so this is what handles cells that were set
+  // Off in an earlier pass.
+  function setSelectionOn(){
+    const cells = selectionCells();
+    if (cells.length === 0) return;
+    const prefixes = new Set();
+    lastRange = [];
+    cells.forEach(({idx, trKey}) => {
+      lastRange.push({ idx, trKey, prev: getEffClass(idx, trKey) });
+      writeCell(idx, trKey, VEHICLES[idx].cls);
+      if (delegateMap) prefixes.add(trKey.split(':')[0]);
+    });
+    refreshSources(prefixes);
+    renderWindow(); paintSelection(); updateSelBar();
+    if (showOnlyEdited) refreshList();
+  }
+  // Put back exactly what the last range apply replaced.
+  function undoRangeApply(){
+    if (!lastRange || lastRange.length === 0) return;
+    const prefixes = new Set();
+    lastRange.forEach(({idx, trKey, prev}) => {
+      writeCell(idx, trKey, prev === undefined ? null : prev);
+      if (delegateMap) prefixes.add(trKey.split(':')[0]);
+    });
+    lastRange = null;
+    refreshSources(prefixes);
+    renderWindow(); paintSelection(); updateSelBar();
+    if (showOnlyEdited) refreshList();
+  }
+
   // What Off All / Back On operates on for a row: the visible columns that have
   // an editable guide behind them. EV columns on a non-EV vehicle read as a
   // plain class and can never be Off, so including them in the all-off test is
@@ -1762,7 +1911,8 @@ function makePanel(opts){
     document.getElementById(ids.count).textContent = filteredList.length.toLocaleString() + ' of ' + vehicleIndices.length.toLocaleString() + ' vehicles shown';
   }
 
-  function rowHtml(idx){
+  function rowHtml(idx, rowPos){
+    if (rowPos === undefined) rowPos = filteredList.indexOf(idx);
     const v = VEHICLES[idx];
     const allOff = isRowAllOff(idx);
     const btnLabel = allOff ? 'Back On' : 'Off All';
@@ -1774,17 +1924,21 @@ function makePanel(opts){
     // the kind of cell-editing this panel must never do.
     const offAllHtml = `<td class="offall"><button class="offAllBtn ${allOff?'active':''}" data-idx="${idx}" data-panel="${ids.tbody}" title="${btnTitle}">${btnLabel}</button></td>`;
     let html = `<tr data-idx="${idx}"><td class="desc">${v.d}</td>${offAllHtml}`;
-    visibleTrKeys.forEach(trKey => {
+    visibleTrKeys.forEach((trKey, colPos) => {
       const eff = getEffClass(idx, trKey);
       const edited = isEdited(idx, trKey);
       const naClass = (eff===null||eff===undefined||eff==='Off') ? 'na' : '';
       const offClass = (eff==='Off') ? 'off' : ''; // "Off" prints red; a blank/N-A cell stays grey
+      // data-idx/data-tr live on the <td> as well as the <select>, because with
+      // pointer-events off the select the td is what mouse events land on.
+      const cellData = `data-idx="${idx}" data-tr="${trKey}"`;
+      const selCls = inSelection(rowPos, colPos) ? ' selcell' : '';
       if (!cellEditable(idx, trKey)){
         const shownCls = (eff===null||eff===undefined) ? '&mdash;' : eff;
-        html += `<td class="cls ${edited?'edited':''} ${naClass} ${offClass}"><div class="roVal">${shownCls}</div></td>`;
+        html += `<td class="cls ${edited?'edited':''} ${naClass} ${offClass}${selCls}" ${cellData}><div class="roVal">${shownCls}</div></td>`;
         return;
       }
-      html += `<td class="cls ${edited?'edited':''} ${naClass} ${offClass}"><select data-idx="${idx}" data-tr="${trKey}" data-panel="${ids.tbody}">${minimalOptionHtml(eff)}</select></td>`;
+      html += `<td class="cls ${edited?'edited':''} ${naClass} ${offClass}${selCls}" ${cellData}><select data-idx="${idx}" data-tr="${trKey}" data-panel="${ids.tbody}">${minimalOptionHtml(eff)}</select></td>`;
     });
     html += '</tr>';
     return html;
@@ -1806,7 +1960,7 @@ function makePanel(opts){
     const colspan = visibleTrKeys.length + 2;
     let html = '';
     if (startIdx > 0) html += `<tr style="height:${startIdx*ROW_H}px"><td colspan="${colspan}" style="border:none;padding:0"></td></tr>`;
-    for (let i = startIdx; i < endIdx; i++) html += rowHtml(filteredList[i]);
+    for (let i = startIdx; i < endIdx; i++) html += rowHtml(filteredList[i], i);
     if (total - endIdx > 0) html += `<tr style="height:${(total-endIdx)*ROW_H}px"><td colspan="${colspan}" style="border:none;padding:0"></td></tr>`;
 
     document.getElementById(ids.tbody).innerHTML = html;
@@ -2265,6 +2419,60 @@ function makePanel(opts){
     e.target.value = '';
   });
 
+  // ---- mouse: click to edit one cell, drag to select a rectangle ----------
+  const gw = document.getElementById(ids.gridWrap);
+  gw.addEventListener('mousedown', function(e){
+    if (e.button !== 0) return;
+    const td = e.target.closest && e.target.closest('td.cls');
+    if (!td){ if (selRect()) clearSelection(); return; }
+    const co = tdCoords(td);
+    if (!co) return;
+    // Without showPicker() we must not swallow the mousedown, or the cell could
+    // never be edited -- so there, range-select needs Shift.
+    if (!SUPPORTS_PICKER && !e.shiftKey) { if (selRect()) clearSelection(); return; }
+    e.preventDefault();
+    if (e.shiftKey && selA) selB = { r: co.r, c: co.c };       // extend
+    else { selA = { r: co.r, c: co.c }; selB = { r: co.r, c: co.c }; }
+    selDragging = true; selMoved = e.shiftKey; selPendTd = td;
+    paintSelection(); updateSelBar();
+  });
+  gw.addEventListener('mousemove', function(e){
+    if (!selDragging) return;
+    const td = e.target.closest && e.target.closest('td.cls');
+    if (!td) return;
+    const co = tdCoords(td);
+    if (!co || (selB && co.r === selB.r && co.c === selB.c)) return;
+    selB = { r: co.r, c: co.c };
+    selMoved = true;
+    paintSelection(); updateSelBar();
+  });
+  document.addEventListener('mouseup', function(){
+    if (!selDragging) return;
+    selDragging = false;
+    // A click that never left its cell means "edit this one", so open the
+    // dropdown the suppressed mousedown would have opened.
+    if (!selMoved && selPendTd && SUPPORTS_PICKER){
+      const sel = selPendTd.querySelector && selPendTd.querySelector('select');
+      if (sel){
+        populateOptions(sel);
+        try { sel.showPicker(); } catch(_) { sel.focus(); }
+      }
+    }
+    selPendTd = null;
+  });
+  // O sets the selection Off, Esc clears it. Ignored while typing in a field.
+  document.addEventListener('keydown', function(e){
+    if (!selRect()) return;
+    // Only the panel actually on screen should react to the key.
+    const gwEl = document.getElementById(ids.gridWrap);
+    const panelEl = gwEl && gwEl.closest ? gwEl.closest('.panel') : null;
+    if (!panelEl || panelEl.classList.contains('hidden')) return;
+    const t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+    if (e.key === 'Escape'){ clearSelection(); }
+    else if (e.key === 'o' || e.key === 'O'){ e.preventDefault(); setSelectionOff(); }
+  });
+
   const tbl = document.getElementById(ids.table);
   tbl.innerHTML = buildHeader() + `<tbody id="${ids.tbody}"></tbody>`;
   document.getElementById(ids.gridWrap).addEventListener('scroll', function(){
@@ -2329,6 +2537,10 @@ function makePanel(opts){
   // Narrow (or restore) the columns on screen, then rebuild header + rows.
   // Passing null shows every column again.
   function setVisibleTrKeys(keys){
+    // Column indices are about to shift, so any selection no longer means what
+    // it did -- drop it rather than silently re-pointing it at other guides.
+    selA = selB = null;
+    if (ids.selBar) updateSelBar();
     visibleTrKeys = keys ? keys.slice() : trKeys.slice();
     const t = document.getElementById(ids.table);
     t.innerHTML = buildHeader() + `<tbody id="${ids.tbody}"></tbody>`;
@@ -2339,6 +2551,10 @@ function makePanel(opts){
   // guide's live values -- filed baseline plus any edits made in this session --
   // without the panel's grid ever having been opened.
   const panelApi = { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, ensureBuilt, populateOptions, toggleOffAll, setVisibleTrKeys,
+    setSelectionOff, setSelectionOn, undoRangeApply, clearSelection,
+    // test hooks: drive a selection without a real mouse
+    selectRange: (r0,c0,r1,c1) => { selA={r:r0,c:c0}; selB={r:r1,c:c1}; paintSelection(); updateSelBar(); },
+    selectionSize: () => selectionCells().length,
     getEff: (idx, trKey) => getEffClass(idx, trKey),
     isEditedCell: (idx, trKey) => isEdited(idx, trKey),
     allKeys: () => trKeys.slice(),
@@ -2905,7 +3121,7 @@ const allPanelObj = makePanel({
     const g = ALL_GROUP_BY_PREFIX[prefix];
     return (g ? g.band + ' ' : '') + raw;
   },
-  ids: { table:'gridTableAll', tbody:'tbodyElAll', count:'countAll', editCount:'editCountAll', guideName:'guideNameAll', search:'searchAll', importFile:'importFileAll', editedFilterBtn:'editedFilterBtnAll', gridWrap:'gridWrapAll' },
+  ids: { table:'gridTableAll', tbody:'tbodyElAll', count:'countAll', editCount:'editCountAll', guideName:'guideNameAll', search:'searchAll', importFile:'importFileAll', editedFilterBtn:'editedFilterBtnAll', gridWrap:'gridWrapAll', selBar:'selBarAll', selCount:'selCountAll' },
   mirrorFrom: null,
   delegateMap: PREFIX_TO_TBODY,
   lazy: true
@@ -3041,8 +3257,11 @@ function masterColSuffix(rawKey){
 // FLEVRIDE need no such handling: they're wholly Off for every vehicle via
 // installedAllOff already, so the panel naturally returns 'Off' for anyone.
 function masterCellValue(prefix, idx, rawKey){
-  if (prefix === 'EVSAL' && !isEvVehicle(VEHICLES[idx])) return { eff: 'XXXX', edited: false };
   const panel = PANEL_REGISTRY[PREFIX_TO_TBODY[prefix]];
+  // A guide that doesn't cover this vehicle has no value for it -- AAS's own
+  // file writes XXXX there. This used to be special-cased for EVSAL alone, so
+  // the other five EV guides emitted the vehicle's petrol class instead.
+  if (!panel.coversVehicle(idx)) return { eff: 'XXXX', edited: false };
   return { eff: panel.getEff(idx, rawKey), edited: panel.isEditedCell(idx, rawKey) };
 }
 
