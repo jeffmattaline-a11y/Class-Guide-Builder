@@ -621,8 +621,6 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <span class="selcount" id="selCountAll"></span>
     <button class="btn red" onclick="allPanelObj.setSelectionOff()">Set selected to Off</button>
     <button class="btn" style="background:#1e7a34" onclick="allPanelObj.setSelectionOn()">Turn selected back on</button>
-    <button class="btn" style="background:#3a3a3c" onclick="allPanelObj.undoRangeApply()">Undo</button>
-    <button class="btn" style="background:#3a3a3c" onclick="allPanelObj.clearSelection()">Clear</button>
     <span class="hintk">drag across cells to select &middot; Shift+click to extend &middot; press O to set Off, Esc to clear</span>
   </div>
   <div class="grid-wrap" id="gridWrapAll">
@@ -1705,7 +1703,6 @@ function makePanel(opts){
   // visibleTrKeys), not DOM nodes, so a selection stays correct while the
   // virtual scroller recycles rows and while the user scrolls mid-drag.
   let selA = null, selB = null, selDragging = false, selMoved = false, selPendTd = null;
-  let lastRange = null;   // [{idx, trKey, prev}] from the last range apply, for Undo
   function selRect(){
     if (!selA || !selB) return null;
     return { r0: Math.min(selA.r, selB.r), r1: Math.max(selA.r, selB.r),
@@ -1767,15 +1764,13 @@ function makePanel(opts){
     if (lbl) lbl.textContent = `${n.toLocaleString()} editable cell${n===1?'':'s'} selected (${rows} row${rows===1?'':'s'} \u00d7 ${cols} column${cols===1?'':'s'})`;
     bar.style.display = 'flex';
   }
-  // Set every editable cell in the selection to Off, remembering what was there
-  // so Undo can put it back. Numeric values are not otherwise touched.
+  // Set every editable cell in the selection to Off. Numeric values are not
+  // otherwise touched.
   function setSelectionOff(){
     const cells = selectionCells();
     if (cells.length === 0) return;
     const prefixes = new Set();
-    lastRange = [];
     cells.forEach(({idx, trKey}) => {
-      lastRange.push({ idx, trKey, prev: getEffClass(idx, trKey) });
       writeCell(idx, trKey, 'Off');
       if (delegateMap) prefixes.add(trKey.split(':')[0]);
     });
@@ -1783,32 +1778,15 @@ function makePanel(opts){
     renderWindow(); paintSelection(); updateSelBar();
     if (showOnlyEdited) refreshList();
   }
-  // Turn the selection back on at each vehicle's original AAS2012 class. Undo
-  // only reaches back one action, so this is what handles cells that were set
-  // Off in an earlier pass.
+  // Turn the selection back on at each vehicle's original AAS2012 class.
   function setSelectionOn(){
     const cells = selectionCells();
     if (cells.length === 0) return;
     const prefixes = new Set();
-    lastRange = [];
     cells.forEach(({idx, trKey}) => {
-      lastRange.push({ idx, trKey, prev: getEffClass(idx, trKey) });
       writeCell(idx, trKey, VEHICLES[idx].cls);
       if (delegateMap) prefixes.add(trKey.split(':')[0]);
     });
-    refreshSources(prefixes);
-    renderWindow(); paintSelection(); updateSelBar();
-    if (showOnlyEdited) refreshList();
-  }
-  // Put back exactly what the last range apply replaced.
-  function undoRangeApply(){
-    if (!lastRange || lastRange.length === 0) return;
-    const prefixes = new Set();
-    lastRange.forEach(({idx, trKey, prev}) => {
-      writeCell(idx, trKey, prev === undefined ? null : prev);
-      if (delegateMap) prefixes.add(trKey.split(':')[0]);
-    });
-    lastRange = null;
     refreshSources(prefixes);
     renderWindow(); paintSelection(); updateSelBar();
     if (showOnlyEdited) refreshList();
@@ -2551,7 +2529,7 @@ function makePanel(opts){
   // guide's live values -- filed baseline plus any edits made in this session --
   // without the panel's grid ever having been opened.
   const panelApi = { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, ensureBuilt, populateOptions, toggleOffAll, setVisibleTrKeys,
-    setSelectionOff, setSelectionOn, undoRangeApply, clearSelection,
+    setSelectionOff, setSelectionOn, clearSelection,
     // test hooks: drive a selection without a real mouse
     selectRange: (r0,c0,r1,c1) => { selA={r:r0,c:c0}; selB={r:r1,c:c1}; paintSelection(); updateSelBar(); },
     selectionSize: () => selectionCells().length,
