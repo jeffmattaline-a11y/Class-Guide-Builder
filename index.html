@@ -22,17 +22,11 @@ body{font-family:system-ui,sans-serif;font-size:12px;background:#f0f0f0;height:1
 .login-hint{font-size:11px;color:#bbb;margin-top:16px}
 #app{display:none;flex-direction:column;flex:1;overflow:hidden}
 
-#productBar{display:flex;align-items:center;gap:14px;padding:9px 16px;background:#0a0a0c;border-bottom:2px solid #222;flex-shrink:0;z-index:60}
-.brandTag{color:#8a8a8f;font-size:11px;font-weight:800;letter-spacing:.6px;white-space:nowrap}
-.navLbl{color:#666;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
-.navSelect{background:#1c1c1e;color:#fff;border:1px solid #555;border-radius:6px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;min-width:170px}
-.navSelect:hover{border-color:#0a84ff}
-#navAllLink{margin-left:auto;color:#bb86fc;font-size:11px;font-weight:700;cursor:pointer;user-select:none;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid transparent;border-radius:6px}
-#productBar.allOn #navAllLink{background:#241b33;border-color:#bb86fc}
-#allToggle{cursor:pointer;margin:0}
-#productBar.allOn .navSelect,#productBar.allOn .navLbl{opacity:.45}
-#navAllLink:hover{text-decoration:underline}
-#navChangeLogLink{margin-left:8px;color:#ffb020;font-size:11px;font-weight:700;cursor:pointer;user-select:none;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid transparent;border-radius:6px}
+#productBar{z-index:60}
+/* Guide-name box and vehicle-count hint describe the All Combined grid, so they
+   drop out while the Change Log is on screen. switchProduct() sets .clOn. */
+#productBar.clOn .allOnlyHdr{display:none}
+#navChangeLogLink{margin-left:auto;color:#ffb020;font-size:11px;font-weight:700;cursor:pointer;user-select:none;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid transparent;border-radius:6px}
 #productBar.clOn #navChangeLogLink{background:#332a1b;border-color:#ffb020}
 #navChangeLogLink:hover{text-decoration:underline}
 .product-tab{padding:9px 28px;cursor:pointer;font-size:13px;font-weight:700;color:#555;letter-spacing:.3px;border-bottom:3px solid transparent;margin-bottom:-2px;user-select:none;transition:color .15s}
@@ -49,9 +43,20 @@ body{font-family:system-ui,sans-serif;font-size:12px;background:#f0f0f0;height:1
 .panel{display:flex;flex-direction:column;flex:1;overflow:hidden}
 .panel.hidden{display:none}
 
-#topBar{background:#0a0a0c;padding:10px 16px;display:flex;align-items:center;gap:14px;border-bottom:2px solid #222;flex-shrink:0}
-#topBar h1{color:#fff;font-size:14px;font-weight:800;letter-spacing:.3px}
-#topBar input.guideName{background:#1c1c1e;color:#fff;border:1px solid #444;border-radius:5px;padding:5px 10px;font-size:12px;font-weight:700;width:220px}
+/* Every panel's header strip. Only #topBar had a rule before, so the other 30
+   headers -- All Combined's included -- fell back to browser defaults: a 2em
+   <h1> with the hint text wrapping underneath it and clipping. One attribute
+   selector covers all of them without touching 31 markup lines. */
+[id^="topBar"], #productBar{background:#0a0a0c;padding:10px 16px;display:flex;align-items:center;gap:14px;border-bottom:2px solid #222;flex-shrink:0}
+[id^="topBar"] h1, #productBar h1{color:#fff;font-size:14px;font-weight:800;letter-spacing:.3px;margin:0;display:flex;align-items:center;gap:9px}
+/* CarShield wordmark, inlined as a data URI so the tool stays one portable file.
+   Embedded at 2x (161x40) and shown at 20px tall so it stays crisp. It sits on a
+   white chip because the logo's navy wordmark would vanish on the near-black
+   header; the artwork's own white background blends into the chip. */
+.brandLogo{height:20px;width:auto;display:block;background:#fff;border-radius:4px;padding:3px 7px;box-sizing:content-box}
+[id^="topBar"] input.guideName, #productBar input.guideName{background:#1c1c1e;color:#fff;border:1px solid #444;border-radius:5px;padding:5px 10px;font-size:12px;font-weight:700;width:220px}
+/* Short one-line hint that sits beside the title, not under it. */
+.topHint{color:#777;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .toolbar{background:#2c2c2e;padding:8px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex-shrink:0;border-bottom:1px solid #444}
 .toolbar input[type=text]{padding:6px 10px;border:none;border-radius:5px;font-size:12px;width:280px;background:#3a3a3c;color:#fff;outline:none}
 .toolbar input[type=text]::placeholder{color:#888}
@@ -92,10 +97,11 @@ td.offall{background:#f5f5f5}
    header text instead of staying underneath it. */
 thead th.desc{z-index:13}
 thead th.offallhead{z-index:13}
-.offAllBtn{background:#555;color:#fff;border:none;border-radius:3px;font-size:9px;font-weight:700;padding:3px 7px;cursor:pointer;white-space:nowrap}
+.offAllBtn{background:#555;color:#fff;border:none;border-radius:3px;font-size:9px;font-weight:700;padding:3px 7px;cursor:pointer;white-space:nowrap;min-width:52px}
 .offAllBtn:hover{background:#6b6b6b}
-.offAllBtn.active{background:#c62828}
-.offAllBtn.active:hover{background:#d33636}
+/* .active == the row is entirely Off, so the button now reads "Back On" */
+.offAllBtn.active{background:#1e7a34}
+.offAllBtn.active:hover{background:#249140}
 th.ra{background:#0a3550;color:#90caf9}
 th.rb{background:#1a3a1a;color:#a5d6a7}
 th.rg{background:#3a2012;color:#ffcc80}
@@ -118,7 +124,6 @@ th.allgrp-ev{background:#0d3d1f;color:#8fe3a8}
 th.allgrp-evsal{background:#0a3316;color:#82d69b}
 th.allgrp-fl{background:#003c4d;color:#5fe0f5}
 th.allgrp-flsal{background:#00272f;color:#4bc4d6}
-.all-banner{background:#241b33;color:#d6b8ff;padding:6px 16px;font-size:11px;font-weight:700;flex-shrink:0;border-bottom:2px solid #bb86fc}
 th.ra-fl{background:#00596e;color:#8fecff}
 th.rb-fl{background:#00475a;color:#7bdcf0}
 th.rg-fl{background:#003846;color:#67cadd}
@@ -177,11 +182,15 @@ th.allgrp-diamondflride{background:#00596e;color:#e8f4ff}
 th.allgrp-platinumflride{background:#00475a;color:#e8f4ff}
 th.allgrp-goldselectflride{background:#003846;color:#e8f4ff}
 th.allgrp-silverflride{background:#002b36;color:#e8f4ff}
-.allfilter{background:#1f1f22;padding:6px 14px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:11px;color:#ccc;flex-shrink:0;border-bottom:1px solid #333}
-.allfilter label{display:inline-flex;align-items:center;gap:5px;cursor:pointer;user-select:none}
+/* One filter bar. Each axis is its own group that never breaks mid-group, so the
+   bar wraps between groups instead of orphaning a stray checkbox. */
+.allfilter{background:#1f1f22;padding:8px 14px;display:flex;gap:10px 24px;align-items:center;flex-wrap:wrap;font-size:11px;color:#ccc;flex-shrink:0;border-bottom:1px solid #333}
+.afgrp{display:inline-flex;align-items:center;gap:10px;flex-wrap:nowrap}
+.allfilter label{display:inline-flex;align-items:center;gap:5px;cursor:pointer;user-select:none;white-space:nowrap}
 .allfilter input{cursor:pointer;margin:0}
-.aflbl{color:#666;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
-.afsep{width:1px;height:14px;background:#444}
+.aflbl{color:#777;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-right:2px}
+.btn.afreset{margin-left:auto;background:#3a3a3c;color:#e8e8ea;border:1px solid #555;padding:4px 12px;font-size:10px;font-weight:700}
+.btn.afreset:hover{background:#4a4a4c;border-color:#777}
 th.allgrp-diamondstd{background:#0a3a6e;color:#dbe9ff}
 th.allgrp-platinumstd{background:#0a3260;color:#dbe9ff}
 th.allgrp-goldselectstd{background:#092a50;color:#dbe9ff}
@@ -197,12 +206,12 @@ td.cls.off select{color:#ff453a;font-weight:800}
 td.edited{background:#fff3b0}
 td.edited select{color:#8a6d00;font-weight:800}
 tr.hidden{display:none}
-td.cls .mileageDisplay{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#333}
-td.cls.na .mileageDisplay{color:#aaa}
-td.cls.off .mileageDisplay{color:#ff453a;font-weight:800}
-td.cls.mina .mileageDisplay{color:#777;font-weight:400;font-style:italic;font-size:9px}
-td.edited .mileageDisplay{color:#8a6d00;font-weight:800}
-.mileageModeLabel{display:inline-flex;align-items:center;gap:5px;color:#bb86fc;font-weight:700;font-size:11px;margin-left:8px}
+/* Read-only cell value: a cell with no editable guide behind it (an EV column on
+   a non-EV vehicle) shows its value as plain text instead of a <select>. */
+td.cls .roVal{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#333}
+td.cls.na .roVal{color:#aaa}
+td.cls.off .roVal{color:#ff453a;font-weight:800}
+td.edited .roVal{color:#8a6d00;font-weight:800}
 </style>
 </head>
 <body>
@@ -222,35 +231,16 @@ td.edited .mileageDisplay{color:#8a6d00;font-weight:800}
 <div id="app">
 
 <div id="productBar">
-  <span class="brandTag">&#128737; CARSHIELD</span>
-  <span class="navLbl">Region</span>
-  <select id="regionSelect" class="navSelect" onchange="onDropdownChange()">
-    <option value="nonfl">Non-FL</option>
-    <option value="fl">Florida</option>
-  </select>
-  <span class="navLbl">Plan</span>
-  <select id="planSelect" class="navSelect" onchange="onDropdownChange()">
-    <option value="diamond">Diamond</option>
-    <option value="platinum">Platinum</option>
-    <option value="goldselect">Gold Select</option>
-    <option value="silver">Silver</option>
-    <option value="alum">Aluminum</option>
-    <option value="ev">EV</option>
-  </select>
-  <span class="navLbl">Rate Card</span>
-  <select id="cardSelect" class="navSelect" onchange="onDropdownChange()">
-    <option value="std">Standard</option>
-    <option value="sal">Branded (BRT)</option>
-    <option value="ride">RideShare (CRS)</option>
-  </select>
-  <label id="navAllLink"><input type="checkbox" id="allToggle" onchange="toggleAllCombined()">&#128204; All Combined</label>
+  <h1><img class="brandLogo" src="data:image/png;base64,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" alt="CarShield"> Class Guide Builder</h1>
+  <input type="text" class="guideName allOnlyHdr" id="guideNameAll" value="All Combined Guide 1">
+  <span class="topHint allOnlyHdr">3,218 vehicles &middot; all 36 guides side by side &middot; edits save into the guide behind each column</span>
   <label id="navChangeLogLink"><input type="checkbox" id="changeLogToggle" onchange="toggleChangeLog()">&#128203; Change Log</label>
 </div>
 
-<div class="panel" id="stdPanel">
+<div class="panel hidden" id="stdPanel">
   <div id="topBar">
-    <h1>&#128737; CarShield Vehicle Class Guide Builder</h1>
-    <input type="text" class="guideName" id="guideName" value="Branded Title Guide 1">
+    <h1>Diamond Standard Class Guide</h1>
+    <input type="text" class="guideName" id="guideName" value="Diamond Standard Guide 1">
     <div style="color:#888;font-size:11px">3,218 vehicle/model-year rows &middot; source: AAS2012 as of 08/05/26 &middot; edit any Tier/Rate cell to build a custom class guide, then export and hand off to AAS</div>
   </div>
   <div class="toolbar">
@@ -274,6 +264,90 @@ td.edited .mileageDisplay{color:#8a6d00;font-weight:800}
     <table id="gridTable"><colgroup><col class="c-desc"></colgroup></table>
   </div>
 </div><!-- end stdPanel -->
+
+<div class="panel hidden" id="platinumStdPanel">
+  <div id="topBarPlatinumStd">
+    <h1>Platinum Standard Class Guide</h1>
+    <input type="text" class="guideName" id="guideNamePlatinumStd" value="Platinum Standard Guide 1">
+    <div style="color:#888;font-size:11px">3,218 vehicle/model-year rows &middot; source: AAS2012 as of 08/05/26 &middot; edit any Tier/Rate cell to build a custom class guide, then export and hand off to AAS</div>
+  </div>
+  <div class="toolbar">
+    <input type="text" id="searchPlatinumStd" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
+    <button class="btn blue" onclick="platinumStdPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFilePlatinumStd" style="display:none" accept=".xlsx,.csv"></label>
+    <label class="offonly-label"><input type="checkbox" id="offOnlyImportPlatinumStd"> Only import Off values</label>
+    <button class="btn red" onclick="platinumStdPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnPlatinumStd" onclick="platinumStdPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countPlatinumStd"></span>
+    <span id="editCountPlatinumStd" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Current AAS2012 class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Tier/Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every tier on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its base classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapPlatinumStd">
+    <table id="gridTablePlatinumStd"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end platinumStdPanel -->
+
+<div class="panel hidden" id="goldselectStdPanel">
+  <div id="topBarGoldselectStd">
+    <h1>Gold Select Standard Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameGoldselectStd" value="Gold Select Standard Guide 1">
+    <div style="color:#888;font-size:11px">3,218 vehicle/model-year rows &middot; source: AAS2012 as of 08/05/26 &middot; edit any Tier/Rate cell to build a custom class guide, then export and hand off to AAS</div>
+  </div>
+  <div class="toolbar">
+    <input type="text" id="searchGoldselectStd" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
+    <button class="btn blue" onclick="goldselectStdPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileGoldselectStd" style="display:none" accept=".xlsx,.csv"></label>
+    <label class="offonly-label"><input type="checkbox" id="offOnlyImportGoldselectStd"> Only import Off values</label>
+    <button class="btn red" onclick="goldselectStdPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnGoldselectStd" onclick="goldselectStdPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countGoldselectStd"></span>
+    <span id="editCountGoldselectStd" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Current AAS2012 class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Tier/Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every tier on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its base classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapGoldselectStd">
+    <table id="gridTableGoldselectStd"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end goldselectStdPanel -->
+
+<div class="panel hidden" id="silverStdPanel">
+  <div id="topBarSilverStd">
+    <h1>Silver Standard Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameSilverStd" value="Silver Standard Guide 1">
+    <div style="color:#888;font-size:11px">3,218 vehicle/model-year rows &middot; source: AAS2012 as of 08/05/26 &middot; edit any Tier/Rate cell to build a custom class guide, then export and hand off to AAS</div>
+  </div>
+  <div class="toolbar">
+    <input type="text" id="searchSilverStd" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
+    <button class="btn blue" onclick="silverStdPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileSilverStd" style="display:none" accept=".xlsx,.csv"></label>
+    <label class="offonly-label"><input type="checkbox" id="offOnlyImportSilverStd"> Only import Off values</label>
+    <button class="btn red" onclick="silverStdPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnSilverStd" onclick="silverStdPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countSilverStd"></span>
+    <span id="editCountSilverStd" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Current AAS2012 class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Tier/Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every tier on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its base classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapSilverStd">
+    <table id="gridTableSilverStd"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end silverStdPanel -->
 
 <div class="panel hidden" id="diamondSalPanel">
   <div id="topBarDiamondSal">
@@ -503,66 +577,31 @@ td.edited .mileageDisplay{color:#8a6d00;font-weight:800}
   </div>
 </div><!-- end evsalPanel -->
 
-<div class="panel hidden" id="allPanel">
-  <div id="topBarAll">
-    <h1>&#128204; All Combined Class Guide</h1>
-    <input type="text" class="guideName" id="guideNameAll" value="All Combined Guide 1">
-    <div style="color:#888;font-size:11px">All 3,218 vehicles &middot; every guide side by side, one column set each &mdash; column names match the Excel sheets; this view is read-only and always mirrors what's currently on each guide's own tab</div>
-  </div>
-  <div class="all-banner">&#128204; Live, read-only view &middot; columns run Diamond, Platinum, Gold Select, Silver, Aluminum, EV &mdash; each with its own Standard, Branded and RideShare, then the Florida equivalents. The top header row names the guide; the row beneath gives its exact Excel column name. Diamond, Platinum, Gold Select and Silver share one Standard guide and one Florida Standard guide, so those four Standard/FL-Standard column sets always read alike &mdash; edit any one of those guide's own tab and all four update here together. Every cell here reflects that tab's live state (including edits, shown in yellow) &mdash; make changes on the individual tabs, not here.</div>
+<div class="panel" id="allPanel">
   <div class="toolbar">
     <input type="text" id="searchAll" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
-    <button class="btn blue" onclick="allPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
-    <button class="btn" style="background:#5a3d99" onclick="exportAasMasterXlsx()" title="Same layout as AAS's own master file, live values, edits highlighted yellow -- for a single Forte upload covering every guide">Export AAS Master Class Guide (XLSX)</button>
-    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileAll" style="display:none" accept=".xlsx,.csv"></label>
-    <label class="offonly-label"><input type="checkbox" id="offOnlyImportAll"> Only import Off values</label>
-    <button class="btn red" onclick="allPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn blue" onclick="allPanelObj.exportXlsx()" title="Exports an XLSX containing only the columns currently ticked in the Region / Rate card / Coverage / Tier / Rate filters below">Export Current View</button>
+    <button class="btn" style="background:#5a3d99" onclick="exportAasMasterXlsx()" title="Same layout as AAS's own master file, live values, edits highlighted yellow -- always every guide and every column, regardless of the filters below; for a single Forte upload">Export AAS Master Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block" title="Applies the file's values to the guides behind the matching columns. Needs guide-qualified column headers, e.g. &quot;Diamond Branded 1AS&quot; -- export from here first to get them.">Import Guide (XLSX/CSV)<input type="file" id="importFileAll" style="display:none" accept=".xlsx,.csv"></label>
+    <button class="btn red" onclick="allPanelObj.clearOverrides()" title="Discards edits and returns to the currently filed guide, for the columns shown by the filters below only">Reset Shown Columns to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnAll" onclick="allPanelObj.toggleEditedFilter()">Show Only Edited</button>
     <span class="count" id="countAll"></span>
     <span id="editCountAll" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
   <div class="allfilter">
-    <span class="aflbl">Region</span>
-    <label><input type="checkbox" class="afRegion" value="nonfl" checked onchange="applyAllFilters()"> Non-Florida</label>
-    <label><input type="checkbox" class="afRegion" value="fl" checked onchange="applyAllFilters()"> Florida</label>
-    <span class="afsep"></span>
-    <span class="aflbl">Rate card</span>
-    <label><input type="checkbox" class="afCard" value="std" checked onchange="applyAllFilters()"> Standard</label>
-    <label><input type="checkbox" class="afCard" value="sal" checked onchange="applyAllFilters()"> Branded</label>
-    <label><input type="checkbox" class="afCard" value="ride" checked onchange="applyAllFilters()"> RideShare</label>
-    <button class="btn" style="background:#3a3a3c;padding:3px 10px;font-size:10px" onclick="resetAllFilters()">Show All</button>
-    <span id="allFilterCount" style="color:#bb86fc;font-weight:700;font-size:10px"></span>
-    <span class="afsep"></span>
-    <span class="aflbl">Display</span>
-    <label><input type="radio" name="afDisplayMode" value="class" checked onchange="setAllDisplayMode('class')"> Class</label>
-    <label><input type="radio" name="afDisplayMode" value="mileage" onchange="setAllDisplayMode('mileage')"> Mileage limit</label>
-    <span class="mileageModeLabel" id="mileageModeNote" style="display:none">Mileage limit is only on file for Non-FL Standard guides (Diamond/Platinum/Gold Select/Silver/Aluminum/EV) &mdash; other columns show &mdash;</span>
-  </div>
-  <div class="allfilter">
-    <span class="aflbl">Coverage</span>
-    <label><input type="checkbox" class="afPlan" value="diamond" checked onchange="applyAllFilters()"> Diamond</label>
-    <label><input type="checkbox" class="afPlan" value="platinum" checked onchange="applyAllFilters()"> Platinum</label>
-    <label><input type="checkbox" class="afPlan" value="goldselect" checked onchange="applyAllFilters()"> Gold Select</label>
-    <label><input type="checkbox" class="afPlan" value="silver" checked onchange="applyAllFilters()"> Silver</label>
-    <label><input type="checkbox" class="afPlan" value="alum" checked onchange="applyAllFilters()"> Aluminum</label>
-    <label><input type="checkbox" class="afPlan" value="ev" checked onchange="applyAllFilters()"> EV</label>
-    <span class="afsep"></span>
-    <span class="aflbl">Tier</span>
-    <label><input type="checkbox" class="afTier" value="1" checked onchange="applyAllFilters()"> 1</label>
-    <label><input type="checkbox" class="afTier" value="2" checked onchange="applyAllFilters()"> 2</label>
-    <label><input type="checkbox" class="afTier" value="3" checked onchange="applyAllFilters()"> 3</label>
-    <span class="afsep"></span>
-    <span class="aflbl">Rate</span>
-    <label><input type="checkbox" class="afRate" value="A" checked onchange="applyAllFilters()"> A</label>
-    <label><input type="checkbox" class="afRate" value="B" checked onchange="applyAllFilters()"> B</label>
-    <label><input type="checkbox" class="afRate" value="G" checked onchange="applyAllFilters()"> G</label>
+    <span class="afgrp"><span class="aflbl">Region</span><label><input type="checkbox" class="afRegion" value="nonfl" checked onchange="applyAllFilters()"> Non-Florida</label><label><input type="checkbox" class="afRegion" value="fl" checked onchange="applyAllFilters()"> Florida</label></span>
+    <span class="afgrp"><span class="aflbl">Rate card</span><label><input type="checkbox" class="afCard" value="std" checked onchange="applyAllFilters()"> Standard</label><label><input type="checkbox" class="afCard" value="sal" checked onchange="applyAllFilters()"> Branded</label><label><input type="checkbox" class="afCard" value="ride" checked onchange="applyAllFilters()"> RideShare</label></span>
+    <span class="afgrp"><span class="aflbl">Coverage</span><label><input type="checkbox" class="afPlan" value="diamond" checked onchange="applyAllFilters()"> Diamond</label><label><input type="checkbox" class="afPlan" value="platinum" checked onchange="applyAllFilters()"> Platinum</label><label><input type="checkbox" class="afPlan" value="goldselect" checked onchange="applyAllFilters()"> Gold Select</label><label><input type="checkbox" class="afPlan" value="silver" checked onchange="applyAllFilters()"> Silver</label><label><input type="checkbox" class="afPlan" value="alum" checked onchange="applyAllFilters()"> Aluminum</label><label><input type="checkbox" class="afPlan" value="ev" checked onchange="applyAllFilters()"> EV</label></span>
+    <span class="afgrp"><span class="aflbl">Tier</span><label><input type="checkbox" class="afTier" value="1" checked onchange="applyAllFilters()"> 1</label><label><input type="checkbox" class="afTier" value="2" checked onchange="applyAllFilters()"> 2</label><label><input type="checkbox" class="afTier" value="3" checked onchange="applyAllFilters()"> 3</label></span>
+    <span class="afgrp"><span class="aflbl">Rate</span><label><input type="checkbox" class="afRate" value="A" checked onchange="applyAllFilters()"> A</label><label><input type="checkbox" class="afRate" value="B" checked onchange="applyAllFilters()"> B</label><label><input type="checkbox" class="afRate" value="G" checked onchange="applyAllFilters()"> G</label></span>
+    <button class="btn afreset" onclick="resetAllFilters()" title="Ticks every Region, Rate card, Coverage, Tier and Rate box, so the grid shows all 174 columns again">&#10003; Check all filters</button>
   </div>
   <div class="legbar">
     <div class="li"><span class="sw" style="background:#fff"></span> Current AAS2012 class (unedited)</div>
     <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
     <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today</div>
     <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this column</div>
-    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">View only</span> All Combined is reference-only &mdash; cells here can't be clicked or edited in either Class or Mileage limit mode; make edits on the individual guide tabs instead</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Read-only cell</span> No editable guide behind it &mdash; an EV column on a non-EV vehicle</div>
   </div>
   <div class="grid-wrap" id="gridWrapAll">
     <table id="gridTableAll"><colgroup><col class="c-desc"></colgroup></table>
@@ -605,6 +644,93 @@ td.edited .mileageDisplay{color:#8a6d00;font-weight:800}
     <table id="gridTableFl"><colgroup><col class="c-desc"></colgroup></table>
   </div>
 </div><!-- end flPanel -->
+
+<div class="panel hidden" id="platinumFlStdPanel">
+  <div id="topBarPlatinumFlStd">
+    <h1>Platinum Florida Standard Class Guide</h1>
+    <input type="text" class="guideName" id="guideNamePlatinumFlStd" value="Florida Platinum Standard Guide 1">
+    <div style="color:#888;font-size:11px">All 3,218 vehicles &middot; Florida has its own admin/coverage codes and files separately from Tiers 1&ndash;3, but uses the same underlying vehicle class &middot; Rate A / Rate B / Rate G, no tiers</div>
+  </div>
+  <div class="fl-banner">Florida-specific filing &middot; same vehicle classes as Standard, tracked under Florida's own admin/coverage codes &middot; no Tier 1/2/3 split &mdash; just one statewide rate per class.</div>
+  <div class="toolbar">
+    <input type="text" id="searchPlatinumFlStd" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
+    <button class="btn blue" onclick="platinumFlStdPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFilePlatinumFlStd" style="display:none" accept=".xlsx,.csv"></label>
+    <label class="offonly-label"><input type="checkbox" id="offOnlyImportPlatinumFlStd"> Only import Off values</label>
+    <button class="btn red" onclick="platinumFlStdPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnPlatinumFlStd" onclick="platinumFlStdPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countPlatinumFlStd"></span>
+    <span id="editCountPlatinumFlStd" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Current AAS2012 class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every rate on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its base classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapPlatinumFlStd">
+    <table id="gridTablePlatinumFlStd"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end platinumFlStdPanel -->
+
+<div class="panel hidden" id="goldselectFlStdPanel">
+  <div id="topBarGoldselectFlStd">
+    <h1>Gold Select Florida Standard Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameGoldselectFlStd" value="Florida Gold Select Standard Guide 1">
+    <div style="color:#888;font-size:11px">All 3,218 vehicles &middot; Florida has its own admin/coverage codes and files separately from Tiers 1&ndash;3, but uses the same underlying vehicle class &middot; Rate A / Rate B / Rate G, no tiers</div>
+  </div>
+  <div class="fl-banner">Florida-specific filing &middot; same vehicle classes as Standard, tracked under Florida's own admin/coverage codes &middot; no Tier 1/2/3 split &mdash; just one statewide rate per class.</div>
+  <div class="toolbar">
+    <input type="text" id="searchGoldselectFlStd" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
+    <button class="btn blue" onclick="goldselectFlStdPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileGoldselectFlStd" style="display:none" accept=".xlsx,.csv"></label>
+    <label class="offonly-label"><input type="checkbox" id="offOnlyImportGoldselectFlStd"> Only import Off values</label>
+    <button class="btn red" onclick="goldselectFlStdPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnGoldselectFlStd" onclick="goldselectFlStdPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countGoldselectFlStd"></span>
+    <span id="editCountGoldselectFlStd" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Current AAS2012 class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every rate on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its base classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapGoldselectFlStd">
+    <table id="gridTableGoldselectFlStd"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end goldselectFlStdPanel -->
+
+<div class="panel hidden" id="silverFlStdPanel">
+  <div id="topBarSilverFlStd">
+    <h1>Silver Florida Standard Class Guide</h1>
+    <input type="text" class="guideName" id="guideNameSilverFlStd" value="Florida Silver Standard Guide 1">
+    <div style="color:#888;font-size:11px">All 3,218 vehicles &middot; Florida has its own admin/coverage codes and files separately from Tiers 1&ndash;3, but uses the same underlying vehicle class &middot; Rate A / Rate B / Rate G, no tiers</div>
+  </div>
+  <div class="fl-banner">Florida-specific filing &middot; same vehicle classes as Standard, tracked under Florida's own admin/coverage codes &middot; no Tier 1/2/3 split &mdash; just one statewide rate per class.</div>
+  <div class="toolbar">
+    <input type="text" id="searchSilverFlStd" placeholder="Search make/model (e.g. ACUR MDX, BMW 750i)...">
+    <button class="btn blue" onclick="silverFlStdPanelObj.exportXlsx()">Export Class Guide (XLSX)</button>
+    <label class="btn green" style="display:inline-block">Import Guide (XLSX/CSV)<input type="file" id="importFileSilverFlStd" style="display:none" accept=".xlsx,.csv"></label>
+    <label class="offonly-label"><input type="checkbox" id="offOnlyImportSilverFlStd"> Only import Off values</label>
+    <button class="btn red" onclick="silverFlStdPanelObj.clearOverrides()">Reset All to Current Guide</button>
+    <button class="btn filterbtn" id="editedFilterBtnSilverFlStd" onclick="silverFlStdPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <span class="count" id="countSilverFlStd"></span>
+    <span id="editCountSilverFlStd" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
+  </div>
+  <div class="legbar">
+    <div class="li"><span class="sw" style="background:#fff"></span> Current AAS2012 class (unedited)</div>
+    <div class="li"><span class="sw" style="background:#fff3b0;border:1px solid #8a6d00"></span> Edited for this guide</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a"></span> N/A &mdash; DSCR/XXXX/YEAR, no class today &mdash; still editable</div>
+    <div class="li"><span class="sw" style="background:#3a3a3a;border:1px solid #666"></span> "Off" &mdash; explicitly set as not offered for this Rate</div>
+    <div class="li"><span style="background:#555;color:#fff;border-radius:3px;font-size:9px;font-weight:700;padding:2px 6px">Off All</span> click on any vehicle to set every rate on that row to Off in one click &mdash; click again (now labeled "Back On") to restore its base classes</div>
+  </div>
+  <div class="grid-wrap" id="gridWrapSilverFlStd">
+    <table id="gridTableSilverFlStd"><colgroup><col class="c-desc"></colgroup></table>
+  </div>
+</div><!-- end silverFlStdPanel -->
 
 
 
@@ -1257,25 +1383,24 @@ const INSTALLED_GOLDSELECTFLRIDE = {"18":["AR","BR","GR"],"19":["AR","BR","GR"],
 const INSTALLED_SILVERFLRIDE = {"177":["AR","BR","GR"],"178":["AR","BR","GR"],"179":["AR","BR","GR"],"180":["AR","BR","GR"],"181":["AR","BR","GR"],"182":["AR","BR","GR"],"183":["AR","BR","GR"],"184":["AR","BR","GR"],"185":["AR","BR","GR"],"186":["AR","BR","GR"],"187":["AR","BR","GR"],"188":["AR","BR","GR"],"189":["AR","BR","GR"],"190":["AR","BR","GR"],"191":["AR","BR","GR"],"192":["AR","BR","GR"],"193":["AR","BR","GR"],"194":["AR","BR","GR"],"195":["AR","BR","GR"],"196":["AR","BR","GR"],"197":["AR","BR","GR"],"198":["AR","BR","GR"],"199":["AR","BR","GR"],"200":["AR","BR","GR"],"201":["AR","BR","GR"],"202":["AR","BR","GR"],"203":["AR","BR","GR"],"204":["AR","BR","GR"],"205":["AR","BR","GR"],"206":["AR","BR","GR"],"207":["AR","BR","GR"],"208":["AR","BR","GR"],"209":["AR","BR","GR"],"210":["AR","BR","GR"],"211":["AR","BR","GR"],"212":["AR","BR","GR"],"213":["AR","BR","GR"],"214":["AR","BR","GR"],"215":["AR","BR","GR"],"216":["AR","BR","GR"],"217":["AR","BR","GR"],"218":["AR","BR","GR"],"219":["AR","BR","GR"],"220":["AR","BR","GR"],"221":["AR","BR","GR"],"222":["AR","BR","GR"],"223":["AR","BR","GR"],"224":["AR","BR","GR"],"225":["AR","BR","GR"],"226":["AR","BR","GR"],"227":["AR","BR","GR"],"228":["AR","BR","GR"],"229":["AR","BR","GR"],"230":["AR","BR","GR"],"231":["AR","BR","GR"],"232":["AR","BR","GR"],"233":["AR","BR","GR"],"234":["AR","BR","GR"],"235":["AR","BR","GR"],"236":["AR","BR","GR"],"237":["AR","BR","GR"],"238":["AR","BR","GR"],"239":["AR","BR","GR"],"240":["AR","BR","GR"],"241":["AR","BR","GR"],"242":["AR","BR","GR"],"243":["AR","BR","GR"],"244":["AR","BR","GR"],"245":["AR","BR","GR"],"246":["AR","BR","GR"],"247":["AR","BR","GR"],"248":["AR","BR","GR"],"249":["AR","BR","GR"],"250":["AR","BR","GR"],"251":["AR","BR","GR"],"252":["AR","BR","GR"],"253":["AR","BR","GR"],"254":["AR","BR","GR"],"255":["AR","BR","GR"],"256":["AR","BR","GR"],"257":["AR","BR","GR"],"258":["AR","BR","GR"],"259":["AR","BR","GR"],"260":["AR","BR","GR"],"261":["AR","BR","GR"],"262":["AR","BR","GR"],"263":["AR","BR","GR"],"264":["AR","BR","GR"],"265":["AR","BR","GR"],"266":["AR","BR","GR"],"267":["AR","BR","GR"],"268":["AR","BR","GR"],"269":["AR","BR","GR"],"270":["AR","BR","GR"],"271":["AR","BR","GR"],"272":["AR","BR","GR"],"273":["AR","BR","GR"],"274":["AR","BR","GR"],"275":["AR","BR","GR"],"276":["AR","BR","GR"],"277":["AR","BR","GR"],"278":["AR","BR","GR"],"279":["AR","BR","GR"],"280":["AR","BR","GR"],"281":["AR","BR","GR"],"282":["AR","BR","GR"],"283":["AR","BR","GR"],"284":["AR","BR","GR"],"285":["AR","BR","GR"],"286":["AR","BR","GR"],"287":["AR","BR","GR"],"288":["AR","BR","GR"],"289":["AR","BR","GR"],"290":["AR","BR","GR"],"291":["AR","BR","GR"],"292":["AR","BR","GR"],"293":["AR","BR","GR"],"294":["AR","BR","GR"],"295":["AR","BR","GR"],"296":["AR","BR","GR"],"297":["AR","BR","GR"],"298":["AR","BR","GR"],"299":["AR","BR","GR"],"300":["AR","BR","GR"],"301":["AR","BR","GR"],"302":["AR","BR","GR"],"303":["AR","BR","GR"],"304":["AR","BR","GR"],"305":["AR","BR","GR"],"306":["AR","BR","GR"],"307":["AR","BR","GR"],"308":["AR","BR","GR"],"309":["AR","BR","GR"],"310":["AR","BR","GR"],"311":["AR","BR","GR"],"312":["AR","BR","GR"],"313":["AR","BR","GR"],"314":["AR","BR","GR"],"315":["AR","BR","GR"],"316":["AR","BR","GR"],"317":["AR","BR","GR"],"318":["AR","BR","GR"],"319":["AR","BR","GR"],"320":["AR","BR","GR"],"321":["AR","BR","GR"],"322":["AR","BR","GR"],"323":["AR","BR","GR"],"324":["AR","BR","GR"],"325":["AR","BR","GR"],"326":["AR","BR","GR"],"327":["AR","BR","GR"],"328":["AR","BR","GR"],"329":["AR","BR","GR"],"330":["AR","BR","GR"],"331":["AR","BR","GR"],"332":["AR","BR","GR"],"333":["AR","BR","GR"],"334":["AR","BR","GR"],"335":["AR","BR","GR"],"336":["AR","BR","GR"],"337":["AR","BR","GR"],"338":["AR","BR","GR"],"339":["AR","BR","GR"],"340":["AR","BR","GR"],"341":["AR","BR","GR"],"342":["AR","BR","GR"],"343":["AR","BR","GR"],"344":["AR","BR","GR"],"345":["AR","BR","GR"],"346":["AR","BR","GR"],"347":["AR","BR","GR"],"348":["AR","BR","GR"],"349":["AR","BR","GR"],"350":["AR","BR","GR"],"351":["AR","BR","GR"],"352":["AR","BR","GR"],"353":["AR","BR","GR"],"354":["AR","BR","GR"],"355":["AR","BR","GR"],"356":["AR","BR","GR"],"357":["AR","BR","GR"],"358":["AR","BR","GR"],"359":["AR","BR","GR"],"360":["AR","BR","GR"],"361":["AR","BR","GR"],"362":["AR","BR","GR"],"363":["AR","BR","GR"],"364":["AR","BR","GR"],"365":["AR","BR","GR"],"366":["AR","BR","GR"],"367":["AR","BR","GR"],"462":["AR","BR","GR"],"463":["AR","BR","GR"],"464":["AR","BR","GR"],"465":["AR","BR","GR"],"466":["AR","BR","GR"],"467":["AR","BR","GR"],"468":["AR","BR","GR"],"469":["AR","BR","GR"],"470":["AR","BR","GR"],"494":["AR","BR","GR"],"495":["AR","BR","GR"],"496":["AR","BR","GR"],"497":["AR","BR","GR"],"498":["AR","BR","GR"],"499":["AR","BR","GR"],"500":["AR","BR","GR"],"501":["AR","BR","GR"],"502":["AR","BR","GR"],"503":["AR","BR","GR"],"504":["AR","BR","GR"],"505":["AR","BR","GR"],"506":["AR","BR","GR"],"507":["AR","BR","GR"],"508":["AR","BR","GR"],"509":["AR","BR","GR"],"530":["AR","BR","GR"],"531":["AR","BR","GR"],"532":["AR","BR","GR"],"533":["AR","BR","GR"],"534":["AR","BR","GR"],"535":["AR","BR","GR"],"536":["AR","BR","GR"],"537":["AR","BR","GR"],"538":["AR","BR","GR"],"675":["AR","BR","GR"],"781":["AR","BR","GR"],"782":["AR","BR","GR"],"820":["AR","BR","GR"],"821":["AR","BR","GR"],"822":["AR","BR","GR"],"823":["AR","BR","GR"],"1007":["AR","BR","GR"],"1008":["AR","BR","GR"],"1009":["AR","BR","GR"],"1010":["AR","BR","GR"],"1249":["AR","BR","GR"],"1487":["AR","BR","GR"],"1488":["AR","BR","GR"],"1489":["AR","BR","GR"],"1490":["AR","BR","GR"],"1491":["AR","BR","GR"],"1492":["AR","BR","GR"],"1493":["AR","BR","GR"],"1494":["AR","BR","GR"],"1495":["AR","BR","GR"],"1496":["AR","BR","GR"],"1970":["AR","BR","GR"],"1971":["AR","BR","GR"],"1972":["AR","BR","GR"],"1973":["AR","BR","GR"],"1974":["AR","BR","GR"],"2000":["AR","BR","GR"],"2001":["AR","BR","GR"],"2002":["AR","BR","GR"],"2003":["AR","BR","GR"],"2004":["AR","BR","GR"],"2005":["AR","BR","GR"],"2006":["AR","BR","GR"],"2134":["AR","BR","GR"],"2135":["AR","BR","GR"],"2136":["AR","BR","GR"],"2137":["AR","BR","GR"],"2138":["AR","BR","GR"],"2139":["AR","BR","GR"],"2140":["AR","BR","GR"],"2141":["AR","BR","GR"],"2142":["AR","BR","GR"],"2143":["AR","BR","GR"],"2144":["AR","BR","GR"],"2145":["AR","BR","GR"],"2146":["AR","BR","GR"],"2147":["AR","BR","GR"],"2148":["AR","BR","GR"],"2149":["AR","BR","GR"],"2150":["AR","BR","GR"],"2151":["AR","BR","GR"],"2152":["AR","BR","GR"],"2153":["AR","BR","GR"],"2154":["AR","BR","GR"],"2155":["AR","BR","GR"],"2156":["AR","BR","GR"],"2157":["AR","BR","GR"],"2158":["AR","BR","GR"],"2159":["AR","BR","GR"],"2160":["AR","BR","GR"],"2161":["AR","BR","GR"],"2162":["AR","BR","GR"],"2163":["AR","BR","GR"],"2164":["AR","BR","GR"],"2165":["AR","BR","GR"],"2166":["AR","BR","GR"],"2167":["AR","BR","GR"],"2168":["AR","BR","GR"],"2169":["AR","BR","GR"],"2170":["AR","BR","GR"],"2171":["AR","BR","GR"],"2172":["AR","BR","GR"],"2173":["AR","BR","GR"],"2174":["AR","BR","GR"],"2175":["AR","BR","GR"],"2176":["AR","BR","GR"],"2177":["AR","BR","GR"],"2178":["AR","BR","GR"],"2179":["AR","BR","GR"],"2180":["AR","BR","GR"],"2181":["AR","BR","GR"],"2182":["AR","BR","GR"],"2183":["AR","BR","GR"],"2184":["AR","BR","GR"],"2185":["AR","BR","GR"],"2186":["AR","BR","GR"],"2187":["AR","BR","GR"],"2188":["AR","BR","GR"],"2190":["AR","BR","GR"],"2191":["AR","BR","GR"],"2192":["AR","BR","GR"],"2193":["AR","BR","GR"],"2194":["AR","BR","GR"],"2195":["AR","BR","GR"],"2196":["AR","BR","GR"],"2197":["AR","BR","GR"],"2198":["AR","BR","GR"],"2199":["AR","BR","GR"],"2200":["AR","BR","GR"],"2201":["AR","BR","GR"],"2202":["AR","BR","GR"],"2203":["AR","BR","GR"],"2204":["AR","BR","GR"],"2205":["AR","BR","GR"],"2206":["AR","BR","GR"],"2207":["AR","BR","GR"],"2208":["AR","BR","GR"],"2209":["AR","BR","GR"],"2210":["AR","BR","GR"],"2211":["AR","BR","GR"],"2212":["AR","BR","GR"],"2213":["AR","BR","GR"],"2214":["AR","BR","GR"],"2215":["AR","BR","GR"],"2216":["AR","BR","GR"],"2217":["AR","BR","GR"],"2218":["AR","BR","GR"],"2219":["AR","BR","GR"],"2220":["AR","BR","GR"],"2221":["AR","BR","GR"],"2222":["AR","BR","GR"],"2223":["AR","BR","GR"],"2224":["AR","BR","GR"],"2225":["AR","BR","GR"],"2226":["AR","BR","GR"],"2227":["AR","BR","GR"],"2228":["AR","BR","GR"],"2229":["AR","BR","GR"],"2230":["AR","BR","GR"],"2231":["AR","BR","GR"],"2232":["AR","BR","GR"],"2233":["AR","BR","GR"],"2234":["AR","BR","GR"],"2235":["AR","BR","GR"],"2236":["AR","BR","GR"],"2237":["AR","BR","GR"],"2238":["AR","BR","GR"],"2239":["AR","BR","GR"],"2240":["AR","BR","GR"],"2241":["AR","BR","GR"],"2242":["AR","BR","GR"],"2243":["AR","BR","GR"],"2244":["AR","BR","GR"],"2245":["AR","BR","GR"],"2246":["AR","BR","GR"],"2247":["AR","BR","GR"],"2248":["AR","BR","GR"],"2249":["AR","BR","GR"],"2250":["AR","BR","GR"],"2251":["AR","BR","GR"],"2252":["AR","BR","GR"],"2253":["AR","BR","GR"],"2254":["AR","BR","GR"],"2255":["AR","BR","GR"],"2256":["AR","BR","GR"],"2257":["AR","BR","GR"],"2258":["AR","BR","GR"],"2259":["AR","BR","GR"],"2260":["AR","BR","GR"],"2261":["AR","BR","GR"],"2262":["AR","BR","GR"],"2263":["AR","BR","GR"],"2264":["AR","BR","GR"],"2265":["AR","BR","GR"],"2266":["AR","BR","GR"],"2267":["AR","BR","GR"],"2268":["AR","BR","GR"],"2269":["AR","BR","GR"],"2270":["AR","BR","GR"],"2271":["AR","BR","GR"],"2272":["AR","BR","GR"],"2273":["AR","BR","GR"],"2274":["AR","BR","GR"],"2275":["AR","BR","GR"],"2276":["AR","BR","GR"],"2277":["AR","BR","GR"],"2278":["AR","BR","GR"],"2279":["AR","BR","GR"],"2280":["AR","BR","GR"],"2281":["AR","BR","GR"],"2282":["AR","BR","GR"],"2283":["AR","BR","GR"],"2284":["AR","BR","GR"],"2285":["AR","BR","GR"],"2286":["AR","BR","GR"],"2287":["AR","BR","GR"],"2288":["AR","BR","GR"],"2289":["AR","BR","GR"],"2290":["AR","BR","GR"],"2291":["AR","BR","GR"],"2292":["AR","BR","GR"],"2293":["AR","BR","GR"],"2294":["AR","BR","GR"],"2295":["AR","BR","GR"],"2296":["AR","BR","GR"],"2297":["AR","BR","GR"],"2298":["AR","BR","GR"],"2299":["AR","BR","GR"],"2300":["AR","BR","GR"],"2301":["AR","BR","GR"],"2302":["AR","BR","GR"],"2303":["AR","BR","GR"],"2304":["AR","BR","GR"],"2305":["AR","BR","GR"],"2306":["AR","BR","GR"],"2307":["AR","BR","GR"],"2308":["AR","BR","GR"],"2309":["AR","BR","GR"],"2310":["AR","BR","GR"],"2311":["AR","BR","GR"],"2312":["AR","BR","GR"],"2313":["AR","BR","GR"],"2315":["AR","BR","GR"],"2316":["AR","BR","GR"],"2317":["AR","BR","GR"],"2318":["AR","BR","GR"],"2319":["AR","BR","GR"],"2320":["AR","BR","GR"],"2321":["AR","BR","GR"],"2322":["AR","BR","GR"],"2323":["AR","BR","GR"],"2324":["AR","BR","GR"],"2325":["AR","BR","GR"],"2326":["AR","BR","GR"],"2327":["AR","BR","GR"],"2328":["AR","BR","GR"],"2329":["AR","BR","GR"],"2330":["AR","BR","GR"],"2331":["AR","BR","GR"],"2332":["AR","BR","GR"],"2333":["AR","BR","GR"],"2334":["AR","BR","GR"],"2335":["AR","BR","GR"],"2336":["AR","BR","GR"],"2337":["AR","BR","GR"],"2338":["AR","BR","GR"],"2339":["AR","BR","GR"],"2340":["AR","BR","GR"],"2341":["AR","BR","GR"],"2342":["AR","BR","GR"],"2343":["AR","BR","GR"],"2344":["AR","BR","GR"],"2345":["AR","BR","GR"],"2346":["AR","BR","GR"],"2347":["AR","BR","GR"],"2348":["AR","BR","GR"],"2349":["AR","BR","GR"],"2350":["AR","BR","GR"],"2351":["AR","BR","GR"],"2352":["AR","BR","GR"],"2353":["AR","BR","GR"],"2354":["AR","BR","GR"],"2355":["AR","BR","GR"],"2356":["AR","BR","GR"],"2357":["AR","BR","GR"],"2358":["AR","BR","GR"],"2359":["AR","BR","GR"],"2360":["AR","BR","GR"],"2361":["AR","BR","GR"],"2362":["AR","BR","GR"],"2363":["AR","BR","GR"],"2364":["AR","BR","GR"],"2365":["AR","BR","GR"],"2366":["AR","BR","GR"],"2367":["AR","BR","GR"],"2368":["AR","BR","GR"],"2369":["AR","BR","GR"],"2370":["AR","BR","GR"],"2371":["AR","BR","GR"],"2372":["AR","BR","GR"],"2373":["AR","BR","GR"],"2374":["AR","BR","GR"],"2375":["AR","BR","GR"],"2376":["AR","BR","GR"],"2377":["AR","BR","GR"],"2378":["AR","BR","GR"],"2379":["AR","BR","GR"],"2380":["AR","BR","GR"],"2381":["AR","BR","GR"],"2382":["AR","BR","GR"],"2383":["AR","BR","GR"],"2384":["AR","BR","GR"],"2385":["AR","BR","GR"],"2386":["AR","BR","GR"],"2387":["AR","BR","GR"],"2388":["AR","BR","GR"],"2389":["AR","BR","GR"],"2390":["AR","BR","GR"],"2391":["AR","BR","GR"],"2392":["AR","BR","GR"],"2393":["AR","BR","GR"],"2394":["AR","BR","GR"],"2395":["AR","BR","GR"],"2396":["AR","BR","GR"],"2397":["AR","BR","GR"],"2398":["AR","BR","GR"],"2399":["AR","BR","GR"],"2400":["AR","BR","GR"],"2401":["AR","BR","GR"],"2402":["AR","BR","GR"],"2403":["AR","BR","GR"],"2404":["AR","BR","GR"],"2405":["AR","BR","GR"],"2406":["AR","BR","GR"],"2407":["AR","BR","GR"],"2408":["AR","BR","GR"],"2409":["AR","BR","GR"],"2410":["AR","BR","GR"],"2411":["AR","BR","GR"],"2412":["AR","BR","GR"],"2413":["AR","BR","GR"],"2414":["AR","BR","GR"],"2415":["AR","BR","GR"],"2416":["AR","BR","GR"],"2417":["AR","BR","GR"],"2418":["AR","BR","GR"],"2419":["AR","BR","GR"],"2420":["AR","BR","GR"],"2421":["AR","BR","GR"],"2422":["AR","BR","GR"],"2423":["AR","BR","GR"],"2424":["AR","BR","GR"],"2425":["AR","BR","GR"],"2426":["AR","BR","GR"],"2427":["AR","BR","GR"],"2428":["AR","BR","GR"],"2429":["AR","BR","GR"],"2430":["AR","BR","GR"],"2431":["AR","BR","GR"],"2432":["AR","BR","GR"],"2433":["AR","BR","GR"],"2434":["AR","BR","GR"],"2435":["AR","BR","GR"],"2436":["AR","BR","GR"],"2437":["AR","BR","GR"],"2438":["AR","BR","GR"],"2439":["AR","BR","GR"],"2440":["AR","BR","GR"],"2441":["AR","BR","GR"],"2442":["AR","BR","GR"],"2443":["AR","BR","GR"],"2444":["AR","BR","GR"],"2445":["AR","BR","GR"],"2446":["AR","BR","GR"],"2447":["AR","BR","GR"],"2448":["AR","BR","GR"],"2449":["AR","BR","GR"],"2450":["AR","BR","GR"],"2451":["AR","BR","GR"],"2452":["AR","BR","GR"],"2453":["AR","BR","GR"],"2454":["AR","BR","GR"],"2455":["AR","BR","GR"],"2456":["AR","BR","GR"],"2457":["AR","BR","GR"],"2458":["AR","BR","GR"],"2459":["AR","BR","GR"],"2460":["AR","BR","GR"],"2461":["AR","BR","GR"],"2585":["AR","BR","GR"],"2586":["AR","BR","GR"],"2639":["AR","BR","GR"],"2640":["AR","BR","GR"],"2641":["AR","BR","GR"],"2642":["AR","BR","GR"],"2654":["AR","BR","GR"],"2655":["AR","BR","GR"],"2656":["AR","BR","GR"],"2657":["AR","BR","GR"],"2658":["AR","BR","GR"],"2659":["AR","BR","GR"],"2660":["AR","BR","GR"],"2661":["AR","BR","GR"],"2662":["AR","BR","GR"],"2663":["AR","BR","GR"],"2664":["AR","BR","GR"],"2665":["AR","BR","GR"],"2666":["AR","BR","GR"],"2667":["AR","BR","GR"],"2668":["AR","BR","GR"],"2669":["AR","BR","GR"],"2670":["AR","BR","GR"],"2671":["AR","BR","GR"],"2672":["AR","BR","GR"],"2673":["AR","BR","GR"],"2674":["AR","BR","GR"],"2675":["AR","BR","GR"],"2676":["AR","BR","GR"],"2677":["AR","BR","GR"],"2678":["AR","BR","GR"],"2679":["AR","BR","GR"],"2680":["AR","BR","GR"],"2681":["AR","BR","GR"],"2682":["AR","BR","GR"],"2683":["AR","BR","GR"],"2684":["AR","BR","GR"],"2685":["AR","BR","GR"],"2686":["AR","BR","GR"],"2687":["AR","BR","GR"],"2688":["AR","BR","GR"],"2689":["AR","BR","GR"],"2690":["AR","BR","GR"],"2691":["AR","BR","GR"],"2692":["AR","BR","GR"],"2693":["AR","BR","GR"],"2694":["AR","BR","GR"],"2695":["AR","BR","GR"],"2696":["AR","BR","GR"],"2697":["AR","BR","GR"],"2698":["AR","BR","GR"],"2699":["AR","BR","GR"],"2700":["AR","BR","GR"],"2701":["AR","BR","GR"],"2702":["AR","BR","GR"],"2703":["AR","BR","GR"],"2704":["AR","BR","GR"],"2705":["AR","BR","GR"],"2706":["AR","BR","GR"],"2707":["AR","BR","GR"],"2708":["AR","BR","GR"],"2709":["AR","BR","GR"],"2710":["AR","BR","GR"],"2711":["AR","BR","GR"],"2712":["AR","BR","GR"],"2713":["AR","BR","GR"],"2714":["AR","BR","GR"],"2715":["AR","BR","GR"],"2716":["AR","BR","GR"],"2717":["AR","BR","GR"],"2718":["AR","BR","GR"],"2719":["AR","BR","GR"],"2720":["AR","BR","GR"],"2721":["AR","BR","GR"],"2722":["AR","BR","GR"],"2723":["AR","BR","GR"],"2724":["AR","BR","GR"],"2725":["AR","BR","GR"],"2726":["AR","BR","GR"],"2727":["AR","BR","GR"],"2728":["AR","BR","GR"],"2729":["AR","BR","GR"],"2730":["AR","BR","GR"],"2731":["AR","BR","GR"],"2732":["AR","BR","GR"],"2733":["AR","BR","GR"],"2807":["AR","BR","GR"],"2808":["AR","BR","GR"],"2809":["AR","BR","GR"],"2810":["AR","BR","GR"],"2811":["AR","BR","GR"],"2812":["AR","BR","GR"],"2813":["AR","BR","GR"],"2814":["AR","BR","GR"],"2815":["AR","BR","GR"],"2816":["AR","BR","GR"],"2817":["AR","BR","GR"],"2818":["AR","BR","GR"],"2819":["AR","BR","GR"],"2820":["AR","BR","GR"],"2821":["AR","BR","GR"],"2822":["AR","BR","GR"],"2823":["AR","BR","GR"],"2824":["AR","BR","GR"],"2825":["AR","BR","GR"],"2826":["AR","BR","GR"],"2827":["AR","BR","GR"],"2828":["AR","BR","GR"],"2829":["AR","BR","GR"],"2830":["AR","BR","GR"],"2831":["AR","BR","GR"],"2832":["AR","BR","GR"],"2833":["AR","BR","GR"],"2834":["AR","BR","GR"],"2835":["AR","BR","GR"],"2836":["AR","BR","GR"],"2837":["AR","BR","GR"],"2838":["AR","BR","GR"],"2839":["AR","BR","GR"],"2840":["AR","BR","GR"],"2841":["AR","BR","GR"],"2842":["AR","BR","GR"],"2843":["AR","BR","GR"],"3192":["AR","BR","GR"],"3193":["AR","BR","GR"],"3194":["AR","BR","GR"],"3195":["AR","BR","GR"],"2189":["AR","BR","GR"],"2314":["AR","BR","GR"]};
 const INSTALLED_FLALUMRIDE = {"177":["AR","BR","GR"],"178":["AR","BR","GR"],"179":["AR","BR","GR"],"180":["AR","BR","GR"],"181":["AR","BR","GR"],"182":["AR","BR","GR"],"183":["AR","BR","GR"],"184":["AR","BR","GR"],"185":["AR","BR","GR"],"186":["AR","BR","GR"],"187":["AR","BR","GR"],"188":["AR","BR","GR"],"189":["AR","BR","GR"],"190":["AR","BR","GR"],"191":["AR","BR","GR"],"192":["AR","BR","GR"],"193":["AR","BR","GR"],"194":["AR","BR","GR"],"195":["AR","BR","GR"],"196":["AR","BR","GR"],"197":["AR","BR","GR"],"198":["AR","BR","GR"],"199":["AR","BR","GR"],"200":["AR","BR","GR"],"201":["AR","BR","GR"],"202":["AR","BR","GR"],"203":["AR","BR","GR"],"204":["AR","BR","GR"],"205":["AR","BR","GR"],"206":["AR","BR","GR"],"207":["AR","BR","GR"],"208":["AR","BR","GR"],"209":["AR","BR","GR"],"210":["AR","BR","GR"],"211":["AR","BR","GR"],"212":["AR","BR","GR"],"213":["AR","BR","GR"],"214":["AR","BR","GR"],"215":["AR","BR","GR"],"216":["AR","BR","GR"],"217":["AR","BR","GR"],"218":["AR","BR","GR"],"219":["AR","BR","GR"],"220":["AR","BR","GR"],"221":["AR","BR","GR"],"222":["AR","BR","GR"],"223":["AR","BR","GR"],"224":["AR","BR","GR"],"225":["AR","BR","GR"],"226":["AR","BR","GR"],"227":["AR","BR","GR"],"228":["AR","BR","GR"],"229":["AR","BR","GR"],"230":["AR","BR","GR"],"231":["AR","BR","GR"],"232":["AR","BR","GR"],"233":["AR","BR","GR"],"234":["AR","BR","GR"],"235":["AR","BR","GR"],"236":["AR","BR","GR"],"237":["AR","BR","GR"],"238":["AR","BR","GR"],"239":["AR","BR","GR"],"240":["AR","BR","GR"],"241":["AR","BR","GR"],"242":["AR","BR","GR"],"243":["AR","BR","GR"],"244":["AR","BR","GR"],"245":["AR","BR","GR"],"246":["AR","BR","GR"],"247":["AR","BR","GR"],"248":["AR","BR","GR"],"249":["AR","BR","GR"],"250":["AR","BR","GR"],"251":["AR","BR","GR"],"252":["AR","BR","GR"],"253":["AR","BR","GR"],"254":["AR","BR","GR"],"255":["AR","BR","GR"],"256":["AR","BR","GR"],"257":["AR","BR","GR"],"258":["AR","BR","GR"],"259":["AR","BR","GR"],"260":["AR","BR","GR"],"261":["AR","BR","GR"],"262":["AR","BR","GR"],"263":["AR","BR","GR"],"264":["AR","BR","GR"],"265":["AR","BR","GR"],"266":["AR","BR","GR"],"267":["AR","BR","GR"],"268":["AR","BR","GR"],"269":["AR","BR","GR"],"270":["AR","BR","GR"],"271":["AR","BR","GR"],"272":["AR","BR","GR"],"273":["AR","BR","GR"],"274":["AR","BR","GR"],"275":["AR","BR","GR"],"276":["AR","BR","GR"],"277":["AR","BR","GR"],"278":["AR","BR","GR"],"279":["AR","BR","GR"],"280":["AR","BR","GR"],"281":["AR","BR","GR"],"282":["AR","BR","GR"],"283":["AR","BR","GR"],"284":["AR","BR","GR"],"285":["AR","BR","GR"],"286":["AR","BR","GR"],"287":["AR","BR","GR"],"288":["AR","BR","GR"],"289":["AR","BR","GR"],"290":["AR","BR","GR"],"291":["AR","BR","GR"],"292":["AR","BR","GR"],"293":["AR","BR","GR"],"294":["AR","BR","GR"],"295":["AR","BR","GR"],"296":["AR","BR","GR"],"297":["AR","BR","GR"],"298":["AR","BR","GR"],"299":["AR","BR","GR"],"300":["AR","BR","GR"],"301":["AR","BR","GR"],"302":["AR","BR","GR"],"303":["AR","BR","GR"],"304":["AR","BR","GR"],"305":["AR","BR","GR"],"306":["AR","BR","GR"],"307":["AR","BR","GR"],"308":["AR","BR","GR"],"309":["AR","BR","GR"],"310":["AR","BR","GR"],"311":["AR","BR","GR"],"312":["AR","BR","GR"],"313":["AR","BR","GR"],"314":["AR","BR","GR"],"315":["AR","BR","GR"],"316":["AR","BR","GR"],"317":["AR","BR","GR"],"318":["AR","BR","GR"],"319":["AR","BR","GR"],"320":["AR","BR","GR"],"321":["AR","BR","GR"],"322":["AR","BR","GR"],"323":["AR","BR","GR"],"324":["AR","BR","GR"],"325":["AR","BR","GR"],"326":["AR","BR","GR"],"327":["AR","BR","GR"],"328":["AR","BR","GR"],"329":["AR","BR","GR"],"330":["AR","BR","GR"],"331":["AR","BR","GR"],"332":["AR","BR","GR"],"333":["AR","BR","GR"],"334":["AR","BR","GR"],"335":["AR","BR","GR"],"336":["AR","BR","GR"],"337":["AR","BR","GR"],"338":["AR","BR","GR"],"339":["AR","BR","GR"],"340":["AR","BR","GR"],"341":["AR","BR","GR"],"342":["AR","BR","GR"],"343":["AR","BR","GR"],"344":["AR","BR","GR"],"345":["AR","BR","GR"],"346":["AR","BR","GR"],"347":["AR","BR","GR"],"348":["AR","BR","GR"],"349":["AR","BR","GR"],"350":["AR","BR","GR"],"351":["AR","BR","GR"],"352":["AR","BR","GR"],"353":["AR","BR","GR"],"354":["AR","BR","GR"],"355":["AR","BR","GR"],"356":["AR","BR","GR"],"357":["AR","BR","GR"],"358":["AR","BR","GR"],"359":["AR","BR","GR"],"360":["AR","BR","GR"],"361":["AR","BR","GR"],"362":["AR","BR","GR"],"363":["AR","BR","GR"],"364":["AR","BR","GR"],"365":["AR","BR","GR"],"366":["AR","BR","GR"],"367":["AR","BR","GR"],"462":["AR","BR","GR"],"463":["AR","BR","GR"],"464":["AR","BR","GR"],"465":["AR","BR","GR"],"466":["AR","BR","GR"],"467":["AR","BR","GR"],"468":["AR","BR","GR"],"469":["AR","BR","GR"],"470":["AR","BR","GR"],"494":["AR","BR","GR"],"495":["AR","BR","GR"],"496":["AR","BR","GR"],"497":["AR","BR","GR"],"498":["AR","BR","GR"],"499":["AR","BR","GR"],"500":["AR","BR","GR"],"501":["AR","BR","GR"],"502":["AR","BR","GR"],"503":["AR","BR","GR"],"504":["AR","BR","GR"],"505":["AR","BR","GR"],"506":["AR","BR","GR"],"507":["AR","BR","GR"],"508":["AR","BR","GR"],"509":["AR","BR","GR"],"1249":["AR","BR","GR"],"1970":["AR","BR","GR"],"1971":["AR","BR","GR"],"1972":["AR","BR","GR"],"1973":["AR","BR","GR"],"1974":["AR","BR","GR"],"2000":["AR","BR","GR"],"2001":["AR","BR","GR"],"2002":["AR","BR","GR"],"2003":["AR","BR","GR"],"2004":["AR","BR","GR"],"2005":["AR","BR","GR"],"2006":["AR","BR","GR"],"2134":["AR","BR","GR"],"2135":["AR","BR","GR"],"2136":["AR","BR","GR"],"2137":["AR","BR","GR"],"2138":["AR","BR","GR"],"2139":["AR","BR","GR"],"2140":["AR","BR","GR"],"2141":["AR","BR","GR"],"2142":["AR","BR","GR"],"2143":["AR","BR","GR"],"2144":["AR","BR","GR"],"2145":["AR","BR","GR"],"2146":["AR","BR","GR"],"2147":["AR","BR","GR"],"2148":["AR","BR","GR"],"2149":["AR","BR","GR"],"2150":["AR","BR","GR"],"2151":["AR","BR","GR"],"2152":["AR","BR","GR"],"2153":["AR","BR","GR"],"2154":["AR","BR","GR"],"2155":["AR","BR","GR"],"2156":["AR","BR","GR"],"2157":["AR","BR","GR"],"2158":["AR","BR","GR"],"2159":["AR","BR","GR"],"2160":["AR","BR","GR"],"2161":["AR","BR","GR"],"2162":["AR","BR","GR"],"2163":["AR","BR","GR"],"2164":["AR","BR","GR"],"2165":["AR","BR","GR"],"2166":["AR","BR","GR"],"2167":["AR","BR","GR"],"2168":["AR","BR","GR"],"2169":["AR","BR","GR"],"2170":["AR","BR","GR"],"2171":["AR","BR","GR"],"2172":["AR","BR","GR"],"2173":["AR","BR","GR"],"2174":["AR","BR","GR"],"2175":["AR","BR","GR"],"2176":["AR","BR","GR"],"2177":["AR","BR","GR"],"2178":["AR","BR","GR"],"2179":["AR","BR","GR"],"2180":["AR","BR","GR"],"2181":["AR","BR","GR"],"2182":["AR","BR","GR"],"2183":["AR","BR","GR"],"2184":["AR","BR","GR"],"2185":["AR","BR","GR"],"2186":["AR","BR","GR"],"2187":["AR","BR","GR"],"2188":["AR","BR","GR"],"2190":["AR","BR","GR"],"2191":["AR","BR","GR"],"2192":["AR","BR","GR"],"2193":["AR","BR","GR"],"2194":["AR","BR","GR"],"2195":["AR","BR","GR"],"2196":["AR","BR","GR"],"2197":["AR","BR","GR"],"2198":["AR","BR","GR"],"2199":["AR","BR","GR"],"2200":["AR","BR","GR"],"2201":["AR","BR","GR"],"2202":["AR","BR","GR"],"2203":["AR","BR","GR"],"2204":["AR","BR","GR"],"2205":["AR","BR","GR"],"2206":["AR","BR","GR"],"2207":["AR","BR","GR"],"2208":["AR","BR","GR"],"2209":["AR","BR","GR"],"2210":["AR","BR","GR"],"2211":["AR","BR","GR"],"2212":["AR","BR","GR"],"2213":["AR","BR","GR"],"2214":["AR","BR","GR"],"2215":["AR","BR","GR"],"2216":["AR","BR","GR"],"2217":["AR","BR","GR"],"2218":["AR","BR","GR"],"2219":["AR","BR","GR"],"2220":["AR","BR","GR"],"2221":["AR","BR","GR"],"2222":["AR","BR","GR"],"2223":["AR","BR","GR"],"2224":["AR","BR","GR"],"2225":["AR","BR","GR"],"2226":["AR","BR","GR"],"2227":["AR","BR","GR"],"2228":["AR","BR","GR"],"2229":["AR","BR","GR"],"2230":["AR","BR","GR"],"2231":["AR","BR","GR"],"2232":["AR","BR","GR"],"2233":["AR","BR","GR"],"2234":["AR","BR","GR"],"2235":["AR","BR","GR"],"2236":["AR","BR","GR"],"2237":["AR","BR","GR"],"2238":["AR","BR","GR"],"2239":["AR","BR","GR"],"2240":["AR","BR","GR"],"2241":["AR","BR","GR"],"2242":["AR","BR","GR"],"2243":["AR","BR","GR"],"2244":["AR","BR","GR"],"2245":["AR","BR","GR"],"2246":["AR","BR","GR"],"2247":["AR","BR","GR"],"2248":["AR","BR","GR"],"2249":["AR","BR","GR"],"2250":["AR","BR","GR"],"2251":["AR","BR","GR"],"2252":["AR","BR","GR"],"2253":["AR","BR","GR"],"2254":["AR","BR","GR"],"2255":["AR","BR","GR"],"2256":["AR","BR","GR"],"2257":["AR","BR","GR"],"2258":["AR","BR","GR"],"2259":["AR","BR","GR"],"2260":["AR","BR","GR"],"2261":["AR","BR","GR"],"2262":["AR","BR","GR"],"2263":["AR","BR","GR"],"2264":["AR","BR","GR"],"2265":["AR","BR","GR"],"2266":["AR","BR","GR"],"2267":["AR","BR","GR"],"2268":["AR","BR","GR"],"2269":["AR","BR","GR"],"2270":["AR","BR","GR"],"2271":["AR","BR","GR"],"2272":["AR","BR","GR"],"2273":["AR","BR","GR"],"2274":["AR","BR","GR"],"2275":["AR","BR","GR"],"2276":["AR","BR","GR"],"2277":["AR","BR","GR"],"2278":["AR","BR","GR"],"2279":["AR","BR","GR"],"2280":["AR","BR","GR"],"2281":["AR","BR","GR"],"2282":["AR","BR","GR"],"2283":["AR","BR","GR"],"2284":["AR","BR","GR"],"2285":["AR","BR","GR"],"2286":["AR","BR","GR"],"2287":["AR","BR","GR"],"2288":["AR","BR","GR"],"2289":["AR","BR","GR"],"2290":["AR","BR","GR"],"2291":["AR","BR","GR"],"2292":["AR","BR","GR"],"2293":["AR","BR","GR"],"2294":["AR","BR","GR"],"2295":["AR","BR","GR"],"2296":["AR","BR","GR"],"2297":["AR","BR","GR"],"2298":["AR","BR","GR"],"2299":["AR","BR","GR"],"2300":["AR","BR","GR"],"2301":["AR","BR","GR"],"2302":["AR","BR","GR"],"2303":["AR","BR","GR"],"2304":["AR","BR","GR"],"2305":["AR","BR","GR"],"2306":["AR","BR","GR"],"2307":["AR","BR","GR"],"2308":["AR","BR","GR"],"2309":["AR","BR","GR"],"2310":["AR","BR","GR"],"2311":["AR","BR","GR"],"2312":["AR","BR","GR"],"2313":["AR","BR","GR"],"2315":["AR","BR","GR"],"2316":["AR","BR","GR"],"2317":["AR","BR","GR"],"2318":["AR","BR","GR"],"2319":["AR","BR","GR"],"2320":["AR","BR","GR"],"2321":["AR","BR","GR"],"2322":["AR","BR","GR"],"2323":["AR","BR","GR"],"2324":["AR","BR","GR"],"2325":["AR","BR","GR"],"2326":["AR","BR","GR"],"2327":["AR","BR","GR"],"2328":["AR","BR","GR"],"2329":["AR","BR","GR"],"2330":["AR","BR","GR"],"2331":["AR","BR","GR"],"2332":["AR","BR","GR"],"2333":["AR","BR","GR"],"2334":["AR","BR","GR"],"2335":["AR","BR","GR"],"2336":["AR","BR","GR"],"2337":["AR","BR","GR"],"2338":["AR","BR","GR"],"2339":["AR","BR","GR"],"2340":["AR","BR","GR"],"2341":["AR","BR","GR"],"2342":["AR","BR","GR"],"2343":["AR","BR","GR"],"2344":["AR","BR","GR"],"2345":["AR","BR","GR"],"2346":["AR","BR","GR"],"2347":["AR","BR","GR"],"2348":["AR","BR","GR"],"2349":["AR","BR","GR"],"2350":["AR","BR","GR"],"2351":["AR","BR","GR"],"2352":["AR","BR","GR"],"2353":["AR","BR","GR"],"2354":["AR","BR","GR"],"2355":["AR","BR","GR"],"2356":["AR","BR","GR"],"2357":["AR","BR","GR"],"2358":["AR","BR","GR"],"2359":["AR","BR","GR"],"2360":["AR","BR","GR"],"2361":["AR","BR","GR"],"2362":["AR","BR","GR"],"2363":["AR","BR","GR"],"2364":["AR","BR","GR"],"2365":["AR","BR","GR"],"2366":["AR","BR","GR"],"2367":["AR","BR","GR"],"2368":["AR","BR","GR"],"2369":["AR","BR","GR"],"2370":["AR","BR","GR"],"2371":["AR","BR","GR"],"2372":["AR","BR","GR"],"2373":["AR","BR","GR"],"2374":["AR","BR","GR"],"2375":["AR","BR","GR"],"2376":["AR","BR","GR"],"2377":["AR","BR","GR"],"2378":["AR","BR","GR"],"2379":["AR","BR","GR"],"2380":["AR","BR","GR"],"2381":["AR","BR","GR"],"2382":["AR","BR","GR"],"2383":["AR","BR","GR"],"2384":["AR","BR","GR"],"2385":["AR","BR","GR"],"2386":["AR","BR","GR"],"2387":["AR","BR","GR"],"2388":["AR","BR","GR"],"2389":["AR","BR","GR"],"2390":["AR","BR","GR"],"2391":["AR","BR","GR"],"2392":["AR","BR","GR"],"2393":["AR","BR","GR"],"2394":["AR","BR","GR"],"2395":["AR","BR","GR"],"2396":["AR","BR","GR"],"2397":["AR","BR","GR"],"2398":["AR","BR","GR"],"2399":["AR","BR","GR"],"2400":["AR","BR","GR"],"2401":["AR","BR","GR"],"2402":["AR","BR","GR"],"2403":["AR","BR","GR"],"2404":["AR","BR","GR"],"2405":["AR","BR","GR"],"2406":["AR","BR","GR"],"2407":["AR","BR","GR"],"2408":["AR","BR","GR"],"2409":["AR","BR","GR"],"2410":["AR","BR","GR"],"2411":["AR","BR","GR"],"2412":["AR","BR","GR"],"2413":["AR","BR","GR"],"2414":["AR","BR","GR"],"2415":["AR","BR","GR"],"2416":["AR","BR","GR"],"2417":["AR","BR","GR"],"2418":["AR","BR","GR"],"2419":["AR","BR","GR"],"2420":["AR","BR","GR"],"2421":["AR","BR","GR"],"2422":["AR","BR","GR"],"2423":["AR","BR","GR"],"2424":["AR","BR","GR"],"2425":["AR","BR","GR"],"2426":["AR","BR","GR"],"2427":["AR","BR","GR"],"2428":["AR","BR","GR"],"2429":["AR","BR","GR"],"2430":["AR","BR","GR"],"2431":["AR","BR","GR"],"2432":["AR","BR","GR"],"2433":["AR","BR","GR"],"2434":["AR","BR","GR"],"2435":["AR","BR","GR"],"2436":["AR","BR","GR"],"2437":["AR","BR","GR"],"2438":["AR","BR","GR"],"2439":["AR","BR","GR"],"2440":["AR","BR","GR"],"2441":["AR","BR","GR"],"2442":["AR","BR","GR"],"2443":["AR","BR","GR"],"2444":["AR","BR","GR"],"2445":["AR","BR","GR"],"2446":["AR","BR","GR"],"2447":["AR","BR","GR"],"2448":["AR","BR","GR"],"2449":["AR","BR","GR"],"2450":["AR","BR","GR"],"2451":["AR","BR","GR"],"2452":["AR","BR","GR"],"2453":["AR","BR","GR"],"2454":["AR","BR","GR"],"2455":["AR","BR","GR"],"2456":["AR","BR","GR"],"2457":["AR","BR","GR"],"2458":["AR","BR","GR"],"2459":["AR","BR","GR"],"2460":["AR","BR","GR"],"2461":["AR","BR","GR"],"2654":["AR","BR","GR"],"2655":["AR","BR","GR"],"2656":["AR","BR","GR"],"2657":["AR","BR","GR"],"2658":["AR","BR","GR"],"2659":["AR","BR","GR"],"2660":["AR","BR","GR"],"2661":["AR","BR","GR"],"2662":["AR","BR","GR"],"2663":["AR","BR","GR"],"2664":["AR","BR","GR"],"2665":["AR","BR","GR"],"2666":["AR","BR","GR"],"2667":["AR","BR","GR"],"2668":["AR","BR","GR"],"2669":["AR","BR","GR"],"2670":["AR","BR","GR"],"2671":["AR","BR","GR"],"2672":["AR","BR","GR"],"2673":["AR","BR","GR"],"2674":["AR","BR","GR"],"2675":["AR","BR","GR"],"2676":["AR","BR","GR"],"2677":["AR","BR","GR"],"2678":["AR","BR","GR"],"2679":["AR","BR","GR"],"2680":["AR","BR","GR"],"2681":["AR","BR","GR"],"2682":["AR","BR","GR"],"2683":["AR","BR","GR"],"2684":["AR","BR","GR"],"2685":["AR","BR","GR"],"2686":["AR","BR","GR"],"2687":["AR","BR","GR"],"2688":["AR","BR","GR"],"2689":["AR","BR","GR"],"2690":["AR","BR","GR"],"2691":["AR","BR","GR"],"2692":["AR","BR","GR"],"2693":["AR","BR","GR"],"2694":["AR","BR","GR"],"2695":["AR","BR","GR"],"2696":["AR","BR","GR"],"2697":["AR","BR","GR"],"2698":["AR","BR","GR"],"2699":["AR","BR","GR"],"2700":["AR","BR","GR"],"2701":["AR","BR","GR"],"2702":["AR","BR","GR"],"2703":["AR","BR","GR"],"2704":["AR","BR","GR"],"2705":["AR","BR","GR"],"2706":["AR","BR","GR"],"2707":["AR","BR","GR"],"2708":["AR","BR","GR"],"2709":["AR","BR","GR"],"2710":["AR","BR","GR"],"2711":["AR","BR","GR"],"2712":["AR","BR","GR"],"2713":["AR","BR","GR"],"2714":["AR","BR","GR"],"2715":["AR","BR","GR"],"2716":["AR","BR","GR"],"2717":["AR","BR","GR"],"2718":["AR","BR","GR"],"2719":["AR","BR","GR"],"2720":["AR","BR","GR"],"2721":["AR","BR","GR"],"2722":["AR","BR","GR"],"2723":["AR","BR","GR"],"2724":["AR","BR","GR"],"2725":["AR","BR","GR"],"2726":["AR","BR","GR"],"2727":["AR","BR","GR"],"2728":["AR","BR","GR"],"2729":["AR","BR","GR"],"2730":["AR","BR","GR"],"2731":["AR","BR","GR"],"2732":["AR","BR","GR"],"2733":["AR","BR","GR"],"2734":["AR","BR","GR"],"2735":["AR","BR","GR"],"2807":["AR","BR","GR"],"2808":["AR","BR","GR"],"2809":["AR","BR","GR"],"2810":["AR","BR","GR"],"2811":["AR","BR","GR"],"2812":["AR","BR","GR"],"2813":["AR","BR","GR"],"2814":["AR","BR","GR"],"2815":["AR","BR","GR"],"2816":["AR","BR","GR"],"2817":["AR","BR","GR"],"2818":["AR","BR","GR"],"2819":["AR","BR","GR"],"2820":["AR","BR","GR"],"2821":["AR","BR","GR"],"2822":["AR","BR","GR"],"2823":["AR","BR","GR"],"2824":["AR","BR","GR"],"2825":["AR","BR","GR"],"2826":["AR","BR","GR"],"2827":["AR","BR","GR"],"2828":["AR","BR","GR"],"2829":["AR","BR","GR"],"2830":["AR","BR","GR"],"2831":["AR","BR","GR"],"2832":["AR","BR","GR"],"2833":["AR","BR","GR"],"2834":["AR","BR","GR"],"2835":["AR","BR","GR"],"2836":["AR","BR","GR"],"2837":["AR","BR","GR"],"2838":["AR","BR","GR"],"2839":["AR","BR","GR"],"2840":["AR","BR","GR"],"2841":["AR","BR","GR"],"2842":["AR","BR","GR"],"2843":["AR","BR","GR"],"2189":["AR","BR","GR"],"2314":["AR","BR","GR"]};
 
-// Dropdown-driven navigation. Plan dropdown x Rate Card dropdown selects one
-// panel. Diamond / Platinum / Gold Select / Silver share the same tiered grids --
-// the plan name is what you type into the guide-name box, not a separate dataset.
-// Plan x Rate Card picks the guide; the Florida checkbox swaps the whole thing
-// over to Florida's separately-filed equivalent. Florida is not tier-split, so
-// Diamond / Platinum / Gold Select / Silver all land on the same Florida grid.
+// Plan x Rate Card -> panel key. No longer driven by nav dropdowns (All Combined
+// replaced them), but still the map from a plan/card/region combination to the
+// panel that owns that guide's state, which is what PREFIX_TO_TBODY is built on.
+// Diamond / Platinum / Gold Select / Silver share the same tiered Standard grid;
+// Florida is not tier-split, so those four share one Florida grid too.
 const PLAN_CARD_MAP = {
-  diamond:    { std: 'std',  sal: 'diamondSal',    ride: 'diamondRide' },
-  platinum:   { std: 'std',  sal: 'platinumSal',   ride: 'platinumRide' },
-  goldselect: { std: 'std',  sal: 'goldselectSal', ride: 'goldselectRide' },
-  silver:     { std: 'std',  sal: 'silverSal',     ride: 'silverRide' },
+  diamond:    { std: 'std',            sal: 'diamondSal',    ride: 'diamondRide' },
+  platinum:   { std: 'platinumStd',   sal: 'platinumSal',   ride: 'platinumRide' },
+  goldselect: { std: 'goldselectStd', sal: 'goldselectSal', ride: 'goldselectRide' },
+  silver:     { std: 'silverStd',     sal: 'silverSal',     ride: 'silverRide' },
   alum:       { std: 'alum', sal: 'alumsal',       ride: 'alumride' },
   ev:         { std: 'ev',   sal: 'evsal',         ride: 'evride' },
 };
 const PLAN_CARD_MAP_FL = {
-  diamond:    { std: 'fl',     sal: 'diamondFlSal',    ride: 'diamondFlRide' },
-  platinum:   { std: 'fl',     sal: 'platinumFlSal',   ride: 'platinumFlRide' },
-  goldselect: { std: 'fl',     sal: 'goldselectFlSal', ride: 'goldselectFlRide' },
-  silver:     { std: 'fl',     sal: 'silverFlSal',     ride: 'silverFlRide' },
+  diamond:    { std: 'fl',              sal: 'diamondFlSal',    ride: 'diamondFlRide' },
+  platinum:   { std: 'platinumFlStd',   sal: 'platinumFlSal',   ride: 'platinumFlRide' },
+  goldselect: { std: 'goldselectFlStd', sal: 'goldselectFlSal', ride: 'goldselectFlRide' },
+  silver:     { std: 'silverFlStd',     sal: 'silverFlSal',     ride: 'silverFlRide' },
   alum:       { std: 'flalum', sal: 'flalumsal',       ride: 'flalumride' },
   ev:         { std: 'flev',   sal: 'flevsal',         ride: 'flevride' },
 };
@@ -1286,6 +1411,9 @@ const CARD_LABELS = { std:'Standard', sal:'Branded (BRT)', ride:'RideShare (CRS)
 // makePanel() instance (built on first visit).
 const PRODUCT_TABS = {
   std:      { panelId: 'stdPanel',      getObj: () => stdPanelObj },
+  platinumStd:   { panelId: 'platinumStdPanel',   getObj: () => platinumStdPanelObj },
+  goldselectStd: { panelId: 'goldselectStdPanel', getObj: () => goldselectStdPanelObj },
+  silverStd:     { panelId: 'silverStdPanel',     getObj: () => silverStdPanelObj },
   diamondSal:    { panelId: 'diamondSalPanel',    getObj: () => diamondSalPanelObj },
   platinumSal:   { panelId: 'platinumSalPanel',   getObj: () => platinumSalPanelObj },
   goldselectSal: { panelId: 'goldselectSalPanel', getObj: () => goldselectSalPanelObj },
@@ -1301,6 +1429,9 @@ const PRODUCT_TABS = {
   evsal:    { panelId: 'evsalPanel',    getObj: () => evsalPanelObj },
   evride:   { panelId: 'evridePanel',   getObj: () => evridePanelObj },
   fl:       { panelId: 'flPanel',       getObj: () => flPanelObj },
+  platinumFlStd:   { panelId: 'platinumFlStdPanel',   getObj: () => platinumFlStdPanelObj },
+  goldselectFlStd: { panelId: 'goldselectFlStdPanel', getObj: () => goldselectFlStdPanelObj },
+  silverFlStd:     { panelId: 'silverFlStdPanel',     getObj: () => silverFlStdPanelObj },
   diamondFlSal:    { panelId: 'diamondFlSalPanel',    getObj: () => diamondFlSalPanelObj },
   platinumFlSal:   { panelId: 'platinumFlSalPanel',   getObj: () => platinumFlSalPanelObj },
   goldselectFlSal: { panelId: 'goldselectFlSalPanel', getObj: () => goldselectFlSalPanelObj },
@@ -1321,11 +1452,12 @@ const PRODUCT_TABS = {
 
 // Every panel that is a Florida filing -- drives the Florida pill's lit state.
 const FLORIDA_PANEL_KEYS = new Set(['fl',
+  'platinumFlStd','goldselectFlStd','silverFlStd',
   'diamondFlSal','platinumFlSal','goldselectFlSal','silverFlSal',
   'diamondFlRide','platinumFlRide','goldselectFlRide','silverFlRide',
   'flalum','flalumsal','flalumride','flev','flevsal','flevride']);
 
-let currentPanelKey = 'std'; // which panel is on screen right now
+let currentPanelKey = 'all'; // which panel is on screen right now
 
 // ---- All Combined column filters -------------------------------------------
 // Four axes. Region / Rate card / Coverage decide which guides appear; Tier and
@@ -1355,35 +1487,27 @@ function applyAllFilters(){
     if (afKeepKey(full)) keys.push(full);
   }));
   allPanelObj.setVisibleTrKeys(keys);
-  const el = document.getElementById('allFilterCount');
-  if (el){
-    const shown = groups.filter(g => g.keys.some(k => afKeepKey(g.prefix + ':' + k))).length;
-    el.textContent = keys.length === allTrKeys.length
-      ? `all ${allTrKeys.length} columns`
-      : `${keys.length} of ${allTrKeys.length} columns \u00b7 ${shown} guide${shown === 1 ? '' : 's'}`;
-  }
 }
 
+// "Check all filters" -- tick every box on all five axes and redraw, so the grid
+// goes back to showing all 174 columns. Setting .checked in code fires no change
+// event, hence the explicit applyAllFilters() call. If a sixth filter axis is
+// ever added, its class has to be listed here too.
 function resetAllFilters(){
-  document.querySelectorAll('.afRegion, .afCard, .afPlan, .afTier, .afRate').forEach(c => { c.checked = true; });
+  document.querySelectorAll('.afRegion, .afCard, .afPlan, .afTier, .afRate')
+    .forEach(cb => { cb.checked = true; });
   applyAllFilters();
 }
 
 
 
 
-function onDropdownChange(){
-  const plan = document.getElementById('planSelect').value;
-  const card = document.getElementById('cardSelect').value;
-  const isFl = document.getElementById('regionSelect').value === 'fl';
-  const key  = (isFl ? PLAN_CARD_MAP_FL : PLAN_CARD_MAP)[plan][card];
-  switchProduct(key);
-  // Prefill the guide name from Florida + plan + card, unless typed over by hand.
-  const gn = document.getElementById(PRODUCT_TABS[key].panelId).querySelector('.guideName');
-  if (gn && !gn.dataset.userEdited){
-    gn.value = (isFl ? 'Florida ' : '') + PLAN_LABELS[plan] + ' ' + CARD_LABELS[card] + ' Guide 1';
-  }
-}
+// Navigation is now just two views: the All Combined grid (the home view, and
+// the only place guides get edited) and the Change Log. The 30 individual
+// per-guide panels still exist and still work in full -- switchProduct(<key>)
+// will open any of them, and All Combined writes its edits through to them --
+// they're simply no longer reachable from the nav bar.
+function onDropdownChange(){ switchProduct('all'); }
 
 // Once a guide name is edited manually, stop overwriting it on later switches.
 document.addEventListener('input', function(e){
@@ -1397,28 +1521,13 @@ function switchProduct(which){
   PRODUCT_TABS[which].getObj().ensureBuilt();
   if (which === 'all') applyAllFilters();
   currentPanelKey = which;
-  // Keep the All Combined checkbox honest: changing a dropdown while it's on
-  // navigates away, so the box has to clear itself.
-  const box = document.getElementById('allToggle');
-  if (box) box.checked = (which === 'all');
   const bar = document.getElementById('productBar');
-  bar.classList.toggle('allOn', which === 'all');
-  // Same idea for the Change Log checkbox.
   const clBox = document.getElementById('changeLogToggle');
   if (clBox) clBox.checked = (which === 'changelog');
   bar.classList.toggle('clOn', which === 'changelog');
-  // Keep the Region dropdown showing what's actually on screen.
-  const region = document.getElementById('regionSelect');
-  if (region && which !== 'all' && which !== 'changelog') region.value = FLORIDA_PANEL_KEYS.has(which) ? 'fl' : 'nonfl';
 }
 
-// Checking the box opens All Combined; unchecking returns to whatever the two
-// dropdowns currently say. Re-picking the same dropdown value fires no change
-// event, so without this there'd be no way back out.
-function toggleAllCombined(){
-  if (document.getElementById('allToggle').checked) switchProduct('all');
-  else onDropdownChange();
-}
+function toggleAllCombined(){ switchProduct('all'); }
 
 function toggleChangeLog(){
   if (document.getElementById('changeLogToggle').checked) switchProduct('changelog');
@@ -1470,18 +1579,11 @@ function makePanel(opts){
   }
   let searchTerm = '';
   let showOnlyEdited = false;
-  // Mileage display mode: only ever turned on by the All Combined panel (via
-  // its Display toggle) since it's the only caller that passes mileageLookup.
-  // When on, cells show the max-mileage figure looked up for the vehicle's
-  // effective class instead of the editable class dropdown.
-  let mileageMode = false;
-  const mileageLookup = opts.mileageLookup || null;
-  // View-only panels (currently just All Combined) never render an editable
-  // <select> or an Off-All button — every cell, in either display mode, is a
-  // plain read-out of the vehicle's effective class/mileage. Overrides never
-  // get written from this panel, so its own edit-count/highlighting logic
-  // simply stays inert (harmless, just never triggers).
-  const viewOnly = !!opts.viewOnly;
+  // Per row, the values Off All replaced, so Back On can put back exactly what
+  // was on screen rather than blanket-writing the vehicle's raw class over the
+  // whole row. Cells that were already Off aren't recorded -- Back On means
+  // "turn this row on", so those come back as the original AAS2012 number.
+  const preOffValues = {};   // idx -> { trKey: value before Off All }
   // When set (only by All Combined), this panel holds no edit state of its
   // own at all -- every cell defers straight to the real source tab via
   // PANEL_REGISTRY, keyed by that column's group prefix (the part of the
@@ -1492,11 +1594,6 @@ function makePanel(opts){
     if (!delegateMap) return null;
     const tbodyId = delegateMap[trKey.split(':')[0]];
     return tbodyId ? PANEL_REGISTRY[tbodyId] : null;
-  }
-  function formatMileage(v){
-    if (v === null || v === undefined) return null;
-    if (v === 'Off') return 'Off';
-    return typeof v === 'number' ? v.toLocaleString() : v;
   }
 
   // Which global VEHICLES indices this panel operates on at all (e.g. EV panels
@@ -1533,6 +1630,70 @@ function makePanel(opts){
     const o = overrides[idx];
     return !!(o && Object.prototype.hasOwnProperty.call(o, trKey));
   }
+  // The single place every edit goes through -- cell dropdown, Off All, and
+  // import all call this. On a delegated panel (All Combined) the write is
+  // forwarded to the tab that actually owns that column, so there is still
+  // exactly one copy of each guide's state and no way for the two views to
+  // drift apart. Returns true if anything actually changed.
+  function writeCell(idx, trKey, val){
+    if (delegateMap){
+      const panel = delegatedPanel(trKey);
+      if (!panel || !panel.coversVehicle(idx)) return false;
+      return panel.applyCell(idx, trKey.split(':')[1], val);
+    }
+    const base = baseClass(idx, trKey);
+    if (val === base){
+      // Matches what's currently filed, so there is no edit to record. Drop any
+      // override that was there -- this is what makes the cell go back to white.
+      if (!overrides[idx]) return false;
+      const had = Object.prototype.hasOwnProperty.call(overrides[idx], trKey);
+      delete overrides[idx][trKey];
+      if (Object.keys(overrides[idx]).length === 0) delete overrides[idx];
+      return had;
+    }
+    if (!overrides[idx]) overrides[idx] = {};
+    const changed = overrides[idx][trKey] !== val;
+    overrides[idx][trKey] = val;
+    return changed;
+  }
+  // Whether this cell gets a live <select>. On All Combined a column whose source
+  // guide doesn't cover this vehicle (the EV guides only cover the E0-E9 classes)
+  // has nowhere to put an edit, so it stays a plain value rather than silently
+  // swallowing one.
+  function cellEditable(idx, trKey){
+    if (!delegateMap) return true;
+    const panel = delegatedPanel(trKey);
+    return !!(panel && panel.coversVehicle(idx));
+  }
+  // What Off All / Back On operates on for a row: the visible columns that have
+  // an editable guide behind them. EV columns on a non-EV vehicle read as a
+  // plain class and can never be Off, so including them in the all-off test is
+  // what used to stop a fully-Off row from flipping the button to "Back On".
+  function offableKeys(idx){
+    return visibleTrKeys.filter(trKey => cellEditable(idx, trKey));
+  }
+  function isRowAllOff(idx){
+    const keys = offableKeys(idx);
+    return keys.length > 0 && keys.every(trKey => getEffClass(idx, trKey) === 'Off');
+  }
+  // Re-render one row in place. Used after any delegated edit, because a single
+  // underlying guide can sit behind several columns here (Diamond/Platinum/Gold
+  // Select/Silver share one Standard guide), so neighbouring cells change too.
+  function redrawRow(idx){
+    const tb = document.getElementById(ids.tbody);
+    if (!tb) return;
+    const tr = tb.querySelector('tr[data-idx="' + idx + '"]');
+    if (tr) tr.outerHTML = rowHtml(idx);
+  }
+  // Push a redraw to the source tabs an edit landed on, so their own grids stay
+  // correct if they've already been built this session.
+  function refreshSources(prefixes){
+    if (!delegateMap) return;
+    new Set([...prefixes].map(p => delegateMap[p]).filter(Boolean)).forEach(tbodyId => {
+      const panel = PANEL_REGISTRY[tbodyId];
+      if (panel) panel.refreshIfBuilt();
+    });
+  }
   function classOptionsHtml(selected){
     let opt = `<option value="" ${selected===null||selected===undefined?'selected':''}>&mdash;</option>`;
     opt += `<option value="Off" ${selected==='Off'?'selected':''}>Off</option>`;
@@ -1560,7 +1721,7 @@ function makePanel(opts){
     let cols = ['<col class="c-desc">', '<col class="c-offall">'];
     visibleTrKeys.forEach(() => cols.push('<col class="c-cell">'));
     const colCells = visibleTrKeys.map(trKey => `<th class="${colHeaderClass(trKey)}">${colHeaderLabel(trKey)}</th>`).join('');
-    const offAllHeaderLabel = viewOnly ? '' : 'Off All'; // view-only panels have no Off-All action, so the column heads empty
+    const offAllHeaderLabel = 'Off All';
     // Single-row header (every per-plan tab): column names stand alone.
     if (!groupBandLabel){
       const row = '<tr><th class="desc">Vehicle (Make Model, engine/drive)</th><th class="offallhead">' + offAllHeaderLabel + '</th>' + colCells + '</tr>';
@@ -1603,30 +1764,24 @@ function makePanel(opts){
 
   function rowHtml(idx){
     const v = VEHICLES[idx];
-    const allOff = visibleTrKeys.length > 0 && visibleTrKeys.every(trKey => getEffClass(idx, trKey) === 'Off');
+    const allOff = isRowAllOff(idx);
     const btnLabel = allOff ? 'Back On' : 'Off All';
+    const btnTitle = allOff
+      ? 'Turn this row back on — restores the values Off All replaced, or the vehicle\'s original AAS2012 class'
+      : 'Set every editable Tier/Rate on this row to Off';
     // View-only panels render a plain, inert cell here instead of the clickable
     // Off-All/Back-On button — that button writes overrides, which is exactly
     // the kind of cell-editing this panel must never do.
-    const offAllHtml = viewOnly
-      ? '<td class="offall"></td>'
-      : `<td class="offall"><button class="offAllBtn ${allOff?'active':''}" data-idx="${idx}" data-panel="${ids.tbody}">${btnLabel}</button></td>`;
+    const offAllHtml = `<td class="offall"><button class="offAllBtn ${allOff?'active':''}" data-idx="${idx}" data-panel="${ids.tbody}" title="${btnTitle}">${btnLabel}</button></td>`;
     let html = `<tr data-idx="${idx}"><td class="desc">${v.d}</td>${offAllHtml}`;
     visibleTrKeys.forEach(trKey => {
       const eff = getEffClass(idx, trKey);
       const edited = isEdited(idx, trKey);
       const naClass = (eff===null||eff===undefined||eff==='Off') ? 'na' : '';
       const offClass = (eff==='Off') ? 'off' : ''; // "Off" prints red; a blank/N-A cell stays grey
-      if (mileageMode && mileageLookup){
-        const raw = mileageLookup(trKey, eff);
-        const shown = formatMileage(raw);
-        const cellNa = (shown===null||shown===undefined) ? 'na mina' : (shown==='Off' ? 'na off' : '');
-        html += `<td class="cls ${edited?'edited':''} ${cellNa}"><div class="mileageDisplay">${shown===null||shown===undefined?'&mdash;':shown}</div></td>`;
-        return;
-      }
-      if (viewOnly){
+      if (!cellEditable(idx, trKey)){
         const shownCls = (eff===null||eff===undefined) ? '&mdash;' : eff;
-        html += `<td class="cls ${edited?'edited':''} ${naClass} ${offClass}"><div class="mileageDisplay">${shownCls}</div></td>`;
+        html += `<td class="cls ${edited?'edited':''} ${naClass} ${offClass}"><div class="roVal">${shownCls}</div></td>`;
         return;
       }
       html += `<td class="cls ${edited?'edited':''} ${naClass} ${offClass}"><select data-idx="${idx}" data-tr="${trKey}" data-panel="${ids.tbody}">${minimalOptionHtml(eff)}</select></td>`;
@@ -1673,7 +1828,7 @@ function makePanel(opts){
       // source tab on each scroll/render would be far too costly here -- this
       // label just says what the view is instead of counting cells.
       const el = document.getElementById(ids.editCount);
-      if (el) el.textContent = 'Live view — edits shown as made on each guide\'s own tab';
+      if (el) el.textContent = 'Edits write straight into the underlying guide — shown in yellow';
       return;
     }
     let cells = 0, veh = 0;
@@ -1687,31 +1842,67 @@ function makePanel(opts){
     const idx = target.dataset.idx;
     const trKey = target.dataset.tr;
     const val = target.value === '' ? null : target.value;
-    const base = baseClass(idx, trKey);
-    if (!overrides[idx]) overrides[idx] = {};
-    if (val === base) {
-      delete overrides[idx][trKey];
-      if (Object.keys(overrides[idx]).length === 0) delete overrides[idx];
+    writeCell(idx, trKey, val);
+    // A hand-edit after Off All should survive a later Back On, so forget what
+    // Off All had recorded for this one cell.
+    if (preOffValues[idx]) delete preOffValues[idx][trKey];
+    if (delegateMap){
+      refreshSources([trKey.split(':')[0]]);
+      redrawRow(idx); // sibling columns on the same underlying guide move too
     } else {
-      overrides[idx][trKey] = val;
+      const td = target.closest('td');
+      const eff = getEffClass(idx, trKey);
+      td.classList.toggle('edited', isEdited(idx, trKey));
+      td.classList.toggle('na', eff===null||eff===undefined||eff==='Off');
+      td.classList.toggle('off', eff==='Off');
     }
-    const td = target.closest('td');
-    td.classList.toggle('edited', val !== base);
-    td.classList.toggle('na', val===null||val===undefined||val==='Off');
-    td.classList.toggle('off', val==='Off');
     updateEditCount();
     // If the "Show Only Edited" filter is on, this change may add/remove this
     // vehicle from that filtered view — refresh the list membership, not just the cell.
     if (showOnlyEdited) refreshList();
   }
   function clearOverrides(){
+    // On All Combined this has to reach into the real guides, and it is scoped to
+    // the columns the filters are currently showing -- same scope as the export
+    // button right next to it, so "what I can see" is what gets reset.
+    if (delegateMap){
+      const byPanel = new Map();
+      visibleTrKeys.forEach(k => {
+        const [prefix, raw] = k.split(':');
+        const tbodyId = delegateMap[prefix];
+        if (!tbodyId) return;
+        if (!byPanel.has(tbodyId)) byPanel.set(tbodyId, new Set());
+        byPanel.get(tbodyId).add(raw);
+      });
+      const nCols = visibleTrKeys.length;
+      const nGuides = new Set(visibleTrKeys.map(k => k.split(':')[0])).size;
+      if (!confirm(`Discard edits and reset back to the currently filed guide for the ${nCols} column${nCols===1?'':'s'} on screen (${nGuides} guide${nGuides===1?'':'s'})?\n\nColumns hidden by the filters above are left untouched.`)) return;
+      byPanel.forEach((raws, tbodyId) => {
+        const panel = PANEL_REGISTRY[tbodyId];
+        if (panel) panel.resetKeys([...raws]);
+      });
+      Object.keys(preOffValues).forEach(k => delete preOffValues[k]);
+      renderRows();
+      return;
+    }
     if (!confirm('Discard all edits and reset every vehicle back to its current class?')) return;
     Object.keys(overrides).forEach(k => delete overrides[k]);
+    Object.keys(preOffValues).forEach(k => delete preOffValues[k]);
     renderRows();
   }
 
   async function exportXlsx(){
     const guideName = (document.getElementById(ids.guideName).value || 'Untitled Class Guide').trim();
+    // Export exactly the columns on screen. On every per-guide tab that is the
+    // whole guide (nothing filters columns there), so this only ever narrows
+    // things on All Combined -- where it is the point: tick the Regions, Rate
+    // cards, Coverages, Tiers and Rates you want and export just those.
+    const expKeys = visibleTrKeys.slice();
+    // On All Combined "Tier 1AS" alone is ambiguous (Diamond and Platinum both
+    // have one), so that panel supplies band-qualified names instead. Import
+    // recognises the same labels, so an export still round-trips.
+    const expLabel = opts.exportColHeaderLabel || colHeaderLabel;
+    if (expKeys.length === 0){ alert('No columns are selected — tick at least one Region, Rate card, Coverage, Tier and Rate above, then export again.'); return; }
     const today = new Date().toISOString().slice(0,10);
     const wb = new ExcelJS.Workbook();
     const ws = wb.addWorksheet('AAS2012 (2)');
@@ -1752,14 +1943,14 @@ function makePanel(opts){
     C(6,3,'Typ', sHdr);
     C(6,4,'Description', sHdr);
     C(6,5,'Model Year', sHdr);
-    trKeys.forEach((trKey, i) => C(6,6+i,colHeaderLabel(trKey), sHdrTier));
-    let col = 6+trKeys.length;
+    expKeys.forEach((trKey, i) => C(6,6+i,expLabel(trKey), sHdrTier));
+    let col = 6+expKeys.length;
     FIXED_AFTER.forEach(h => C(6,col++,h, sHdr));
     YEAR_COLS.forEach(h => C(6,col++,h, sHdr));
     TAIL_COLS.forEach(h => C(6,col++,h, sHdr));
     col++;
     const secondTierStart = col;
-    trKeys.forEach((trKey, i) => C(6,secondTierStart+i,colHeaderLabel(trKey), sHdrPlain));
+    expKeys.forEach((trKey, i) => C(6,secondTierStart+i,expLabel(trKey), sHdrPlain));
 
     vehicleIndices.forEach((idx, row0) => {
       const v = VEHICLES[idx];
@@ -1767,7 +1958,7 @@ function makePanel(opts){
       C(r,3,'SUM', sCenter);
       C(r,4,v.baseDesc, sLeft);
       C(r,5,v.my, sCenter);
-      trKeys.forEach((trKey, i) => {
+      expKeys.forEach((trKey, i) => {
         const eff = getEffClass(idx, trKey);
         const style = isEdited(idx, trKey) ? sCenterEdited : sCenter;
         if (eff===null||eff===undefined) { C(r,6+i,'',style); return; }
@@ -1775,7 +1966,7 @@ function makePanel(opts){
         const asNum = /^\d+$/.test(eff) ? parseInt(eff,10) : eff;
         C(r,6+i,asNum,style);
       });
-      let c2 = 6+trKeys.length;
+      let c2 = 6+expKeys.length;
       C(r,c2++,'',sCenter);
       C(r,c2++,v.cyl||'',sCenter);
       C(r,c2++,v.fourwd||'',sCenter);
@@ -1789,12 +1980,12 @@ function makePanel(opts){
     ws.views = [{ state:'frozen', xSplit:6, ySplit:7 }];
     const colWidths = [
       3.3,3.3,3.9,6.1,38.4,12.9,
-      ...trKeys.map(()=>7.6),
+      ...expKeys.map(()=>7.6),
       6.1,4.6,4.6,4.6,5,4.6,12.1,
       ...YEAR_COLS.map(()=>4.6),
       ...TAIL_COLS.map(()=>4.6),
       1.4,
-      ...trKeys.map(()=>9.1)
+      ...expKeys.map(()=>9.1)
     ];
     ws.columns = colWidths.map(w => ({ width: w }));
     ws.getRow(7).height = 16;
@@ -1827,6 +2018,19 @@ function makePanel(opts){
     return out;
   }
 
+  // Same coverage test cellEditable() uses -- import is about whether a guide
+  // exists to write into at all.
+  function cellEditableForImport(idx, trKey){
+    if (!delegateMap) return true;
+    const panel = delegatedPanel(trKey);
+    return !!(panel && panel.coversVehicle(idx));
+  }
+  // What the cell reads as with no override, for the "cells differ" tally only.
+  function baseForReport(idx, trKey){
+    if (!delegateMap) return baseClass(idx, trKey);
+    const panel = delegatedPanel(trKey);
+    return panel ? panel.baseFor(idx, trKey.split(':')[1]) : undefined;
+  }
   function importGuideRows(rows2d, guideNameFromFile){
     // Belt-and-suspenders tab check #1: every export since this feature stamps its
     // own tab name into a title cell ("Forte Class Guides: AAS2012 — <panelLabel>").
@@ -1839,7 +2043,11 @@ function makePanel(opts){
         const m = cell.match(/^Forte Class Guides: AAS2012(?: — (.+))?$/);
         if (!m) continue;
         const sourceLabel = m[1];
-        if (sourceLabel && sourceLabel !== panelLabel){
+        // altPanelLabels lets a guide keep accepting its own older export stamps
+        // -- the four Standard guides were one tab named "Standard (A/B/G)"
+        // before they were split per plan.
+        const accepted = [panelLabel].concat(opts.altPanelLabels || []);
+        if (sourceLabel && !accepted.includes(sourceLabel)){
           alert(`This file was exported from the "${sourceLabel}" tab, not "${panelLabel}". Switch to the "${sourceLabel}" tab to import it, or re-export from here if you meant to update this guide instead. Nothing was imported.`);
           return;
         }
@@ -1850,12 +2058,25 @@ function makePanel(opts){
     // for columns that literally match THIS panel's own labels (e.g. Branded wants
     // "Tier 1AS", Aluminum wants "Rate A"). A file for a different tab simply has
     // none of these, so it can't bleed edits into a tab it wasn't meant for.
-    const expectedLabels = trKeys.map(trKey => colHeaderLabel(trKey));
-    // Files exported before the 09/02/26 code rename used "Rate A" / "Rate AS" for
-    // Aluminum and EV. Still accept those so older exports keep importing; the
-    // panelLabel stamp checked above is what tells Aluminum and EV apart.
-    (opts.legacyColHeaderLabel ? trKeys.map(trKey => opts.legacyColHeaderLabel(trKey)) : [])
-      .forEach(l => { if (!expectedLabels.includes(l)) expectedLabels.push(l); });
+    // Column label -> the trKey(s) it could mean. Export labels first (what this
+    // tool writes), then the on-screen labels, then the pre-09/02/26 legacy
+    // "Rate A"/"Rate AS" names for Aluminum and EV so older exports still import.
+    // A label can map to more than one trKey on All Combined, which is exactly
+    // the case that has to be caught rather than guessed at -- see below.
+    const exportLabel = opts.exportColHeaderLabel || colHeaderLabel;
+    const labelToKeys = new Map();
+    const addLabel = (label, trKey) => {
+      if (label === undefined || label === null || label === '') return;
+      if (!labelToKeys.has(label)) labelToKeys.set(label, []);
+      const arr = labelToKeys.get(label);
+      if (!arr.includes(trKey)) arr.push(trKey);
+    };
+    trKeys.forEach(trKey => {
+      addLabel(exportLabel(trKey), trKey);
+      addLabel(colHeaderLabel(trKey), trKey);
+      if (opts.legacyColHeaderLabel) addLabel(opts.legacyColHeaderLabel(trKey), trKey);
+    });
+    const expectedLabels = [...labelToKeys.keys()];
 
     let headerIdx = -1, descCol = -1, myCol = -1;
     // Preferred: this tool's own canonical export layout — a "Description" column
@@ -1900,10 +2121,32 @@ function makePanel(opts){
     }
     const header = rows2d[headerIdx];
     const trPositions = [];
+    const seenKeys = new Set();
+    const ambiguous = [];
     header.forEach((h, c) => {
-      const trKeyIdx = expectedLabels.indexOf(h);
-      if (trKeyIdx !== -1 && !trPositions.some(p => p[0] === trKeys[trKeyIdx])) trPositions.push([trKeys[trKeyIdx], c]);
+      const keys = labelToKeys.get(h);
+      if (!keys) return;
+      if (keys.length > 1){
+        // All Combined only. A bare code like "Tier 1AS" is a real column name on
+        // six different guides, so there is no way to know which one the file
+        // means. Writing into whichever happened to be listed first would put
+        // classes on the wrong filing silently, so refuse instead.
+        ambiguous.push([h, keys]);
+        return;
+      }
+      if (seenKeys.has(keys[0])) return;
+      seenKeys.add(keys[0]);
+      trPositions.push([keys[0], c]);
     });
+    if (ambiguous.length){
+      const [lbl, keys] = ambiguous[0];
+      const guides = keys.map(k => {
+        const g = ALL_GROUP_BY_PREFIX[k.split(':')[0]];
+        return g ? g.band : k.split(':')[0];
+      });
+      alert(`Column "${lbl}" is ambiguous here — that exact column name exists on ${guides.length} different guides (${guides.slice(0,4).join(', ')}${guides.length>4 ? ', …' : ''}).\n\nAll Combined needs guide-qualified column headers, e.g. "${exportLabel(keys[0])}". Export from All Combined first (with the filters set to the columns you want), edit that file, then re-import it. Nothing was imported.`);
+      return;
+    }
     if (trPositions.length === 0){
       alert(`This file has no columns matching the "${panelLabel}" tab you're on (expected columns like "${expectedLabels[0]}"). Nothing was imported — switch to the matching tab and try again, or re-export from the tab this file came from.`);
       return;
@@ -1938,7 +2181,8 @@ function makePanel(opts){
       });
       byKey[key] = vals;
     }
-    let matched = 0, changedCells = 0, unmatched = 0, skippedNumeric = 0;
+    let matched = 0, changedCells = 0, unmatched = 0, skippedNumeric = 0, skippedNoGuide = 0;
+    const touchedPrefixes = new Set();
     const offOnlyEl = document.getElementById(ids.offOnlyImport);
     const offOnly = !!(offOnlyEl && offOnlyEl.checked);
     vehicleIndices.forEach(idx => {
@@ -1955,21 +2199,20 @@ function makePanel(opts){
         // file whose "Off" flags are real decisions but whose numeric values
         // may be a stale snapshot that shouldn't overwrite the current guide.
         if (offOnly && val !== 'Off'){ skippedNumeric++; return; }
-        const base = baseClass(idx, trKey);
-        if (!overrides[idx]) overrides[idx] = {};
-        if (val === base) {
-          delete overrides[idx][trKey];
-          if (Object.keys(overrides[idx]).length === 0) delete overrides[idx];
-        } else {
-          overrides[idx][trKey] = val;
-          changedCells++;
-        }
+        // Delegated (All Combined) imports land in the real guide behind each
+        // column; columns with no guide for this vehicle are skipped, not lost
+        // silently.
+        if (delegateMap && !cellEditableForImport(idx, trKey)){ skippedNoGuide++; return; }
+        if (writeCell(idx, trKey, val) && val !== baseForReport(idx, trKey)) changedCells++;
+        if (delegateMap) touchedPrefixes.add(trKey.split(':')[0]);
       });
     });
+    refreshSources(touchedPrefixes);
     if (guideNameFromFile) document.getElementById(ids.guideName).value = guideNameFromFile;
     renderRows();
     let msg = `Imported "${guideNameFromFile || 'guide'}": ${matched.toLocaleString()} vehicles matched by description, ${changedCells.toLocaleString()} cells differ from the current guide`;
     if (offOnly) msg += `, ${skippedNumeric.toLocaleString()} non-Off cells left untouched (Off-only mode)`;
+    if (skippedNoGuide) msg += `, ${skippedNoGuide.toLocaleString()} cells skipped (no guide covers that vehicle, e.g. an EV column on a non-EV row)`;
     msg += (unmatched ? `, ${unmatched.toLocaleString()} rows in the file had no matching vehicle here (skipped)` : '') + '.';
     alert(msg);
   }
@@ -2045,56 +2288,40 @@ function makePanel(opts){
   }
 
   function toggleOffAll(idx, btnEl){
-    const tr = btnEl.closest('tr');
-    const allOff = visibleTrKeys.length > 0 && visibleTrKeys.every(trKey => getEffClass(idx, trKey) === 'Off');
-    if (allOff) {
-      // Already all "Off" — clicking again turns the row back on, meaning every
-      // tier/rate returns to the vehicle's own AAS2012 class (the number shown on
-      // the Standard guide). Note this is NOT the same as clearing the override:
-      // on a panel with an installed guide baked in, the baseline for these cells
-      // IS "Off", so simply deleting the override would leave them Off. Where the
-      // filed baseline already matches the vehicle's class we drop the override;
-      // where it doesn't, we write the class in explicitly (and it reads as an
-      // edit, which it is — it differs from what is currently filed).
-      const raw = VEHICLES[idx].cls;
-      trKeys.forEach(trKey => {
-        if (baseClass(idx, trKey) === raw) {
-          if (overrides[idx]) delete overrides[idx][trKey];
-        } else {
-          if (!overrides[idx]) overrides[idx] = {};
-          overrides[idx][trKey] = raw;
-        }
+    // With All Combined's filters on, this acts on the columns shown.
+    const keys = offableKeys(idx);
+    if (keys.length === 0) return;
+    const prefixes = new Set();
+    if (isRowAllOff(idx)){
+      // Back On. Per cell: the value Off All replaced if we have it, otherwise
+      // the vehicle's own AAS2012 class -- the original numeric value that was
+      // there. Note this is NOT "clear the override": on a guide whose filed
+      // baseline is Off, clearing would leave the cell Off. writeCell() sorts
+      // that out, dropping the override where the target already matches what's
+      // filed and writing it in where it doesn't.
+      const remembered = preOffValues[idx] || {};
+      keys.forEach(trKey => {
+        const back = Object.prototype.hasOwnProperty.call(remembered, trKey)
+          ? remembered[trKey]
+          : VEHICLES[idx].cls;
+        writeCell(idx, trKey, back);
+        if (delegateMap) prefixes.add(trKey.split(':')[0]);
       });
-      if (overrides[idx] && Object.keys(overrides[idx]).length === 0) delete overrides[idx];
+      delete preOffValues[idx];
     } else {
-      // Turning the whole row off. Only record an override where "Off" actually
-      // differs from what's filed -- otherwise the cell would read as an edit
-      // when it in fact matches the installed guide.
-      trKeys.forEach(trKey => {
-        if (baseClass(idx, trKey) === 'Off') {
-          if (overrides[idx]) delete overrides[idx][trKey];
-        } else {
-          if (!overrides[idx]) overrides[idx] = {};
-          overrides[idx][trKey] = 'Off';
-        }
+      // Off All. Record what each cell held first, skipping ones already Off so
+      // Back On turns them on rather than faithfully restoring an Off.
+      const snap = {};
+      keys.forEach(trKey => {
+        const before = getEffClass(idx, trKey);
+        if (before !== 'Off') snap[trKey] = before;
+        writeCell(idx, trKey, 'Off');
+        if (delegateMap) prefixes.add(trKey.split(':')[0]);
       });
-      if (overrides[idx] && Object.keys(overrides[idx]).length === 0) delete overrides[idx];
+      preOffValues[idx] = snap;
     }
-    trKeys.forEach(trKey => {
-      const select = tr.querySelector(`select[data-tr="${trKey}"]`);
-      if (!select) return;
-      const eff = getEffClass(idx, trKey);
-      select.innerHTML = minimalOptionHtml(eff);
-      select.value = (eff===null||eff===undefined) ? '' : eff;
-      delete select.dataset.populated; // full option list rebuilds next time this cell is focused
-      const td = select.closest('td');
-      td.classList.toggle('edited', isEdited(idx, trKey));
-      td.classList.toggle('na', eff===null||eff===undefined||eff==='Off');
-      td.classList.toggle('off', eff==='Off');
-    });
-    const nowAllOff = !allOff;
-    btnEl.classList.toggle('active', nowAllOff);
-    btnEl.textContent = nowAllOff ? 'Back On' : 'Off All';
+    refreshSources(prefixes);
+    redrawRow(idx);
     updateEditCount();
     if (showOnlyEdited) refreshList();
   }
@@ -2111,16 +2338,27 @@ function makePanel(opts){
   // Read-only accessors so other views (the Vehicle Lookup) can report this
   // guide's live values -- filed baseline plus any edits made in this session --
   // without the panel's grid ever having been opened.
-  function setMileageMode(on){
-    mileageMode = !!on && !!mileageLookup;
-    if (built) renderRows();
-  }
-  const panelApi = { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, ensureBuilt, populateOptions, toggleOffAll, setVisibleTrKeys, setMileageMode,
+  const panelApi = { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, ensureBuilt, populateOptions, toggleOffAll, setVisibleTrKeys,
     getEff: (idx, trKey) => getEffClass(idx, trKey),
     isEditedCell: (idx, trKey) => isEdited(idx, trKey),
     allKeys: () => trKeys.slice(),
     codeLabel: trKey => colHeaderLabel(trKey),
-    coversVehicle: idx => !vehicleFilter || vehicleFilter(VEHICLES[idx]) };
+    coversVehicle: idx => !vehicleFilter || vehicleFilter(VEHICLES[idx]),
+    // --- write side, used by All Combined to edit this guide from the other view ---
+    // applyCell writes one cell; baseFor reports what it reads with no override;
+    // resetKeys drops overrides for the named columns; refreshIfBuilt redraws this
+    // panel's own grid only if it has actually been opened this session.
+    applyCell: (idx, trKey, val) => writeCell(idx, trKey, val),
+    baseFor: (idx, trKey) => baseClass(idx, trKey),
+    resetKeys: keys => {
+      const wanted = new Set(keys);
+      Object.keys(overrides).forEach(idx => {
+        Object.keys(overrides[idx]).forEach(k => { if (wanted.has(k)) delete overrides[idx][k]; });
+        if (Object.keys(overrides[idx]).length === 0) delete overrides[idx];
+      });
+      if (built) renderRows();
+    },
+    refreshIfBuilt: () => { if (built) renderRows(); } };
   PANEL_REGISTRY[ids.tbody] = panelApi;
   return panelApi;
 }
@@ -2147,11 +2385,42 @@ document.addEventListener('change', function(e){
   if (panel) panel.handleChange(e.target);
 });
 
+// Diamond's own Standard guide. Platinum / Gold Select / Silver each have their
+// own identical-baseline copy below -- the four are separately filed documents,
+// so an edit to one must not touch the others.
 const stdPanelObj = makePanel({
-  panelLabel: 'Standard (A/B/G)',
+  panelLabel: 'Diamond Standard',
+  altPanelLabels: ['Standard (A/B/G)'], // accept files exported before the split
   trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })(), // Rate-major order: 1A,2A,3A,1B,2B,3B,1G,2G,3G
   ids: { table:'gridTable', tbody:'tbodyEl', count:'count', editCount:'editCount', guideName:'guideName', search:'search', importFile:'importFile', editedFilterBtn:'editedFilterBtn', gridWrap:'gridWrap', offOnlyImport:'offOnlyImport' },
   mirrorFrom: null
+});
+
+const platinumStdPanelObj = makePanel({
+  panelLabel: 'Platinum Standard',
+  trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })(),
+  ids: { table:'gridTablePlatinumStd', tbody:'tbodyElPlatinumStd', count:'countPlatinumStd', editCount:'editCountPlatinumStd', guideName:'guideNamePlatinumStd', search:'searchPlatinumStd', importFile:'importFilePlatinumStd', editedFilterBtn:'editedFilterBtnPlatinumStd', gridWrap:'gridWrapPlatinumStd', offOnlyImport:'offOnlyImportPlatinumStd' },
+  mirrorFrom: null,
+  altPanelLabels: ['Standard (A/B/G)'], // accept files exported before the split
+  lazy: true
+});
+
+const goldselectStdPanelObj = makePanel({
+  panelLabel: 'Gold Select Standard',
+  trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })(),
+  ids: { table:'gridTableGoldselectStd', tbody:'tbodyElGoldselectStd', count:'countGoldselectStd', editCount:'editCountGoldselectStd', guideName:'guideNameGoldselectStd', search:'searchGoldselectStd', importFile:'importFileGoldselectStd', editedFilterBtn:'editedFilterBtnGoldselectStd', gridWrap:'gridWrapGoldselectStd', offOnlyImport:'offOnlyImportGoldselectStd' },
+  mirrorFrom: null,
+  altPanelLabels: ['Standard (A/B/G)'], // accept files exported before the split
+  lazy: true
+});
+
+const silverStdPanelObj = makePanel({
+  panelLabel: 'Silver Standard',
+  trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })(),
+  ids: { table:'gridTableSilverStd', tbody:'tbodyElSilverStd', count:'countSilverStd', editCount:'editCountSilverStd', guideName:'guideNameSilverStd', search:'searchSilverStd', importFile:'importFileSilverStd', editedFilterBtn:'editedFilterBtnSilverStd', gridWrap:'gridWrapSilverStd', offOnlyImport:'offOnlyImportSilverStd' },
+  mirrorFrom: null,
+  altPanelLabels: ['Standard (A/B/G)'], // accept files exported before the split
+  lazy: true
 });
 
 const diamondSalPanelObj = makePanel({
@@ -2274,13 +2543,48 @@ const evridePanelObj = makePanel({
   lazy: true
 });
 
+// Diamond's own Florida Standard guide; the other three plans' copies follow.
 const flPanelObj = makePanel({
-  panelLabel: 'Florida (A/B/G)',
+  panelLabel: 'Diamond FL Standard',
+  altPanelLabels: ['Florida (A/B/G)'], // accept files exported before the split
   trKeys: RATE_LIST.slice(),
   colHeaderLabel: trKey => 'FL ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-fl' : trKey[0]==='B' ? 'rb-fl' : 'rg-fl'),
   ids: { table:'gridTableFl', tbody:'tbodyElFl', count:'countFl', editCount:'editCountFl', guideName:'guideNameFl', search:'searchFl', importFile:'importFileFl', editedFilterBtn:'editedFilterBtnFl', gridWrap:'gridWrapFl', offOnlyImport:'offOnlyImportFl' },
   mirrorFrom: null,
+  lazy: true
+});
+
+const platinumFlStdPanelObj = makePanel({
+  panelLabel: 'Platinum FL Standard',
+  trKeys: RATE_LIST.slice(),
+  colHeaderLabel: trKey => 'FL ' + trKey,
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-fl' : trKey[0]==='B' ? 'rb-fl' : 'rg-fl'),
+  ids: { table:'gridTablePlatinumFlStd', tbody:'tbodyElPlatinumFlStd', count:'countPlatinumFlStd', editCount:'editCountPlatinumFlStd', guideName:'guideNamePlatinumFlStd', search:'searchPlatinumFlStd', importFile:'importFilePlatinumFlStd', editedFilterBtn:'editedFilterBtnPlatinumFlStd', gridWrap:'gridWrapPlatinumFlStd', offOnlyImport:'offOnlyImportPlatinumFlStd' },
+  mirrorFrom: null,
+  altPanelLabels: ['Florida (A/B/G)'], // accept files exported before the split
+  lazy: true
+});
+
+const goldselectFlStdPanelObj = makePanel({
+  panelLabel: 'Gold Select FL Standard',
+  trKeys: RATE_LIST.slice(),
+  colHeaderLabel: trKey => 'FL ' + trKey,
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-fl' : trKey[0]==='B' ? 'rb-fl' : 'rg-fl'),
+  ids: { table:'gridTableGoldselectFlStd', tbody:'tbodyElGoldselectFlStd', count:'countGoldselectFlStd', editCount:'editCountGoldselectFlStd', guideName:'guideNameGoldselectFlStd', search:'searchGoldselectFlStd', importFile:'importFileGoldselectFlStd', editedFilterBtn:'editedFilterBtnGoldselectFlStd', gridWrap:'gridWrapGoldselectFlStd', offOnlyImport:'offOnlyImportGoldselectFlStd' },
+  mirrorFrom: null,
+  altPanelLabels: ['Florida (A/B/G)'], // accept files exported before the split
+  lazy: true
+});
+
+const silverFlStdPanelObj = makePanel({
+  panelLabel: 'Silver FL Standard',
+  trKeys: RATE_LIST.slice(),
+  colHeaderLabel: trKey => 'FL ' + trKey,
+  colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-fl' : trKey[0]==='B' ? 'rb-fl' : 'rg-fl'),
+  ids: { table:'gridTableSilverFlStd', tbody:'tbodyElSilverFlStd', count:'countSilverFlStd', editCount:'editCountSilverFlStd', guideName:'guideNameSilverFlStd', search:'searchSilverFlStd', importFile:'importFileSilverFlStd', editedFilterBtn:'editedFilterBtnSilverFlStd', gridWrap:'gridWrapSilverFlStd', offOnlyImport:'offOnlyImportSilverFlStd' },
+  mirrorFrom: null,
+  altPanelLabels: ['Florida (A/B/G)'], // accept files exported before the split
   lazy: true
 });
 
@@ -2566,8 +2870,8 @@ ALL_GROUPS.forEach(g => g.keys.forEach(k => allTrKeys.push(g.prefix + ':' + k)))
 // from that source panel via PANEL_REGISTRY, so it always mirrors whatever is
 // currently on that tab, including edits made there in this session.
 const PREFIX_TO_TBODY = {
-  DIAMONDSTD:'tbodyEl', PLATINUMSTD:'tbodyEl', GOLDSELECTSTD:'tbodyEl', SILVERSTD:'tbodyEl',
-  DIAMONDFLSTD:'tbodyElFl', PLATINUMFLSTD:'tbodyElFl', GOLDSELECTFLSTD:'tbodyElFl', SILVERFLSTD:'tbodyElFl',
+  DIAMONDSTD:'tbodyEl', PLATINUMSTD:'tbodyElPlatinumStd', GOLDSELECTSTD:'tbodyElGoldselectStd', SILVERSTD:'tbodyElSilverStd',
+  DIAMONDFLSTD:'tbodyElFl', PLATINUMFLSTD:'tbodyElPlatinumFlStd', GOLDSELECTFLSTD:'tbodyElGoldselectFlStd', SILVERFLSTD:'tbodyElSilverFlStd',
   DIAMONDSAL:'tbodyElDiamondSal', PLATINUMSAL:'tbodyElPlatinumSal', GOLDSELECTSAL:'tbodyElGoldselectSal', SILVERSAL:'tbodyElSilverSal',
   DIAMONDRIDE:'tbodyElDiamondRide', PLATINUMRIDE:'tbodyElPlatinumRide', GOLDSELECTRIDE:'tbodyElGoldselectRide', SILVERRIDE:'tbodyElSilverRide',
   DIAMONDFLSAL:'tbodyElDiamondFlSal', PLATINUMFLSAL:'tbodyElPlatinumFlSal', GOLDSELECTFLSAL:'tbodyElGoldselectFlSal', SILVERFLSAL:'tbodyElSilverFlSal',
@@ -2577,34 +2881,6 @@ const PREFIX_TO_TBODY = {
   EV:'tbodyElEv', EVSAL:'tbodyElEvSal', EVRIDE:'tbodyElEvRide',
   FLEV:'tbodyElFlEv', FLEVSAL:'tbodyElFlEvSal', FLEVRIDE:'tbodyElFlEvRide',
 };
-
-// Mileage limits, keyed off the "Class by Mileage availability" tab (Non-FL
-// Standard rate card only). Structure: prefix -> class code -> raw tier/rate key
-// -> max mileage (number), or 'Off' if that class/tier/rate is fully blacked out
-// at every mileage band. A missing entry means the combination doesn't apply
-// (e.g. classes 10-12/1T on the tiered plans, or non-EV classes under EV).
-const MILEAGE_LOOKUP = {"DIAMONDSTD":{"0":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"1":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"2":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"3":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"4":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"5":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"6":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"7":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"8":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":75000,"3G":75000},"9":{"1A":75000,"2A":75000,"3A":75000,"1B":75000,"2B":75000,"3B":75000,"1G":75000,"2G":40000,"3G":50000}},"PLATINUMSTD":{"0":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":100000,"3G":100000},"1":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":100000,"3G":"Off"},"2":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":100000,"3G":100000},"3":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":100000,"3G":100000},"4":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":100000,"3G":100000},"5":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":100000,"3G":"Off"},"6":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":100000,"3G":"Off"},"7":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":100000,"3G":"Off"},"8":{"1A":100000,"2A":100000,"3A":100000,"1B":100000,"2B":100000,"3B":100000,"1G":100000,"2G":90000,"3G":"Off"},"9":{"1A":100000,"2A":"Off","3A":90000,"1B":100000,"2B":"Off","3B":"Off","1G":"Off","2G":"Off","3G":"Off"}},"GOLDSELECTSTD":{"0":{"1A":175000,"2A":175000,"3A":175000,"1B":175000,"2B":175000,"3B":175000,"1G":150000,"2G":175000,"3G":150000},"1":{"1A":175000,"2A":175000,"3A":175000,"1B":175000,"2B":175000,"3B":175000,"1G":150000,"2G":150000,"3G":150000},"2":{"1A":175000,"2A":175000,"3A":175000,"1B":175000,"2B":175000,"3B":175000,"1G":150000,"2G":150000,"3G":150000},"3":{"1A":175000,"2A":175000,"3A":175000,"1B":175000,"2B":175000,"3B":175000,"1G":150000,"2G":150000,"3G":150000},"4":{"1A":175000,"2A":175000,"3A":175000,"1B":175000,"2B":175000,"3B":175000,"1G":"Off","2G":"Off","3G":"Off"},"5":{"1A":175000,"2A":175000,"3A":175000,"1B":175000,"2B":175000,"3B":175000,"1G":"Off","2G":"Off","3G":"Off"},"6":{"1A":175000,"2A":175000,"3A":175000,"1B":175000,"2B":175000,"3B":175000,"1G":"Off","2G":"Off","3G":"Off"},"7":{"1A":175000,"2A":175000,"3A":175000,"1B":125000,"2B":150000,"3B":175000,"1G":"Off","2G":"Off","3G":"Off"},"8":{"1A":175000,"2A":175000,"3A":175000,"1B":125000,"2B":150000,"3B":175000,"1G":"Off","2G":"Off","3G":"Off"},"9":{"1A":"Off","2A":"Off","3A":"Off","1B":"Off","2B":"Off","3B":"Off","1G":"Off","2G":"Off","3G":"Off"}},"SILVERSTD":{"0":{"1A":300000,"2A":300000,"3A":300000,"1B":300000,"2B":300000,"3B":300000,"1G":300000,"2G":200000,"3G":225000},"1":{"1A":300000,"2A":300000,"3A":300000,"1B":300000,"2B":300000,"3B":300000,"1G":300000,"2G":200000,"3G":225000},"2":{"1A":300000,"2A":300000,"3A":300000,"1B":300000,"2B":300000,"3B":300000,"1G":300000,"2G":200000,"3G":225000},"3":{"1A":300000,"2A":300000,"3A":300000,"1B":300000,"2B":300000,"3B":300000,"1G":300000,"2G":200000,"3G":225000},"4":{"1A":300000,"2A":300000,"3A":300000,"1B":300000,"2B":300000,"3B":225000,"1G":225000,"2G":200000,"3G":225000},"5":{"1A":300000,"2A":300000,"3A":300000,"1B":300000,"2B":300000,"3B":225000,"1G":225000,"2G":200000,"3G":100000},"6":{"1A":300000,"2A":300000,"3A":300000,"1B":300000,"2B":225000,"3B":150000,"1G":225000,"2G":200000,"3G":100000},"7":{"1A":300000,"2A":300000,"3A":300000,"1B":225000,"2B":150000,"3B":225000,"1G":225000,"2G":125000,"3G":100000},"8":{"1A":300000,"2A":300000,"3A":300000,"1B":225000,"2B":150000,"3B":150000,"1G":125000,"2G":125000,"3G":100000},"9":{"1A":300000,"2A":300000,"3A":300000,"1B":225000,"2B":150000,"3B":"Off","1G":125000,"2G":125000,"3G":"Off"}},"ALUM":{"0":{"A":225000,"B":225000},"1":{"A":225000,"B":225000},"2":{"A":225000,"B":225000},"3":{"A":225000,"B":225000},"4":{"A":225000,"B":225000},"5":{"A":225000,"B":225000},"6":{"A":225000,"B":225000},"7":{"A":225000,"B":225000},"8":{"A":225000,"B":225000},"9":{"A":225000,"B":225000},"10":{"A":225000,"B":225000},"11":{"A":225000,"B":225000},"12":{"A":225000,"B":225000},"1T":{"A":225000,"B":225000}},"EV":{"E1":{"A":200000,"B":200000},"E2":{"A":200000,"B":200000},"E3":{"A":200000,"B":200000},"E4":{"A":200000,"B":200000},"E5":{"A":200000,"B":200000},"E6":{"A":200000,"B":200000},"E7":{"A":200000,"B":200000},"E8":{"A":200000,"B":200000},"E9":{"A":200000,"B":200000}}};
-
-// Looks up the mileage limit for an All-Combined column ("PREFIX:raw", e.g.
-// "DIAMONDSTD:1A") given the vehicle's effective class in that cell. Returns a
-// number, 'Off', or undefined (no data — that class/guide combo isn't covered
-// by the mileage tab, so the caller should fall back to a blank display).
-function allCombinedMileageLookup(trKey, classCode){
-  if (classCode === null || classCode === undefined || classCode === 'Off') return classCode;
-  const [prefix, raw] = trKey.split(':');
-  const table = MILEAGE_LOOKUP[prefix];
-  if (!table) return undefined;
-  const row = table[classCode];
-  if (!row) return undefined;
-  return Object.prototype.hasOwnProperty.call(row, raw) ? row[raw] : undefined;
-}
-
-function setAllDisplayMode(mode){
-  const isMileage = mode === 'mileage';
-  const note = document.getElementById('mileageModeNote');
-  if (note) note.style.display = isMileage ? 'inline-flex' : 'none';
-  allPanelObj.setMileageMode(isMileage);
-}
 
 const allPanelObj = makePanel({
   panelLabel: 'All Combined',
@@ -2619,11 +2895,19 @@ const allPanelObj = makePanel({
     return g ? g.band : trKey.split(':')[0];
   },
   colHeaderClass: trKey => 'allgrp-' + trKey.split(':')[0].toLowerCase(),
-  ids: { table:'gridTableAll', tbody:'tbodyElAll', count:'countAll', editCount:'editCountAll', guideName:'guideNameAll', search:'searchAll', importFile:'importFileAll', editedFilterBtn:'editedFilterBtnAll', gridWrap:'gridWrapAll', offOnlyImport:'offOnlyImportAll' },
+  // Export/import column name. On screen the guide is named by the band row
+  // above, so the cell header can stay short ("Tier 1AS"); in a flat spreadsheet
+  // there is no band row, and "Tier 1AS" appears on six different guides. The
+  // band name is unique per guide, so band + raw code identifies the column
+  // exactly -- e.g. "Diamond Branded 1AS", "Aluminum FL RideShare AR".
+  exportColHeaderLabel: trKey => {
+    const [prefix, raw] = trKey.split(':');
+    const g = ALL_GROUP_BY_PREFIX[prefix];
+    return (g ? g.band + ' ' : '') + raw;
+  },
+  ids: { table:'gridTableAll', tbody:'tbodyElAll', count:'countAll', editCount:'editCountAll', guideName:'guideNameAll', search:'searchAll', importFile:'importFileAll', editedFilterBtn:'editedFilterBtnAll', gridWrap:'gridWrapAll' },
   mirrorFrom: null,
   delegateMap: PREFIX_TO_TBODY,
-  mileageLookup: allCombinedMileageLookup,
-  viewOnly: true,
   lazy: true
 });
 
@@ -2895,6 +3179,14 @@ async function exportAasMasterXlsx(){
   URL.revokeObjectURL(url);
 }
 
+
+// ---------------------------------------------------------------------------
+// Boot
+// ---------------------------------------------------------------------------
+// All Combined is the home view. Its panel starts unhidden in the markup so
+// there's no flash of the wrong grid, but it's lazy, so it still needs a
+// switchProduct() call to get built and to have its column filters applied.
+switchProduct('all');
 </script>
 </body>
 </html>
