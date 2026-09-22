@@ -3209,10 +3209,7 @@ function renderChangeLog(){
     el.innerHTML = '<div style="color:#888">No tracked updates yet.</div>';
     return;
   }
-  const legend = '<div style="color:#666;font-size:13px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #e0e0e0">'
-    + 'A note on counts below: AAS2012 lists each cylinder/4X4/fuel variant of a model as its own row, so a "vehicle" or "row" count is not a count of models &mdash; one model with several trims can add up to a dozen-plus rows on its own. Where that could read as a bigger change than it is, entries call out the distinct model count as well.'
-    + '</div>';
-  el.innerHTML = legend + CHANGE_LOG.map(entry => {
+  el.innerHTML = CHANGE_LOG.map(entry => {
     const d = new Date(entry.date+'T00:00:00');
     const dLabel = (d.getMonth()+1)+'/'+d.getDate()+'/'+String(d.getFullYear()).slice(2);
     const items = entry.items.map(i => '<li style="margin-bottom:8px">'+i+'</li>').join('');
