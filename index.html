@@ -69,6 +69,7 @@ body{font-family:system-ui,sans-serif;font-size:12px;background:#f0f0f0;height:1
 .btn.red{background:transparent;color:#ff453a;border:1px solid #ff453a}
 .btn.filterbtn{background:transparent;color:#aaa;border:1px solid #555}
 .btn.filterbtn.on{background:#ffcc00;color:#1a1200;border-color:#ffcc00}
+.btn.filterbtn.offonlybtn.on{background:#ff453a;color:#fff;border-color:#ff453a}
 .count{color:#888;font-size:11px;margin-left:auto}
 .offonly-label{color:#ccc;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap}
 .offonly-label input{cursor:pointer}
@@ -267,6 +268,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImport"> Only import Off values</label>
     <button class="btn red" onclick="stdPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtn" onclick="stdPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtn" onclick="stdPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="count"></span>
     <span id="editCount" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -295,6 +297,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportPlatinumStd"> Only import Off values</label>
     <button class="btn red" onclick="platinumStdPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnPlatinumStd" onclick="platinumStdPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnPlatinumStd" onclick="platinumStdPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countPlatinumStd"></span>
     <span id="editCountPlatinumStd" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -323,6 +326,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportGoldselectStd"> Only import Off values</label>
     <button class="btn red" onclick="goldselectStdPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnGoldselectStd" onclick="goldselectStdPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnGoldselectStd" onclick="goldselectStdPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countGoldselectStd"></span>
     <span id="editCountGoldselectStd" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -351,6 +355,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportSilverStd"> Only import Off values</label>
     <button class="btn red" onclick="silverStdPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnSilverStd" onclick="silverStdPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnSilverStd" onclick="silverStdPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countSilverStd"></span>
     <span id="editCountSilverStd" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -379,6 +384,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportDiamondSal"> Only import Off values</label>
     <button class="btn red" onclick="diamondSalPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnDiamondSal" onclick="diamondSalPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnDiamondSal" onclick="diamondSalPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countDiamondSal"></span>
     <span id="editCountDiamondSal" style="color:#ff9f0a;font-weight:700;font-size:11px"></span>
   </div>
@@ -407,6 +413,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportPlatinumSal"> Only import Off values</label>
     <button class="btn red" onclick="platinumSalPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnPlatinumSal" onclick="platinumSalPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnPlatinumSal" onclick="platinumSalPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countPlatinumSal"></span>
     <span id="editCountPlatinumSal" style="color:#ff9f0a;font-weight:700;font-size:11px"></span>
   </div>
@@ -435,6 +442,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportGoldselectSal"> Only import Off values</label>
     <button class="btn red" onclick="goldselectSalPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnGoldselectSal" onclick="goldselectSalPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnGoldselectSal" onclick="goldselectSalPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countGoldselectSal"></span>
     <span id="editCountGoldselectSal" style="color:#ff9f0a;font-weight:700;font-size:11px"></span>
   </div>
@@ -463,6 +471,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportSilverSal"> Only import Off values</label>
     <button class="btn red" onclick="silverSalPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnSilverSal" onclick="silverSalPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnSilverSal" onclick="silverSalPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countSilverSal"></span>
     <span id="editCountSilverSal" style="color:#ff9f0a;font-weight:700;font-size:11px"></span>
   </div>
@@ -492,6 +501,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportAlum"> Only import Off values</label>
     <button class="btn red" onclick="alumPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnAlum" onclick="alumPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnAlum" onclick="alumPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countAlum"></span>
     <span id="editCountAlum" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -521,6 +531,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportAlumSal"> Only import Off values</label>
     <button class="btn red" onclick="alumsalPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnAlumSal" onclick="alumsalPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnAlumSal" onclick="alumsalPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countAlumSal"></span>
     <span id="editCountAlumSal" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -550,6 +561,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportEv"> Only import Off values</label>
     <button class="btn red" onclick="evPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnEv" onclick="evPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnEv" onclick="evPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countEv"></span>
     <span id="editCountEv" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -579,6 +591,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportEvSal"> Only import Off values</label>
     <button class="btn red" onclick="evsalPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnEvSal" onclick="evsalPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnEvSal" onclick="evsalPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countEvSal"></span>
     <span id="editCountEvSal" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -611,6 +624,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <span class="afgrp"><span class="aflbl">Coverage</span><label><input type="checkbox" class="afPlan" value="diamond" checked onchange="applyAllFilters()"> Diamond</label><label><input type="checkbox" class="afPlan" value="platinum" checked onchange="applyAllFilters()"> Platinum</label><label><input type="checkbox" class="afPlan" value="goldselect" checked onchange="applyAllFilters()"> Gold Select</label><label><input type="checkbox" class="afPlan" value="silver" checked onchange="applyAllFilters()"> Silver</label><label><input type="checkbox" class="afPlan" value="alum" checked onchange="applyAllFilters()"> Aluminum</label><label><input type="checkbox" class="afPlan" value="ev" checked onchange="applyAllFilters()"> EV</label></span>
     <span class="afgrp"><span class="aflbl">Tier</span><label><input type="checkbox" class="afTier" value="1" checked onchange="applyAllFilters()"> 1</label><label><input type="checkbox" class="afTier" value="2" checked onchange="applyAllFilters()"> 2</label><label><input type="checkbox" class="afTier" value="3" checked onchange="applyAllFilters()"> 3</label></span>
     <span class="afgrp"><span class="aflbl">Rate</span><label><input type="checkbox" class="afRate" value="A" checked onchange="applyAllFilters()"> A</label><label><input type="checkbox" class="afRate" value="B" checked onchange="applyAllFilters()"> B</label><label><input type="checkbox" class="afRate" value="G" checked onchange="applyAllFilters()"> G</label></span>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnAll" onclick="allPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <button class="btn afreset" onclick="resetAllFilters()" title="Ticks every Region, Rate card, Coverage, Tier and Rate box, so the grid shows all 174 columns again">&#10003; Check all filters</button>
   </div>
   <div class="legbar">
@@ -653,6 +667,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportFl"> Only import Off values</label>
     <button class="btn red" onclick="flPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnFl" onclick="flPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnFl" onclick="flPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countFl"></span>
     <span id="editCountFl" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -682,6 +697,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportPlatinumFlStd"> Only import Off values</label>
     <button class="btn red" onclick="platinumFlStdPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnPlatinumFlStd" onclick="platinumFlStdPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnPlatinumFlStd" onclick="platinumFlStdPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countPlatinumFlStd"></span>
     <span id="editCountPlatinumFlStd" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -711,6 +727,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportGoldselectFlStd"> Only import Off values</label>
     <button class="btn red" onclick="goldselectFlStdPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnGoldselectFlStd" onclick="goldselectFlStdPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnGoldselectFlStd" onclick="goldselectFlStdPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countGoldselectFlStd"></span>
     <span id="editCountGoldselectFlStd" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -740,6 +757,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportSilverFlStd"> Only import Off values</label>
     <button class="btn red" onclick="silverFlStdPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnSilverFlStd" onclick="silverFlStdPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnSilverFlStd" onclick="silverFlStdPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countSilverFlStd"></span>
     <span id="editCountSilverFlStd" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -772,6 +790,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportAlumRide"> Only import Off values</label>
     <button class="btn red" onclick="alumridePanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnAlumRide" onclick="alumridePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnAlumRide" onclick="alumridePanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countAlumRide"></span>
     <span id="editCountAlumRide" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -801,6 +820,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportEvRide"> Only import Off values</label>
     <button class="btn red" onclick="evridePanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnEvRide" onclick="evridePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnEvRide" onclick="evridePanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countEvRide"></span>
     <span id="editCountEvRide" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -831,6 +851,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportFlAlum"> Only import Off values</label>
     <button class="btn red" onclick="flalumPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnFlAlum" onclick="flalumPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnFlAlum" onclick="flalumPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countFlAlum"></span>
     <span id="editCountFlAlum" style="color:#00b8d4;font-weight:700;font-size:11px"></span>
   </div>
@@ -860,6 +881,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportFlAlumSal"> Only import Off values</label>
     <button class="btn red" onclick="flalumsalPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnFlAlumSal" onclick="flalumsalPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnFlAlumSal" onclick="flalumsalPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countFlAlumSal"></span>
     <span id="editCountFlAlumSal" style="color:#00b8d4;font-weight:700;font-size:11px"></span>
   </div>
@@ -889,6 +911,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportFlAlumRide"> Only import Off values</label>
     <button class="btn red" onclick="flalumridePanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnFlAlumRide" onclick="flalumridePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnFlAlumRide" onclick="flalumridePanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countFlAlumRide"></span>
     <span id="editCountFlAlumRide" style="color:#00b8d4;font-weight:700;font-size:11px"></span>
   </div>
@@ -918,6 +941,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportFlEv"> Only import Off values</label>
     <button class="btn red" onclick="flevPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnFlEv" onclick="flevPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnFlEv" onclick="flevPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countFlEv"></span>
     <span id="editCountFlEv" style="color:#00b8d4;font-weight:700;font-size:11px"></span>
   </div>
@@ -947,6 +971,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportFlEvSal"> Only import Off values</label>
     <button class="btn red" onclick="flevsalPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnFlEvSal" onclick="flevsalPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnFlEvSal" onclick="flevsalPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countFlEvSal"></span>
     <span id="editCountFlEvSal" style="color:#00b8d4;font-weight:700;font-size:11px"></span>
   </div>
@@ -976,6 +1001,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportFlEvRide"> Only import Off values</label>
     <button class="btn red" onclick="flevridePanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnFlEvRide" onclick="flevridePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnFlEvRide" onclick="flevridePanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countFlEvRide"></span>
     <span id="editCountFlEvRide" style="color:#00b8d4;font-weight:700;font-size:11px"></span>
   </div>
@@ -1005,6 +1031,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportDiamondRide"> Only import Off values</label>
     <button class="btn red" onclick="diamondRidePanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnDiamondRide" onclick="diamondRidePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnDiamondRide" onclick="diamondRidePanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countDiamondRide"></span>
     <span id="editCountDiamondRide" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -1034,6 +1061,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportPlatinumRide"> Only import Off values</label>
     <button class="btn red" onclick="platinumRidePanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnPlatinumRide" onclick="platinumRidePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnPlatinumRide" onclick="platinumRidePanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countPlatinumRide"></span>
     <span id="editCountPlatinumRide" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -1063,6 +1091,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportGoldselectRide"> Only import Off values</label>
     <button class="btn red" onclick="goldselectRidePanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnGoldselectRide" onclick="goldselectRidePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnGoldselectRide" onclick="goldselectRidePanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countGoldselectRide"></span>
     <span id="editCountGoldselectRide" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -1092,6 +1121,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportSilverRide"> Only import Off values</label>
     <button class="btn red" onclick="silverRidePanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnSilverRide" onclick="silverRidePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnSilverRide" onclick="silverRidePanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countSilverRide"></span>
     <span id="editCountSilverRide" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -1121,6 +1151,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportDiamondFlSal"> Only import Off values</label>
     <button class="btn red" onclick="diamondFlSalPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnDiamondFlSal" onclick="diamondFlSalPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnDiamondFlSal" onclick="diamondFlSalPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countDiamondFlSal"></span>
     <span id="editCountDiamondFlSal" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -1150,6 +1181,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportPlatinumFlSal"> Only import Off values</label>
     <button class="btn red" onclick="platinumFlSalPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnPlatinumFlSal" onclick="platinumFlSalPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnPlatinumFlSal" onclick="platinumFlSalPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countPlatinumFlSal"></span>
     <span id="editCountPlatinumFlSal" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -1179,6 +1211,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportGoldselectFlSal"> Only import Off values</label>
     <button class="btn red" onclick="goldselectFlSalPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnGoldselectFlSal" onclick="goldselectFlSalPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnGoldselectFlSal" onclick="goldselectFlSalPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countGoldselectFlSal"></span>
     <span id="editCountGoldselectFlSal" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -1208,6 +1241,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportSilverFlSal"> Only import Off values</label>
     <button class="btn red" onclick="silverFlSalPanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnSilverFlSal" onclick="silverFlSalPanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnSilverFlSal" onclick="silverFlSalPanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countSilverFlSal"></span>
     <span id="editCountSilverFlSal" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -1237,6 +1271,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportDiamondFlRide"> Only import Off values</label>
     <button class="btn red" onclick="diamondFlRidePanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnDiamondFlRide" onclick="diamondFlRidePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnDiamondFlRide" onclick="diamondFlRidePanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countDiamondFlRide"></span>
     <span id="editCountDiamondFlRide" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -1266,6 +1301,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportPlatinumFlRide"> Only import Off values</label>
     <button class="btn red" onclick="platinumFlRidePanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnPlatinumFlRide" onclick="platinumFlRidePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnPlatinumFlRide" onclick="platinumFlRidePanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countPlatinumFlRide"></span>
     <span id="editCountPlatinumFlRide" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -1295,6 +1331,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportGoldselectFlRide"> Only import Off values</label>
     <button class="btn red" onclick="goldselectFlRidePanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnGoldselectFlRide" onclick="goldselectFlRidePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnGoldselectFlRide" onclick="goldselectFlRidePanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countGoldselectFlRide"></span>
     <span id="editCountGoldselectFlRide" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -1324,6 +1361,7 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
     <label class="offonly-label"><input type="checkbox" id="offOnlyImportSilverFlRide"> Only import Off values</label>
     <button class="btn red" onclick="silverFlRidePanelObj.clearOverrides()">Reset All to Current Guide</button>
     <button class="btn filterbtn" id="editedFilterBtnSilverFlRide" onclick="silverFlRidePanelObj.toggleEditedFilter()">Show Only Edited</button>
+    <button class="btn filterbtn offonlybtn" id="offFilterBtnSilverFlRide" onclick="silverFlRidePanelObj.toggleOffOnlyFilter()" title="Show only vehicles that have at least one cell explicitly set to Off in the columns currently on screen. Grey N/A cells (no class today) do not count.">Off Only</button>
     <span class="count" id="countSilverFlRide"></span>
     <span id="editCountSilverFlRide" style="color:#0a84ff;font-weight:700;font-size:11px"></span>
   </div>
@@ -1622,6 +1660,11 @@ function makePanel(opts){
   }
   let searchTerm = '';
   let showOnlyEdited = false;
+  // "Off Only": keep a row only if some cell in the columns currently on screen
+  // is an explicit Off. Deliberately NOT the same test as the grey N/A cells --
+  // those are vehicles with no class today, which nobody set; an Off is a
+  // decision someone made, and that is what this filter is for.
+  let showOnlyOff = false;
   // Per row, the values Off All replaced, so Back On can put back exactly what
   // was on screen rather than blanket-writing the vehicle's raw class over the
   // whole row. Cells that were already Off aren't recorded -- Back On means
@@ -1791,7 +1834,7 @@ function makePanel(opts){
     });
     refreshSources(prefixes);
     renderWindow(); paintSelection(); updateSelBar();
-    if (showOnlyEdited) refreshList();
+    if (showOnlyEdited || showOnlyOff) refreshList();
   }
   // Turn the selection back on at each vehicle's original AAS2012 class.
   function setSelectionOn(){
@@ -1804,7 +1847,7 @@ function makePanel(opts){
     });
     refreshSources(prefixes);
     renderWindow(); paintSelection(); updateSelBar();
-    if (showOnlyEdited) refreshList();
+    if (showOnlyEdited || showOnlyOff) refreshList();
   }
 
   // What Off All / Back On operates on for a row: the visible columns that have
@@ -1889,8 +1932,16 @@ function makePanel(opts){
     const o = overrides[idx];
     return !!(o && Object.keys(o).length > 0);
   }
+  // Only the columns the Region/Rate card/Coverage/Tier/Rate filters are showing
+  // are consulted, so narrowing those narrows the row list with them. getEffClass
+  // returns undefined where no guide covers the vehicle (an EV column on a petrol
+  // car), so those read-only cells can never make a row qualify.
+  function hasAnyOff(idx){
+    return visibleTrKeys.some(trKey => getEffClass(idx, trKey) === 'Off');
+  }
   function matchesFilter(v, idx){
     if (showOnlyEdited && !hasAnyEdit(idx)) return false;
+    if (showOnlyOff && !hasAnyOff(idx)) return false;
     return !searchTerm || v.d.toLowerCase().includes(searchTerm);
   }
   const ROW_H = 33; // matches td.cls height:32px + 1px border — used to size virtual scroll spacers
@@ -2006,7 +2057,7 @@ function makePanel(opts){
     updateEditCount();
     // If the "Show Only Edited" filter is on, this change may add/remove this
     // vehicle from that filtered view — refresh the list membership, not just the cell.
-    if (showOnlyEdited) refreshList();
+    if (showOnlyEdited || showOnlyOff) refreshList();
   }
   function clearOverrides(){
     // On All Combined this has to reach into the real guides, and it is scoped to
@@ -2488,6 +2539,13 @@ function makePanel(opts){
     renderRows();
   }
 
+  function toggleOffOnlyFilter(){
+    showOnlyOff = !showOnlyOff;
+    const btn = document.getElementById(ids.offFilterBtn);
+    if (btn) btn.classList.toggle('on', showOnlyOff);
+    renderRows();
+  }
+
   function toggleOffAll(idx, btnEl){
     // With All Combined's filters on, this acts on the columns shown.
     const keys = offableKeys(idx);
@@ -2524,7 +2582,7 @@ function makePanel(opts){
     refreshSources(prefixes);
     redrawRow(idx);
     updateEditCount();
-    if (showOnlyEdited) refreshList();
+    if (showOnlyEdited || showOnlyOff) refreshList();
   }
 
   // Narrow (or restore) the columns on screen, then rebuild header + rows.
@@ -2543,7 +2601,7 @@ function makePanel(opts){
   // Read-only accessors so other views (the Vehicle Lookup) can report this
   // guide's live values -- filed baseline plus any edits made in this session --
   // without the panel's grid ever having been opened.
-  const panelApi = { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, ensureBuilt, populateOptions, toggleOffAll, setVisibleTrKeys,
+  const panelApi = { renderRows, exportXlsx, clearOverrides, handleChange, toggleEditedFilter, toggleOffOnlyFilter, ensureBuilt, populateOptions, toggleOffAll, setVisibleTrKeys,
     setSelectionOff, setSelectionOn, clearSelection,
     // test hooks: drive a selection without a real mouse
     selectRange: (r0,c0,r1,c1) => { selA={r:r0,c:c0}; selB={r:r1,c:c1}; paintSelection(); updateSelBar(); },
@@ -2601,14 +2659,14 @@ const stdPanelObj = makePanel({
   panelLabel: 'Diamond Standard',
   altPanelLabels: ['Standard (A/B/G)'], // accept files exported before the split
   trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })(), // Rate-major order: 1A,2A,3A,1B,2B,3B,1G,2G,3G
-  ids: { table:'gridTable', tbody:'tbodyEl', count:'count', editCount:'editCount', guideName:'guideName', search:'search', importFile:'importFile', editedFilterBtn:'editedFilterBtn', gridWrap:'gridWrap', offOnlyImport:'offOnlyImport' },
+  ids: { table:'gridTable', tbody:'tbodyEl', count:'count', editCount:'editCount', guideName:'guideName', search:'search', importFile:'importFile', editedFilterBtn:'editedFilterBtn', offFilterBtn:'offFilterBtn', gridWrap:'gridWrap', offOnlyImport:'offOnlyImport' },
   mirrorFrom: null
 });
 
 const platinumStdPanelObj = makePanel({
   panelLabel: 'Platinum Standard',
   trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })(),
-  ids: { table:'gridTablePlatinumStd', tbody:'tbodyElPlatinumStd', count:'countPlatinumStd', editCount:'editCountPlatinumStd', guideName:'guideNamePlatinumStd', search:'searchPlatinumStd', importFile:'importFilePlatinumStd', editedFilterBtn:'editedFilterBtnPlatinumStd', gridWrap:'gridWrapPlatinumStd', offOnlyImport:'offOnlyImportPlatinumStd' },
+  ids: { table:'gridTablePlatinumStd', tbody:'tbodyElPlatinumStd', count:'countPlatinumStd', editCount:'editCountPlatinumStd', guideName:'guideNamePlatinumStd', search:'searchPlatinumStd', importFile:'importFilePlatinumStd', editedFilterBtn:'editedFilterBtnPlatinumStd', offFilterBtn:'offFilterBtnPlatinumStd', gridWrap:'gridWrapPlatinumStd', offOnlyImport:'offOnlyImportPlatinumStd' },
   mirrorFrom: null,
   altPanelLabels: ['Standard (A/B/G)'], // accept files exported before the split
   lazy: true
@@ -2617,7 +2675,7 @@ const platinumStdPanelObj = makePanel({
 const goldselectStdPanelObj = makePanel({
   panelLabel: 'Gold Select Standard',
   trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })(),
-  ids: { table:'gridTableGoldselectStd', tbody:'tbodyElGoldselectStd', count:'countGoldselectStd', editCount:'editCountGoldselectStd', guideName:'guideNameGoldselectStd', search:'searchGoldselectStd', importFile:'importFileGoldselectStd', editedFilterBtn:'editedFilterBtnGoldselectStd', gridWrap:'gridWrapGoldselectStd', offOnlyImport:'offOnlyImportGoldselectStd' },
+  ids: { table:'gridTableGoldselectStd', tbody:'tbodyElGoldselectStd', count:'countGoldselectStd', editCount:'editCountGoldselectStd', guideName:'guideNameGoldselectStd', search:'searchGoldselectStd', importFile:'importFileGoldselectStd', editedFilterBtn:'editedFilterBtnGoldselectStd', offFilterBtn:'offFilterBtnGoldselectStd', gridWrap:'gridWrapGoldselectStd', offOnlyImport:'offOnlyImportGoldselectStd' },
   mirrorFrom: null,
   altPanelLabels: ['Standard (A/B/G)'], // accept files exported before the split
   lazy: true
@@ -2626,7 +2684,7 @@ const goldselectStdPanelObj = makePanel({
 const silverStdPanelObj = makePanel({
   panelLabel: 'Silver Standard',
   trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r))); return a; })(),
-  ids: { table:'gridTableSilverStd', tbody:'tbodyElSilverStd', count:'countSilverStd', editCount:'editCountSilverStd', guideName:'guideNameSilverStd', search:'searchSilverStd', importFile:'importFileSilverStd', editedFilterBtn:'editedFilterBtnSilverStd', gridWrap:'gridWrapSilverStd', offOnlyImport:'offOnlyImportSilverStd' },
+  ids: { table:'gridTableSilverStd', tbody:'tbodyElSilverStd', count:'countSilverStd', editCount:'editCountSilverStd', guideName:'guideNameSilverStd', search:'searchSilverStd', importFile:'importFileSilverStd', editedFilterBtn:'editedFilterBtnSilverStd', offFilterBtn:'offFilterBtnSilverStd', gridWrap:'gridWrapSilverStd', offOnlyImport:'offOnlyImportSilverStd' },
   mirrorFrom: null,
   altPanelLabels: ['Standard (A/B/G)'], // accept files exported before the split
   lazy: true
@@ -2636,7 +2694,7 @@ const diamondSalPanelObj = makePanel({
   panelLabel: 'Diamond Branded',
   trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'S'))); return a; })(), // 1AS,2AS,3AS,1BS,...,3GS
   colHeaderLabel: trKey => 'Tier ' + trKey,
-  ids: { table:'gridTableDiamondSal', tbody:'tbodyElDiamondSal', count:'countDiamondSal', editCount:'editCountDiamondSal', guideName:'guideNameDiamondSal', search:'searchDiamondSal', importFile:'importFileDiamondSal', editedFilterBtn:'editedFilterBtnDiamondSal', gridWrap:'gridWrapDiamondSal', offOnlyImport:'offOnlyImportDiamondSal' },
+  ids: { table:'gridTableDiamondSal', tbody:'tbodyElDiamondSal', count:'countDiamondSal', editCount:'editCountDiamondSal', guideName:'guideNameDiamondSal', search:'searchDiamondSal', importFile:'importFileDiamondSal', editedFilterBtn:'editedFilterBtnDiamondSal', offFilterBtn:'offFilterBtnDiamondSal', gridWrap:'gridWrapDiamondSal', offOnlyImport:'offOnlyImportDiamondSal' },
   mirrorFrom: 'std',
   installedOff: INSTALLED_DIAMONDSAL,
   lazy: true
@@ -2646,7 +2704,7 @@ const platinumSalPanelObj = makePanel({
   panelLabel: 'Platinum Branded',
   trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'S'))); return a; })(), // 1AS,2AS,3AS,1BS,...,3GS
   colHeaderLabel: trKey => 'Tier ' + trKey,
-  ids: { table:'gridTablePlatinumSal', tbody:'tbodyElPlatinumSal', count:'countPlatinumSal', editCount:'editCountPlatinumSal', guideName:'guideNamePlatinumSal', search:'searchPlatinumSal', importFile:'importFilePlatinumSal', editedFilterBtn:'editedFilterBtnPlatinumSal', gridWrap:'gridWrapPlatinumSal', offOnlyImport:'offOnlyImportPlatinumSal' },
+  ids: { table:'gridTablePlatinumSal', tbody:'tbodyElPlatinumSal', count:'countPlatinumSal', editCount:'editCountPlatinumSal', guideName:'guideNamePlatinumSal', search:'searchPlatinumSal', importFile:'importFilePlatinumSal', editedFilterBtn:'editedFilterBtnPlatinumSal', offFilterBtn:'offFilterBtnPlatinumSal', gridWrap:'gridWrapPlatinumSal', offOnlyImport:'offOnlyImportPlatinumSal' },
   mirrorFrom: 'std',
   installedOff: INSTALLED_PLATINUMSAL,
   lazy: true
@@ -2656,7 +2714,7 @@ const goldselectSalPanelObj = makePanel({
   panelLabel: 'Gold Select Branded',
   trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'S'))); return a; })(), // 1AS,2AS,3AS,1BS,...,3GS
   colHeaderLabel: trKey => 'Tier ' + trKey,
-  ids: { table:'gridTableGoldselectSal', tbody:'tbodyElGoldselectSal', count:'countGoldselectSal', editCount:'editCountGoldselectSal', guideName:'guideNameGoldselectSal', search:'searchGoldselectSal', importFile:'importFileGoldselectSal', editedFilterBtn:'editedFilterBtnGoldselectSal', gridWrap:'gridWrapGoldselectSal', offOnlyImport:'offOnlyImportGoldselectSal' },
+  ids: { table:'gridTableGoldselectSal', tbody:'tbodyElGoldselectSal', count:'countGoldselectSal', editCount:'editCountGoldselectSal', guideName:'guideNameGoldselectSal', search:'searchGoldselectSal', importFile:'importFileGoldselectSal', editedFilterBtn:'editedFilterBtnGoldselectSal', offFilterBtn:'offFilterBtnGoldselectSal', gridWrap:'gridWrapGoldselectSal', offOnlyImport:'offOnlyImportGoldselectSal' },
   mirrorFrom: 'std',
   installedOff: INSTALLED_GOLDSELECTSAL,
   lazy: true
@@ -2666,7 +2724,7 @@ const silverSalPanelObj = makePanel({
   panelLabel: 'Silver Branded',
   trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'S'))); return a; })(), // 1AS,2AS,3AS,1BS,...,3GS
   colHeaderLabel: trKey => 'Tier ' + trKey,
-  ids: { table:'gridTableSilverSal', tbody:'tbodyElSilverSal', count:'countSilverSal', editCount:'editCountSilverSal', guideName:'guideNameSilverSal', search:'searchSilverSal', importFile:'importFileSilverSal', editedFilterBtn:'editedFilterBtnSilverSal', gridWrap:'gridWrapSilverSal', offOnlyImport:'offOnlyImportSilverSal' },
+  ids: { table:'gridTableSilverSal', tbody:'tbodyElSilverSal', count:'countSilverSal', editCount:'editCountSilverSal', guideName:'guideNameSilverSal', search:'searchSilverSal', importFile:'importFileSilverSal', editedFilterBtn:'editedFilterBtnSilverSal', offFilterBtn:'offFilterBtnSilverSal', gridWrap:'gridWrapSilverSal', offOnlyImport:'offOnlyImportSilverSal' },
   mirrorFrom: 'std',
   installedOff: INSTALLED_SILVERSAL,
   lazy: true
@@ -2682,7 +2740,7 @@ const alumPanelObj = makePanel({
   trKeys: NO_TIER_RATE_LIST.slice(),
   colHeaderLabel: trKey => 'Alum ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-alum' : 'rb-alum'),
-  ids: { table:'gridTableAlum', tbody:'tbodyElAlum', count:'countAlum', editCount:'editCountAlum', guideName:'guideNameAlum', search:'searchAlum', importFile:'importFileAlum', editedFilterBtn:'editedFilterBtnAlum', gridWrap:'gridWrapAlum', offOnlyImport:'offOnlyImportAlum' },
+  ids: { table:'gridTableAlum', tbody:'tbodyElAlum', count:'countAlum', editCount:'editCountAlum', guideName:'guideNameAlum', search:'searchAlum', importFile:'importFileAlum', editedFilterBtn:'editedFilterBtnAlum', offFilterBtn:'offFilterBtnAlum', gridWrap:'gridWrapAlum', offOnlyImport:'offOnlyImportAlum' },
   mirrorFrom: null,
   legacyColHeaderLabel: trKey => 'Rate ' + trKey,
   lazy: true
@@ -2693,7 +2751,7 @@ const alumsalPanelObj = makePanel({
   trKeys: NO_TIER_RATE_LIST.map(r => r+'S'), // 2 rates (AS/BS) — Aluminum has no G rate, so its Branded counterpart doesn't either
   colHeaderLabel: trKey => 'Alum ' + trKey, // literally "Alum AS" etc — matches the real import file's own headers
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-alumsal' : 'rb-alumsal'),
-  ids: { table:'gridTableAlumSal', tbody:'tbodyElAlumSal', count:'countAlumSal', editCount:'editCountAlumSal', guideName:'guideNameAlumSal', search:'searchAlumSal', importFile:'importFileAlumSal', editedFilterBtn:'editedFilterBtnAlumSal', gridWrap:'gridWrapAlumSal', offOnlyImport:'offOnlyImportAlumSal' },
+  ids: { table:'gridTableAlumSal', tbody:'tbodyElAlumSal', count:'countAlumSal', editCount:'editCountAlumSal', guideName:'guideNameAlumSal', search:'searchAlumSal', importFile:'importFileAlumSal', editedFilterBtn:'editedFilterBtnAlumSal', offFilterBtn:'offFilterBtnAlumSal', gridWrap:'gridWrapAlumSal', offOnlyImport:'offOnlyImportAlumSal' },
   mirrorFrom: 'alum',
   installedOff: INSTALLED_ALUMSAL,
   lazy: true
@@ -2705,7 +2763,7 @@ const alumridePanelObj = makePanel({
   trKeys: NO_TIER_RATE_LIST.map(r => r+'R'),
   colHeaderLabel: trKey => 'Alum ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-alumride' : 'rb-alumride'),
-  ids: { table:'gridTableAlumRide', tbody:'tbodyElAlumRide', count:'countAlumRide', editCount:'editCountAlumRide', guideName:'guideNameAlumRide', search:'searchAlumRide', importFile:'importFileAlumRide', editedFilterBtn:'editedFilterBtnAlumRide', gridWrap:'gridWrapAlumRide', offOnlyImport:'offOnlyImportAlumRide' },
+  ids: { table:'gridTableAlumRide', tbody:'tbodyElAlumRide', count:'countAlumRide', editCount:'editCountAlumRide', guideName:'guideNameAlumRide', search:'searchAlumRide', importFile:'importFileAlumRide', editedFilterBtn:'editedFilterBtnAlumRide', offFilterBtn:'offFilterBtnAlumRide', gridWrap:'gridWrapAlumRide', offOnlyImport:'offOnlyImportAlumRide' },
   mirrorFrom: 'alum',
   installedOff: INSTALLED_ALUMRIDE,
   lazy: true
@@ -2717,7 +2775,7 @@ const evPanelObj = makePanel({
   colHeaderLabel: trKey => 'EV ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-ev' : 'rb-ev'),
   vehicleFilter: isEvVehicle,
-  ids: { table:'gridTableEv', tbody:'tbodyElEv', count:'countEv', editCount:'editCountEv', guideName:'guideNameEv', search:'searchEv', importFile:'importFileEv', editedFilterBtn:'editedFilterBtnEv', gridWrap:'gridWrapEv', offOnlyImport:'offOnlyImportEv' },
+  ids: { table:'gridTableEv', tbody:'tbodyElEv', count:'countEv', editCount:'editCountEv', guideName:'guideNameEv', search:'searchEv', importFile:'importFileEv', editedFilterBtn:'editedFilterBtnEv', offFilterBtn:'offFilterBtnEv', gridWrap:'gridWrapEv', offOnlyImport:'offOnlyImportEv' },
   mirrorFrom: null,
   legacyColHeaderLabel: trKey => 'Rate ' + trKey,
   lazy: true
@@ -2729,7 +2787,7 @@ const evsalPanelObj = makePanel({
   colHeaderLabel: trKey => 'EV ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-evsal' : 'rb-evsal'),
   vehicleFilter: isEvVehicle,
-  ids: { table:'gridTableEvSal', tbody:'tbodyElEvSal', count:'countEvSal', editCount:'editCountEvSal', guideName:'guideNameEvSal', search:'searchEvSal', importFile:'importFileEvSal', editedFilterBtn:'editedFilterBtnEvSal', gridWrap:'gridWrapEvSal', offOnlyImport:'offOnlyImportEvSal' },
+  ids: { table:'gridTableEvSal', tbody:'tbodyElEvSal', count:'countEvSal', editCount:'editCountEvSal', guideName:'guideNameEvSal', search:'searchEvSal', importFile:'importFileEvSal', editedFilterBtn:'editedFilterBtnEvSal', offFilterBtn:'offFilterBtnEvSal', gridWrap:'gridWrapEvSal', offOnlyImport:'offOnlyImportEvSal' },
   mirrorFrom: 'ev',
   installedOff: INSTALLED_EVSAL,
   legacyColHeaderLabel: trKey => 'Rate ' + trKey,
@@ -2745,7 +2803,7 @@ const evridePanelObj = makePanel({
   colHeaderLabel: trKey => 'EV ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-evride' : 'rb-evride'),
   vehicleFilter: isEvVehicle,
-  ids: { table:'gridTableEvRide', tbody:'tbodyElEvRide', count:'countEvRide', editCount:'editCountEvRide', guideName:'guideNameEvRide', search:'searchEvRide', importFile:'importFileEvRide', editedFilterBtn:'editedFilterBtnEvRide', gridWrap:'gridWrapEvRide', offOnlyImport:'offOnlyImportEvRide' },
+  ids: { table:'gridTableEvRide', tbody:'tbodyElEvRide', count:'countEvRide', editCount:'editCountEvRide', guideName:'guideNameEvRide', search:'searchEvRide', importFile:'importFileEvRide', editedFilterBtn:'editedFilterBtnEvRide', offFilterBtn:'offFilterBtnEvRide', gridWrap:'gridWrapEvRide', offOnlyImport:'offOnlyImportEvRide' },
   mirrorFrom: 'ev',
   legacyColHeaderLabel: trKey => 'Rate ' + trKey,
   installedAllOff: true, // not offered at all as of 09/02/26
@@ -2759,7 +2817,7 @@ const flPanelObj = makePanel({
   trKeys: RATE_LIST.slice(),
   colHeaderLabel: trKey => 'FL ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-fl' : trKey[0]==='B' ? 'rb-fl' : 'rg-fl'),
-  ids: { table:'gridTableFl', tbody:'tbodyElFl', count:'countFl', editCount:'editCountFl', guideName:'guideNameFl', search:'searchFl', importFile:'importFileFl', editedFilterBtn:'editedFilterBtnFl', gridWrap:'gridWrapFl', offOnlyImport:'offOnlyImportFl' },
+  ids: { table:'gridTableFl', tbody:'tbodyElFl', count:'countFl', editCount:'editCountFl', guideName:'guideNameFl', search:'searchFl', importFile:'importFileFl', editedFilterBtn:'editedFilterBtnFl', offFilterBtn:'offFilterBtnFl', gridWrap:'gridWrapFl', offOnlyImport:'offOnlyImportFl' },
   mirrorFrom: null,
   installedOff: INSTALLED_DIAMONDFLSTD,
   lazy: true
@@ -2770,7 +2828,7 @@ const platinumFlStdPanelObj = makePanel({
   trKeys: RATE_LIST.slice(),
   colHeaderLabel: trKey => 'FL ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-fl' : trKey[0]==='B' ? 'rb-fl' : 'rg-fl'),
-  ids: { table:'gridTablePlatinumFlStd', tbody:'tbodyElPlatinumFlStd', count:'countPlatinumFlStd', editCount:'editCountPlatinumFlStd', guideName:'guideNamePlatinumFlStd', search:'searchPlatinumFlStd', importFile:'importFilePlatinumFlStd', editedFilterBtn:'editedFilterBtnPlatinumFlStd', gridWrap:'gridWrapPlatinumFlStd', offOnlyImport:'offOnlyImportPlatinumFlStd' },
+  ids: { table:'gridTablePlatinumFlStd', tbody:'tbodyElPlatinumFlStd', count:'countPlatinumFlStd', editCount:'editCountPlatinumFlStd', guideName:'guideNamePlatinumFlStd', search:'searchPlatinumFlStd', importFile:'importFilePlatinumFlStd', editedFilterBtn:'editedFilterBtnPlatinumFlStd', offFilterBtn:'offFilterBtnPlatinumFlStd', gridWrap:'gridWrapPlatinumFlStd', offOnlyImport:'offOnlyImportPlatinumFlStd' },
   mirrorFrom: null,
   installedOff: INSTALLED_PLATINUMFLSTD,
   altPanelLabels: ['Florida (A/B/G)'], // accept files exported before the split
@@ -2782,7 +2840,7 @@ const goldselectFlStdPanelObj = makePanel({
   trKeys: RATE_LIST.slice(),
   colHeaderLabel: trKey => 'FL ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-fl' : trKey[0]==='B' ? 'rb-fl' : 'rg-fl'),
-  ids: { table:'gridTableGoldselectFlStd', tbody:'tbodyElGoldselectFlStd', count:'countGoldselectFlStd', editCount:'editCountGoldselectFlStd', guideName:'guideNameGoldselectFlStd', search:'searchGoldselectFlStd', importFile:'importFileGoldselectFlStd', editedFilterBtn:'editedFilterBtnGoldselectFlStd', gridWrap:'gridWrapGoldselectFlStd', offOnlyImport:'offOnlyImportGoldselectFlStd' },
+  ids: { table:'gridTableGoldselectFlStd', tbody:'tbodyElGoldselectFlStd', count:'countGoldselectFlStd', editCount:'editCountGoldselectFlStd', guideName:'guideNameGoldselectFlStd', search:'searchGoldselectFlStd', importFile:'importFileGoldselectFlStd', editedFilterBtn:'editedFilterBtnGoldselectFlStd', offFilterBtn:'offFilterBtnGoldselectFlStd', gridWrap:'gridWrapGoldselectFlStd', offOnlyImport:'offOnlyImportGoldselectFlStd' },
   mirrorFrom: null,
   installedOff: INSTALLED_GOLDSELECTFLSTD,
   altPanelLabels: ['Florida (A/B/G)'], // accept files exported before the split
@@ -2794,7 +2852,7 @@ const silverFlStdPanelObj = makePanel({
   trKeys: RATE_LIST.slice(),
   colHeaderLabel: trKey => 'FL ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-fl' : trKey[0]==='B' ? 'rb-fl' : 'rg-fl'),
-  ids: { table:'gridTableSilverFlStd', tbody:'tbodyElSilverFlStd', count:'countSilverFlStd', editCount:'editCountSilverFlStd', guideName:'guideNameSilverFlStd', search:'searchSilverFlStd', importFile:'importFileSilverFlStd', editedFilterBtn:'editedFilterBtnSilverFlStd', gridWrap:'gridWrapSilverFlStd', offOnlyImport:'offOnlyImportSilverFlStd' },
+  ids: { table:'gridTableSilverFlStd', tbody:'tbodyElSilverFlStd', count:'countSilverFlStd', editCount:'editCountSilverFlStd', guideName:'guideNameSilverFlStd', search:'searchSilverFlStd', importFile:'importFileSilverFlStd', editedFilterBtn:'editedFilterBtnSilverFlStd', offFilterBtn:'offFilterBtnSilverFlStd', gridWrap:'gridWrapSilverFlStd', offOnlyImport:'offOnlyImportSilverFlStd' },
   mirrorFrom: null,
   installedOff: INSTALLED_SILVERFLSTD,
   altPanelLabels: ['Florida (A/B/G)'], // accept files exported before the split
@@ -2813,7 +2871,7 @@ const flalumPanelObj = makePanel({
   trKeys: RATE_LIST.slice(), // Florida keeps the G rate on Aluminum and EV, unlike the non-Florida plans
   colHeaderLabel: trKey => 'FL Alum ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flalum' : trKey[0]==='B' ? 'rb-flalum' : 'rg-flalum'),
-  ids: { table:'gridTableFlAlum', tbody:'tbodyElFlAlum', count:'countFlAlum', editCount:'editCountFlAlum', guideName:'guideNameFlAlum', search:'searchFlAlum', importFile:'importFileFlAlum', editedFilterBtn:'editedFilterBtnFlAlum', gridWrap:'gridWrapFlAlum', offOnlyImport:'offOnlyImportFlAlum' },
+  ids: { table:'gridTableFlAlum', tbody:'tbodyElFlAlum', count:'countFlAlum', editCount:'editCountFlAlum', guideName:'guideNameFlAlum', search:'searchFlAlum', importFile:'importFileFlAlum', editedFilterBtn:'editedFilterBtnFlAlum', offFilterBtn:'offFilterBtnFlAlum', gridWrap:'gridWrapFlAlum', offOnlyImport:'offOnlyImportFlAlum' },
   mirrorFrom: null,
   lazy: true
 });
@@ -2823,7 +2881,7 @@ const flalumsalPanelObj = makePanel({
   trKeys: RATE_LIST.map(r => r+'S'), // Florida keeps the G rate on Aluminum and EV, unlike the non-Florida plans
   colHeaderLabel: trKey => 'FL Alum ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flalumsal' : trKey[0]==='B' ? 'rb-flalumsal' : 'rg-flalumsal'),
-  ids: { table:'gridTableFlAlumSal', tbody:'tbodyElFlAlumSal', count:'countFlAlumSal', editCount:'editCountFlAlumSal', guideName:'guideNameFlAlumSal', search:'searchFlAlumSal', importFile:'importFileFlAlumSal', editedFilterBtn:'editedFilterBtnFlAlumSal', gridWrap:'gridWrapFlAlumSal', offOnlyImport:'offOnlyImportFlAlumSal' },
+  ids: { table:'gridTableFlAlumSal', tbody:'tbodyElFlAlumSal', count:'countFlAlumSal', editCount:'editCountFlAlumSal', guideName:'guideNameFlAlumSal', search:'searchFlAlumSal', importFile:'importFileFlAlumSal', editedFilterBtn:'editedFilterBtnFlAlumSal', offFilterBtn:'offFilterBtnFlAlumSal', gridWrap:'gridWrapFlAlumSal', offOnlyImport:'offOnlyImportFlAlumSal' },
   mirrorFrom: 'flalum',
   installedOff: INSTALLED_FLALUMSAL,
   lazy: true
@@ -2834,7 +2892,7 @@ const flalumridePanelObj = makePanel({
   trKeys: RATE_LIST.map(r => r+'R'), // Florida keeps the G rate on Aluminum and EV, unlike the non-Florida plans
   colHeaderLabel: trKey => 'FL Alum ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flalumride' : trKey[0]==='B' ? 'rb-flalumride' : 'rg-flalumride'),
-  ids: { table:'gridTableFlAlumRide', tbody:'tbodyElFlAlumRide', count:'countFlAlumRide', editCount:'editCountFlAlumRide', guideName:'guideNameFlAlumRide', search:'searchFlAlumRide', importFile:'importFileFlAlumRide', editedFilterBtn:'editedFilterBtnFlAlumRide', gridWrap:'gridWrapFlAlumRide', offOnlyImport:'offOnlyImportFlAlumRide' },
+  ids: { table:'gridTableFlAlumRide', tbody:'tbodyElFlAlumRide', count:'countFlAlumRide', editCount:'editCountFlAlumRide', guideName:'guideNameFlAlumRide', search:'searchFlAlumRide', importFile:'importFileFlAlumRide', editedFilterBtn:'editedFilterBtnFlAlumRide', offFilterBtn:'offFilterBtnFlAlumRide', gridWrap:'gridWrapFlAlumRide', offOnlyImport:'offOnlyImportFlAlumRide' },
   mirrorFrom: 'flalum',
   installedOff: INSTALLED_FLALUMRIDE,
   lazy: true
@@ -2846,7 +2904,7 @@ const flevPanelObj = makePanel({
   colHeaderLabel: trKey => 'FL EV ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flev' : trKey[0]==='B' ? 'rb-flev' : 'rg-flev'),
   vehicleFilter: isEvVehicle,
-  ids: { table:'gridTableFlEv', tbody:'tbodyElFlEv', count:'countFlEv', editCount:'editCountFlEv', guideName:'guideNameFlEv', search:'searchFlEv', importFile:'importFileFlEv', editedFilterBtn:'editedFilterBtnFlEv', gridWrap:'gridWrapFlEv', offOnlyImport:'offOnlyImportFlEv' },
+  ids: { table:'gridTableFlEv', tbody:'tbodyElFlEv', count:'countFlEv', editCount:'editCountFlEv', guideName:'guideNameFlEv', search:'searchFlEv', importFile:'importFileFlEv', editedFilterBtn:'editedFilterBtnFlEv', offFilterBtn:'offFilterBtnFlEv', gridWrap:'gridWrapFlEv', offOnlyImport:'offOnlyImportFlEv' },
   mirrorFrom: null,
   installedOff: INSTALLED_FLEV,
   lazy: true
@@ -2858,7 +2916,7 @@ const flevsalPanelObj = makePanel({
   colHeaderLabel: trKey => 'FL EV ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flevsal' : trKey[0]==='B' ? 'rb-flevsal' : 'rg-flevsal'),
   vehicleFilter: isEvVehicle,
-  ids: { table:'gridTableFlEvSal', tbody:'tbodyElFlEvSal', count:'countFlEvSal', editCount:'editCountFlEvSal', guideName:'guideNameFlEvSal', search:'searchFlEvSal', importFile:'importFileFlEvSal', editedFilterBtn:'editedFilterBtnFlEvSal', gridWrap:'gridWrapFlEvSal', offOnlyImport:'offOnlyImportFlEvSal' },
+  ids: { table:'gridTableFlEvSal', tbody:'tbodyElFlEvSal', count:'countFlEvSal', editCount:'editCountFlEvSal', guideName:'guideNameFlEvSal', search:'searchFlEvSal', importFile:'importFileFlEvSal', editedFilterBtn:'editedFilterBtnFlEvSal', offFilterBtn:'offFilterBtnFlEvSal', gridWrap:'gridWrapFlEvSal', offOnlyImport:'offOnlyImportFlEvSal' },
   mirrorFrom: 'flev',
   installedAllOff: true, // not offered at all as of 09/02/26
   lazy: true
@@ -2870,7 +2928,7 @@ const flevridePanelObj = makePanel({
   colHeaderLabel: trKey => 'FL EV ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flevride' : trKey[0]==='B' ? 'rb-flevride' : 'rg-flevride'),
   vehicleFilter: isEvVehicle,
-  ids: { table:'gridTableFlEvRide', tbody:'tbodyElFlEvRide', count:'countFlEvRide', editCount:'editCountFlEvRide', guideName:'guideNameFlEvRide', search:'searchFlEvRide', importFile:'importFileFlEvRide', editedFilterBtn:'editedFilterBtnFlEvRide', gridWrap:'gridWrapFlEvRide', offOnlyImport:'offOnlyImportFlEvRide' },
+  ids: { table:'gridTableFlEvRide', tbody:'tbodyElFlEvRide', count:'countFlEvRide', editCount:'editCountFlEvRide', guideName:'guideNameFlEvRide', search:'searchFlEvRide', importFile:'importFileFlEvRide', editedFilterBtn:'editedFilterBtnFlEvRide', offFilterBtn:'offFilterBtnFlEvRide', gridWrap:'gridWrapFlEvRide', offOnlyImport:'offOnlyImportFlEvRide' },
   mirrorFrom: 'flev',
   installedAllOff: true, // not offered at all as of 09/02/26
   lazy: true
@@ -2885,7 +2943,7 @@ const diamondRidePanelObj = makePanel({
   trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'R'))); return a; })(),
   colHeaderLabel: trKey => 'Tier ' + trKey,
   colHeaderClass: trKey => (trKey[1]==='A' ? 'ra-ride' : trKey[1]==='B' ? 'rb-ride' : 'rg-ride'),
-  ids: { table:'gridTableDiamondRide', tbody:'tbodyElDiamondRide', count:'countDiamondRide', editCount:'editCountDiamondRide', guideName:'guideNameDiamondRide', search:'searchDiamondRide', importFile:'importFileDiamondRide', editedFilterBtn:'editedFilterBtnDiamondRide', gridWrap:'gridWrapDiamondRide', offOnlyImport:'offOnlyImportDiamondRide' },
+  ids: { table:'gridTableDiamondRide', tbody:'tbodyElDiamondRide', count:'countDiamondRide', editCount:'editCountDiamondRide', guideName:'guideNameDiamondRide', search:'searchDiamondRide', importFile:'importFileDiamondRide', editedFilterBtn:'editedFilterBtnDiamondRide', offFilterBtn:'offFilterBtnDiamondRide', gridWrap:'gridWrapDiamondRide', offOnlyImport:'offOnlyImportDiamondRide' },
   mirrorFrom: 'std',
   installedOff: INSTALLED_DIAMONDRIDE,
   lazy: true
@@ -2896,7 +2954,7 @@ const platinumRidePanelObj = makePanel({
   trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'R'))); return a; })(),
   colHeaderLabel: trKey => 'Tier ' + trKey,
   colHeaderClass: trKey => (trKey[1]==='A' ? 'ra-ride' : trKey[1]==='B' ? 'rb-ride' : 'rg-ride'),
-  ids: { table:'gridTablePlatinumRide', tbody:'tbodyElPlatinumRide', count:'countPlatinumRide', editCount:'editCountPlatinumRide', guideName:'guideNamePlatinumRide', search:'searchPlatinumRide', importFile:'importFilePlatinumRide', editedFilterBtn:'editedFilterBtnPlatinumRide', gridWrap:'gridWrapPlatinumRide', offOnlyImport:'offOnlyImportPlatinumRide' },
+  ids: { table:'gridTablePlatinumRide', tbody:'tbodyElPlatinumRide', count:'countPlatinumRide', editCount:'editCountPlatinumRide', guideName:'guideNamePlatinumRide', search:'searchPlatinumRide', importFile:'importFilePlatinumRide', editedFilterBtn:'editedFilterBtnPlatinumRide', offFilterBtn:'offFilterBtnPlatinumRide', gridWrap:'gridWrapPlatinumRide', offOnlyImport:'offOnlyImportPlatinumRide' },
   mirrorFrom: 'std',
   installedOff: INSTALLED_PLATINUMRIDE,
   lazy: true
@@ -2907,7 +2965,7 @@ const goldselectRidePanelObj = makePanel({
   trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'R'))); return a; })(),
   colHeaderLabel: trKey => 'Tier ' + trKey,
   colHeaderClass: trKey => (trKey[1]==='A' ? 'ra-ride' : trKey[1]==='B' ? 'rb-ride' : 'rg-ride'),
-  ids: { table:'gridTableGoldselectRide', tbody:'tbodyElGoldselectRide', count:'countGoldselectRide', editCount:'editCountGoldselectRide', guideName:'guideNameGoldselectRide', search:'searchGoldselectRide', importFile:'importFileGoldselectRide', editedFilterBtn:'editedFilterBtnGoldselectRide', gridWrap:'gridWrapGoldselectRide', offOnlyImport:'offOnlyImportGoldselectRide' },
+  ids: { table:'gridTableGoldselectRide', tbody:'tbodyElGoldselectRide', count:'countGoldselectRide', editCount:'editCountGoldselectRide', guideName:'guideNameGoldselectRide', search:'searchGoldselectRide', importFile:'importFileGoldselectRide', editedFilterBtn:'editedFilterBtnGoldselectRide', offFilterBtn:'offFilterBtnGoldselectRide', gridWrap:'gridWrapGoldselectRide', offOnlyImport:'offOnlyImportGoldselectRide' },
   mirrorFrom: 'std',
   installedOff: INSTALLED_GOLDSELECTRIDE,
   lazy: true
@@ -2918,7 +2976,7 @@ const silverRidePanelObj = makePanel({
   trKeys: (() => { const a=[]; RATE_LIST.forEach(r=>TIER_LIST.forEach(t=>a.push(t+r+'R'))); return a; })(),
   colHeaderLabel: trKey => 'Tier ' + trKey,
   colHeaderClass: trKey => (trKey[1]==='A' ? 'ra-ride' : trKey[1]==='B' ? 'rb-ride' : 'rg-ride'),
-  ids: { table:'gridTableSilverRide', tbody:'tbodyElSilverRide', count:'countSilverRide', editCount:'editCountSilverRide', guideName:'guideNameSilverRide', search:'searchSilverRide', importFile:'importFileSilverRide', editedFilterBtn:'editedFilterBtnSilverRide', gridWrap:'gridWrapSilverRide', offOnlyImport:'offOnlyImportSilverRide' },
+  ids: { table:'gridTableSilverRide', tbody:'tbodyElSilverRide', count:'countSilverRide', editCount:'editCountSilverRide', guideName:'guideNameSilverRide', search:'searchSilverRide', importFile:'importFileSilverRide', editedFilterBtn:'editedFilterBtnSilverRide', offFilterBtn:'offFilterBtnSilverRide', gridWrap:'gridWrapSilverRide', offOnlyImport:'offOnlyImportSilverRide' },
   mirrorFrom: 'std',
   installedOff: INSTALLED_SILVERRIDE,
   lazy: true
@@ -2929,7 +2987,7 @@ const diamondFlSalPanelObj = makePanel({
   trKeys: RATE_LIST.map(r => r+'S'),
   colHeaderLabel: trKey => 'FL ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flsal' : trKey[0]==='B' ? 'rb-flsal' : 'rg-flsal'),
-  ids: { table:'gridTableDiamondFlSal', tbody:'tbodyElDiamondFlSal', count:'countDiamondFlSal', editCount:'editCountDiamondFlSal', guideName:'guideNameDiamondFlSal', search:'searchDiamondFlSal', importFile:'importFileDiamondFlSal', editedFilterBtn:'editedFilterBtnDiamondFlSal', gridWrap:'gridWrapDiamondFlSal', offOnlyImport:'offOnlyImportDiamondFlSal' },
+  ids: { table:'gridTableDiamondFlSal', tbody:'tbodyElDiamondFlSal', count:'countDiamondFlSal', editCount:'editCountDiamondFlSal', guideName:'guideNameDiamondFlSal', search:'searchDiamondFlSal', importFile:'importFileDiamondFlSal', editedFilterBtn:'editedFilterBtnDiamondFlSal', offFilterBtn:'offFilterBtnDiamondFlSal', gridWrap:'gridWrapDiamondFlSal', offOnlyImport:'offOnlyImportDiamondFlSal' },
   mirrorFrom: 'fl',
   installedOff: INSTALLED_DIAMONDFLSAL,
   lazy: true
@@ -2940,7 +2998,7 @@ const platinumFlSalPanelObj = makePanel({
   trKeys: RATE_LIST.map(r => r+'S'),
   colHeaderLabel: trKey => 'FL ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flsal' : trKey[0]==='B' ? 'rb-flsal' : 'rg-flsal'),
-  ids: { table:'gridTablePlatinumFlSal', tbody:'tbodyElPlatinumFlSal', count:'countPlatinumFlSal', editCount:'editCountPlatinumFlSal', guideName:'guideNamePlatinumFlSal', search:'searchPlatinumFlSal', importFile:'importFilePlatinumFlSal', editedFilterBtn:'editedFilterBtnPlatinumFlSal', gridWrap:'gridWrapPlatinumFlSal', offOnlyImport:'offOnlyImportPlatinumFlSal' },
+  ids: { table:'gridTablePlatinumFlSal', tbody:'tbodyElPlatinumFlSal', count:'countPlatinumFlSal', editCount:'editCountPlatinumFlSal', guideName:'guideNamePlatinumFlSal', search:'searchPlatinumFlSal', importFile:'importFilePlatinumFlSal', editedFilterBtn:'editedFilterBtnPlatinumFlSal', offFilterBtn:'offFilterBtnPlatinumFlSal', gridWrap:'gridWrapPlatinumFlSal', offOnlyImport:'offOnlyImportPlatinumFlSal' },
   mirrorFrom: 'fl',
   installedOff: INSTALLED_PLATINUMFLSAL,
   lazy: true
@@ -2951,7 +3009,7 @@ const goldselectFlSalPanelObj = makePanel({
   trKeys: RATE_LIST.map(r => r+'S'),
   colHeaderLabel: trKey => 'FL ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flsal' : trKey[0]==='B' ? 'rb-flsal' : 'rg-flsal'),
-  ids: { table:'gridTableGoldselectFlSal', tbody:'tbodyElGoldselectFlSal', count:'countGoldselectFlSal', editCount:'editCountGoldselectFlSal', guideName:'guideNameGoldselectFlSal', search:'searchGoldselectFlSal', importFile:'importFileGoldselectFlSal', editedFilterBtn:'editedFilterBtnGoldselectFlSal', gridWrap:'gridWrapGoldselectFlSal', offOnlyImport:'offOnlyImportGoldselectFlSal' },
+  ids: { table:'gridTableGoldselectFlSal', tbody:'tbodyElGoldselectFlSal', count:'countGoldselectFlSal', editCount:'editCountGoldselectFlSal', guideName:'guideNameGoldselectFlSal', search:'searchGoldselectFlSal', importFile:'importFileGoldselectFlSal', editedFilterBtn:'editedFilterBtnGoldselectFlSal', offFilterBtn:'offFilterBtnGoldselectFlSal', gridWrap:'gridWrapGoldselectFlSal', offOnlyImport:'offOnlyImportGoldselectFlSal' },
   mirrorFrom: 'fl',
   installedOff: INSTALLED_GOLDSELECTFLSAL,
   lazy: true
@@ -2962,7 +3020,7 @@ const silverFlSalPanelObj = makePanel({
   trKeys: RATE_LIST.map(r => r+'S'),
   colHeaderLabel: trKey => 'FL ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flsal' : trKey[0]==='B' ? 'rb-flsal' : 'rg-flsal'),
-  ids: { table:'gridTableSilverFlSal', tbody:'tbodyElSilverFlSal', count:'countSilverFlSal', editCount:'editCountSilverFlSal', guideName:'guideNameSilverFlSal', search:'searchSilverFlSal', importFile:'importFileSilverFlSal', editedFilterBtn:'editedFilterBtnSilverFlSal', gridWrap:'gridWrapSilverFlSal', offOnlyImport:'offOnlyImportSilverFlSal' },
+  ids: { table:'gridTableSilverFlSal', tbody:'tbodyElSilverFlSal', count:'countSilverFlSal', editCount:'editCountSilverFlSal', guideName:'guideNameSilverFlSal', search:'searchSilverFlSal', importFile:'importFileSilverFlSal', editedFilterBtn:'editedFilterBtnSilverFlSal', offFilterBtn:'offFilterBtnSilverFlSal', gridWrap:'gridWrapSilverFlSal', offOnlyImport:'offOnlyImportSilverFlSal' },
   mirrorFrom: 'fl',
   installedOff: INSTALLED_SILVERFLSAL,
   lazy: true
@@ -2973,7 +3031,7 @@ const diamondFlRidePanelObj = makePanel({
   trKeys: RATE_LIST.map(r => r+'R'),
   colHeaderLabel: trKey => 'FL ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flride' : trKey[0]==='B' ? 'rb-flride' : 'rg-flride'),
-  ids: { table:'gridTableDiamondFlRide', tbody:'tbodyElDiamondFlRide', count:'countDiamondFlRide', editCount:'editCountDiamondFlRide', guideName:'guideNameDiamondFlRide', search:'searchDiamondFlRide', importFile:'importFileDiamondFlRide', editedFilterBtn:'editedFilterBtnDiamondFlRide', gridWrap:'gridWrapDiamondFlRide', offOnlyImport:'offOnlyImportDiamondFlRide' },
+  ids: { table:'gridTableDiamondFlRide', tbody:'tbodyElDiamondFlRide', count:'countDiamondFlRide', editCount:'editCountDiamondFlRide', guideName:'guideNameDiamondFlRide', search:'searchDiamondFlRide', importFile:'importFileDiamondFlRide', editedFilterBtn:'editedFilterBtnDiamondFlRide', offFilterBtn:'offFilterBtnDiamondFlRide', gridWrap:'gridWrapDiamondFlRide', offOnlyImport:'offOnlyImportDiamondFlRide' },
   mirrorFrom: 'fl',
   installedOff: INSTALLED_DIAMONDFLRIDE,
   lazy: true
@@ -2984,7 +3042,7 @@ const platinumFlRidePanelObj = makePanel({
   trKeys: RATE_LIST.map(r => r+'R'),
   colHeaderLabel: trKey => 'FL ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flride' : trKey[0]==='B' ? 'rb-flride' : 'rg-flride'),
-  ids: { table:'gridTablePlatinumFlRide', tbody:'tbodyElPlatinumFlRide', count:'countPlatinumFlRide', editCount:'editCountPlatinumFlRide', guideName:'guideNamePlatinumFlRide', search:'searchPlatinumFlRide', importFile:'importFilePlatinumFlRide', editedFilterBtn:'editedFilterBtnPlatinumFlRide', gridWrap:'gridWrapPlatinumFlRide', offOnlyImport:'offOnlyImportPlatinumFlRide' },
+  ids: { table:'gridTablePlatinumFlRide', tbody:'tbodyElPlatinumFlRide', count:'countPlatinumFlRide', editCount:'editCountPlatinumFlRide', guideName:'guideNamePlatinumFlRide', search:'searchPlatinumFlRide', importFile:'importFilePlatinumFlRide', editedFilterBtn:'editedFilterBtnPlatinumFlRide', offFilterBtn:'offFilterBtnPlatinumFlRide', gridWrap:'gridWrapPlatinumFlRide', offOnlyImport:'offOnlyImportPlatinumFlRide' },
   mirrorFrom: 'fl',
   installedOff: INSTALLED_PLATINUMFLRIDE,
   lazy: true
@@ -2995,7 +3053,7 @@ const goldselectFlRidePanelObj = makePanel({
   trKeys: RATE_LIST.map(r => r+'R'),
   colHeaderLabel: trKey => 'FL ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flride' : trKey[0]==='B' ? 'rb-flride' : 'rg-flride'),
-  ids: { table:'gridTableGoldselectFlRide', tbody:'tbodyElGoldselectFlRide', count:'countGoldselectFlRide', editCount:'editCountGoldselectFlRide', guideName:'guideNameGoldselectFlRide', search:'searchGoldselectFlRide', importFile:'importFileGoldselectFlRide', editedFilterBtn:'editedFilterBtnGoldselectFlRide', gridWrap:'gridWrapGoldselectFlRide', offOnlyImport:'offOnlyImportGoldselectFlRide' },
+  ids: { table:'gridTableGoldselectFlRide', tbody:'tbodyElGoldselectFlRide', count:'countGoldselectFlRide', editCount:'editCountGoldselectFlRide', guideName:'guideNameGoldselectFlRide', search:'searchGoldselectFlRide', importFile:'importFileGoldselectFlRide', editedFilterBtn:'editedFilterBtnGoldselectFlRide', offFilterBtn:'offFilterBtnGoldselectFlRide', gridWrap:'gridWrapGoldselectFlRide', offOnlyImport:'offOnlyImportGoldselectFlRide' },
   mirrorFrom: 'fl',
   installedOff: INSTALLED_GOLDSELECTFLRIDE,
   lazy: true
@@ -3006,7 +3064,7 @@ const silverFlRidePanelObj = makePanel({
   trKeys: RATE_LIST.map(r => r+'R'),
   colHeaderLabel: trKey => 'FL ' + trKey,
   colHeaderClass: trKey => (trKey[0]==='A' ? 'ra-flride' : trKey[0]==='B' ? 'rb-flride' : 'rg-flride'),
-  ids: { table:'gridTableSilverFlRide', tbody:'tbodyElSilverFlRide', count:'countSilverFlRide', editCount:'editCountSilverFlRide', guideName:'guideNameSilverFlRide', search:'searchSilverFlRide', importFile:'importFileSilverFlRide', editedFilterBtn:'editedFilterBtnSilverFlRide', gridWrap:'gridWrapSilverFlRide', offOnlyImport:'offOnlyImportSilverFlRide' },
+  ids: { table:'gridTableSilverFlRide', tbody:'tbodyElSilverFlRide', count:'countSilverFlRide', editCount:'editCountSilverFlRide', guideName:'guideNameSilverFlRide', search:'searchSilverFlRide', importFile:'importFileSilverFlRide', editedFilterBtn:'editedFilterBtnSilverFlRide', offFilterBtn:'offFilterBtnSilverFlRide', gridWrap:'gridWrapSilverFlRide', offOnlyImport:'offOnlyImportSilverFlRide' },
   mirrorFrom: 'fl',
   installedOff: INSTALLED_SILVERFLRIDE,
   lazy: true
@@ -3119,7 +3177,7 @@ const allPanelObj = makePanel({
     const g = ALL_GROUP_BY_PREFIX[prefix];
     return (g ? g.band + ' ' : '') + raw;
   },
-  ids: { table:'gridTableAll', tbody:'tbodyElAll', count:'countAll', editCount:'editCountAll', guideName:'guideNameAll', search:'searchAll', importFile:'importFileAll', editedFilterBtn:'editedFilterBtnAll', gridWrap:'gridWrapAll', selBar:'selBarAll', selCount:'selCountAll' },
+  ids: { table:'gridTableAll', tbody:'tbodyElAll', count:'countAll', editCount:'editCountAll', guideName:'guideNameAll', search:'searchAll', importFile:'importFileAll', editedFilterBtn:'editedFilterBtnAll', offFilterBtn:'offFilterBtnAll', gridWrap:'gridWrapAll', selBar:'selBarAll', selCount:'selCountAll' },
   mirrorFrom: null,
   delegateMap: PREFIX_TO_TBODY,
   lazy: true
