@@ -2101,6 +2101,24 @@ function makePanel(opts){
     // recognises the same labels, so an export still round-trips.
     const expLabel = opts.exportColHeaderLabel || colHeaderLabel;
     if (expKeys.length === 0){ alert('No columns are selected — tick at least one Region, Rate card, Coverage, Tier and Rate above, then export again.'); return; }
+    // The rows on screen, which is what "Current View" means: this honours the search
+    // box and the Show Only Edited / Off Only toggles the same way expKeys honours the
+    // column filters. Recomputed here rather than trusting the last render, so a panel
+    // that was never opened this session still exports a correct (unfiltered) list.
+    computeFilteredList();
+    const expRows = filteredList.slice();
+    if (expRows.length === 0){ alert('No vehicles match the current view — clear the search box or the Off Only / Show Only Edited filters, then export again.'); return; }
+    // Name the active row filters in the sheet itself. A filtered export is a subset of
+    // the guide, and months later nobody can tell that from the rows alone. This goes
+    // after the date because import reads the guide name as everything before
+    // " — exported ", so anything appended here cannot corrupt the round trip.
+    const rowFilterNotes = [];
+    if (showOnlyOff) rowFilterNotes.push('Off rows only');
+    if (showOnlyEdited) rowFilterNotes.push('edited rows only');
+    if (searchTerm) rowFilterNotes.push('search "' + searchTerm + '"');
+    const filterNote = rowFilterNotes.length
+      ? ` — ${rowFilterNotes.join(', ')} — ${expRows.length.toLocaleString()} of ${vehicleIndices.length.toLocaleString()} vehicles`
+      : '';
     const today = new Date().toISOString().slice(0,10);
     const wb = new ExcelJS.Workbook();
     const ws = wb.addWorksheet('AAS2012 (2)');
@@ -2131,7 +2149,7 @@ function makePanel(opts){
 
     C(1,1,'American Auto Shield, LLC', sTitle);
     C(2,1,'Forte Class Guides: AAS2012 — ' + panelLabel, sSub);
-    C(3,1,`${guideName} — exported ${today}`, sPlain);
+    C(3,1,`${guideName} — exported ${today}${filterNote}`, sPlain);
 
     const FIXED_AFTER = ['Code','Cyl','4WD','Tur','Fuel','PTM','MFG'];
     const YEAR_COLS = ['1991','1992','1993','1994','1995','1996','1997','1998','1999','2000','2001','2002'];
@@ -2150,7 +2168,7 @@ function makePanel(opts){
     const secondTierStart = col;
     expKeys.forEach((trKey, i) => C(6,secondTierStart+i,expLabel(trKey), sHdrPlain));
 
-    vehicleIndices.forEach((idx, row0) => {
+    expRows.forEach((idx, row0) => {
       const v = VEHICLES[idx];
       const r = 7+row0;
       C(r,3,'SUM', sCenter);
