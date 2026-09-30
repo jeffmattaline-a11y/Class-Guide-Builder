@@ -68,6 +68,13 @@ body{font-family:system-ui,sans-serif;font-size:12px;background:#f0f0f0;height:1
 .draftClose{margin-left:auto;background:none;border:none;color:#888;font-size:22px;line-height:1;cursor:pointer;padding:0 4px}
 .draftClose:hover{color:#fff}
 .draftBody{padding:16px 18px 20px;overflow-y:auto}
+.draftSheetFoot{display:flex;align-items:center;gap:12px;justify-content:flex-end;padding:11px 18px;border-top:1px solid #333;flex-shrink:0}
+#draftFootHint{color:#ffb020;font-size:11px;margin-right:auto;opacity:0;transition:opacity .15s}
+#draftFootHint.show{opacity:1}
+/* A click on the backdrop is answered rather than ignored, so it is obvious the
+   panel is still open and waiting on a choice. */
+.draftSheet.nudge{animation:draftNudge .28s ease}
+@keyframes draftNudge{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 .draftNow{background:#26262a;border:1px solid #3a3a3c;border-radius:8px;padding:10px 12px;font-size:12px;color:#ccc;margin-bottom:18px}
 .draftNow b{color:#ffcc00}
 .draftSection{margin-bottom:20px}
@@ -351,6 +358,10 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
         <div class="draftSectionTitle">Saved drafts in this browser</div>
         <div id="draftList"></div>
       </div>
+    </div>
+    <div class="draftSheetFoot">
+      <span id="draftFootHint"></span>
+      <button class="btn filterbtn" onclick="closeDrafts()">Done</button>
     </div>
   </div>
 </div>
@@ -4248,6 +4259,29 @@ function openDrafts(){
 function closeDrafts(){
   const m = document.getElementById('draftModal');
   if (m) m.classList.add('hidden');
+  const hint = document.getElementById('draftFootHint');
+  if (hint) hint.classList.remove('show');
+}
+
+// Answer for a click that lands outside the panel: shake it and point at Done,
+// instead of closing and leaving the user unsure whether anything was saved.
+let draftNudgeTimer = null;
+function nudgeDraftSheet(){
+  const sheet = document.querySelector('.draftSheet');
+  const hint = document.getElementById('draftFootHint');
+  if (hint){
+    hint.textContent = draftChangedSinceSave
+      ? 'You have changes that are not in a saved draft yet — save them, or use Done to close.'
+      : 'Use Done to close this panel.';
+    hint.classList.add('show');
+  }
+  if (sheet){
+    sheet.classList.remove('nudge');
+    void sheet.offsetWidth;          // restart the animation
+    sheet.classList.add('nudge');
+    if (draftNudgeTimer) clearTimeout(draftNudgeTimer);
+    draftNudgeTimer = setTimeout(() => sheet.classList.remove('nudge'), 320);
+  }
 }
 
 (function wireDraftUi(){
@@ -4259,11 +4293,12 @@ function closeDrafts(){
       e.target.value = '';
     });
   }
+  // Deliberately no dismiss on backdrop click and no dismiss on Escape: this
+  // panel is where work gets saved, and a stray click next to it must not look
+  // like "saved". It closes only on Done, the X, or one of the actions that
+  // finishes the job (Save, Update, Open, Download).
   const modal = document.getElementById('draftModal');
-  if (modal) modal.addEventListener('click', e => { if (e.target === modal) closeDrafts(); });
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) closeDrafts();
-  });
+  if (modal) modal.addEventListener('click', e => { if (e.target === modal) nudgeDraftSheet(); });
   // Guide-name boxes are part of the draft, so typing in one counts as a change.
   document.querySelectorAll('input.guideName').forEach(el => el.addEventListener('change', markDraftDirty));
   // Flush the pending autosave on the way out. pagehide fires on tab close and
