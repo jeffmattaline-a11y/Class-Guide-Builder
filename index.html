@@ -23,12 +23,70 @@ body{font-family:system-ui,sans-serif;font-size:12px;background:#f0f0f0;height:1
 #app{display:none;flex-direction:column;flex:1;overflow:hidden}
 
 #productBar{z-index:60}
+/* The title never wraps: with the bar on one line the right-hand controls
+   keep their place, and the items below give up room instead. */
+#productBar h1{flex:0 0 auto;white-space:nowrap}
+/* Order of sacrifice as the window narrows, least load-bearing first: the
+   vehicle-count hint, then the autosave status (the draft tag next to it still
+   says which draft), then the guide-file tag. */
+#productBar input.guideName{flex:0 1 auto;min-width:130px}
+@media (max-width:1560px){ #productBar .topHint{display:none} }
+@media (max-width:1420px){ #productBar .draftStatus{display:none} }
+@media (max-width:1340px){ #productBar .currentFileTag{display:none} }
+@media (max-width:1000px){ #productBar input.guideName{display:none} }
 /* Guide-name box and vehicle-count hint describe the All Combined grid, so they
    drop out while the Change Log is on screen. switchProduct() sets .clOn. */
 #productBar.clOn .allOnlyHdr{display:none}
 #navChangeLogLink{margin-left:auto;color:#ffb020;font-size:11px;font-weight:700;cursor:pointer;user-select:none;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid transparent;border-radius:6px}
 #productBar.clOn #navChangeLogLink{background:#332a1b;border-color:#ffb020}
 #navChangeLogLink:hover{text-decoration:underline}
+/* Draft save/restore UI. Autosave status sits next to the guide-file tag so the
+   two bits of "which state am I looking at" information stay together. */
+/* Which draft is open. Named separately from the save status so "what am I
+   editing" and "is it written down yet" never have to share one line. */
+.draftNameTag{font-size:11px;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:6px;border:1px solid #444;background:#26262a;color:#aaa;max-width:240px;min-width:0;flex:0 0 auto;overflow:hidden}
+.draftNameTag b{color:#e8e8ea;font-weight:700;overflow:hidden;text-overflow:ellipsis}
+.draftNameTag.named{border-color:#0a84ff;background:#0d2033}
+.draftNameTag.named b{color:#6cc2ff}
+.draftNameTag.unsaved{border-color:#ffb020;background:#332a1b}
+.draftNameTag.unsaved b{color:#ffd98a}
+.draftNameTag .dot{color:#ffb020;font-weight:700}
+.draftCurrentBadge{background:#0a84ff;color:#fff;border-radius:4px;font-size:9px;font-weight:700;padding:2px 6px;text-transform:uppercase;letter-spacing:.4px}
+.draftStatus{color:#777;font-size:11px;white-space:nowrap;flex:0 0 auto}
+.draftStatus.saved{color:#30d158}
+.draftStatus.pending{color:#ffb020}
+.btn.draftsBtn{background:#3a3a3c;color:#e8e8ea;border:1px solid #555;white-space:nowrap;flex:0 0 auto}
+.btn.draftsBtn:hover{background:#4a4a4c;border-color:#777}
+.btn.draftsBtn.hasWork{border-color:#ffcc00;color:#ffcc00}
+#draftRestoreBar.hidden,#draftModal.hidden{display:none}
+#draftRestoreBar{background:#332a1b;border-bottom:2px solid #ffb020;color:#ffd98a;font-size:12px;padding:8px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap}
+#draftRestoreBar b{color:#fff}
+#draftModal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:2000;padding:24px}
+.draftSheet{background:#1f1f22;border:1px solid #444;border-radius:12px;width:640px;max-width:100%;max-height:100%;display:flex;flex-direction:column;box-shadow:0 16px 56px rgba(0,0,0,.6)}
+.draftSheetHead{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid #333;flex-shrink:0}
+.draftSheetHead h2{font-size:15px;font-weight:700;color:#e8e8ea;margin:0}
+.draftClose{margin-left:auto;background:none;border:none;color:#888;font-size:22px;line-height:1;cursor:pointer;padding:0 4px}
+.draftClose:hover{color:#fff}
+.draftBody{padding:16px 18px 20px;overflow-y:auto}
+.draftNow{background:#26262a;border:1px solid #3a3a3c;border-radius:8px;padding:10px 12px;font-size:12px;color:#ccc;margin-bottom:18px}
+.draftNow b{color:#ffcc00}
+.draftSection{margin-bottom:20px}
+.draftSection:last-child{margin-bottom:0}
+.draftSectionTitle{color:#777;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.draftRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.draftRow input[type=text]{flex:1;min-width:220px;background:#111;border:1px solid #444;border-radius:6px;color:#e8e8ea;padding:6px 10px;font-size:12px;outline:none}
+.draftRow input[type=text]:focus{border-color:#0a84ff}
+.draftHint{color:#777;font-size:11px;line-height:1.5;margin-bottom:10px}
+.draftUpload{display:inline-block;position:relative;overflow:hidden}
+.draftUpload input{display:none}
+.draftItem{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid #3a3a3c;border-radius:8px;margin-bottom:7px;background:#26262a;flex-wrap:wrap}
+.draftItem.auto{border-color:#6b5520;background:#2b2418}
+.draftItem.current{border-color:#0a84ff;background:#0d2033}
+.draftItemMain{flex:1;min-width:180px}
+.draftItemName{color:#e8e8ea;font-size:12px;font-weight:700}
+.draftItemMeta{color:#888;font-size:10.5px;margin-top:2px}
+.draftItem .btn{padding:4px 10px;font-size:10px}
+.draftEmpty{color:#777;font-size:11.5px;padding:4px 0}
 .product-tab{padding:9px 28px;cursor:pointer;font-size:13px;font-weight:700;color:#555;letter-spacing:.3px;border-bottom:3px solid transparent;margin-bottom:-2px;user-select:none;transition:color .15s}
 .product-tab:hover{color:#ccc}
 .product-tab.std-active{color:#fff;border-bottom-color:#0a84ff}
@@ -56,8 +114,8 @@ body{font-family:system-ui,sans-serif;font-size:12px;background:#f0f0f0;height:1
 .brandLogo{height:20px;width:auto;display:block;background:#fff;border-radius:4px;padding:3px 7px;box-sizing:content-box}
 [id^="topBar"] input.guideName, #productBar input.guideName{background:#1c1c1e;color:#fff;border:1px solid #444;border-radius:5px;padding:5px 10px;font-size:12px;font-weight:700;width:220px}
 /* Short one-line hint that sits beside the title, not under it. */
-.topHint{color:#777;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.currentFileTag{color:#777;font-size:11px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.topHint{color:#777;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto;min-width:0}
+.currentFileTag{color:#777;font-size:11px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;flex:0 0 auto}
 .currentFileTag b{color:#ffb020;font-weight:700}
 .toolbar{background:#2c2c2e;padding:8px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex-shrink:0;border-bottom:1px solid #444}
 .toolbar input[type=text]{padding:6px 10px;border:none;border-radius:5px;font-size:12px;width:280px;background:#3a3a3c;color:#fff;outline:none}
@@ -252,7 +310,49 @@ td.edited .roVal{color:#8a6d00;font-weight:800}
   <input type="text" class="guideName allOnlyHdr" id="guideNameAll" value="All Combined Guide 1">
   <span class="topHint allOnlyHdr">3,227 vehicles &middot; all 36 guides side by side &middot; edits save into the guide behind each column</span>
   <span class="currentFileTag" id="currentGuideFile"></span>
+  <span class="draftNameTag" id="draftNameTag"></span>
+  <span class="draftStatus" id="draftStatus"></span>
+  <button class="btn draftsBtn" id="draftsBtn" onclick="openDrafts()" title="Save the work in progress, or open a saved draft">&#128190; Save / Drafts</button>
   <label id="navChangeLogLink"><input type="checkbox" id="changeLogToggle" onchange="toggleChangeLog()">&#128203; Change Log</label>
+</div>
+
+<!-- Offered on load when the previous session left unsaved edits behind. Never
+     applied on its own: starting from the filed guide and restoring yesterday's
+     work in progress are both normal, so the choice stays with the user. -->
+<div id="draftRestoreBar" class="hidden">
+  <span id="draftRestoreText"></span>
+  <button class="btn green" onclick="restoreAutosave()">Pick up where I left off</button>
+  <button class="btn filterbtn" onclick="dismissRestoreBar()">Start from the filed guide</button>
+</div>
+
+<div id="draftModal" class="hidden">
+  <div class="draftSheet">
+    <div class="draftSheetHead">
+      <h2>Save / Drafts</h2>
+      <button class="draftClose" onclick="closeDrafts()" title="Close">&times;</button>
+    </div>
+    <div class="draftBody">
+      <div class="draftNow" id="draftNow"></div>
+
+      <div class="draftSection">
+        <div class="draftSectionTitle">Save what&rsquo;s on screen now</div>
+        <div class="draftRow">
+          <input type="text" id="draftSaveName" placeholder="Name this draft (e.g. FL Silver Off pass &mdash; round 2)">
+          <button class="btn blue" onclick="saveNamedDraft()">Save draft</button>
+        </div>
+        <div class="draftHint">Saved in this browser on this computer, and kept until you delete it. Use the draft file below to move work to another machine or hand it to someone else.</div>
+        <div class="draftRow">
+          <button class="btn green" onclick="downloadDraftFile()">Download draft file (.json)</button>
+          <label class="btn filterbtn draftUpload">Open draft file&hellip;<input type="file" id="draftFileInput" accept=".json,application/json"></label>
+        </div>
+      </div>
+
+      <div class="draftSection">
+        <div class="draftSectionTitle">Saved drafts in this browser</div>
+        <div id="draftList"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="panel hidden" id="stdPanel">
@@ -1740,11 +1840,13 @@ function makePanel(opts){
       const had = Object.prototype.hasOwnProperty.call(overrides[idx], trKey);
       delete overrides[idx][trKey];
       if (Object.keys(overrides[idx]).length === 0) delete overrides[idx];
+      if (had) markDraftDirty();
       return had;
     }
     if (!overrides[idx]) overrides[idx] = {};
     const changed = overrides[idx][trKey] !== val;
     overrides[idx][trKey] = val;
+    if (changed) markDraftDirty();
     return changed;
   }
   // Whether this cell gets a live <select>. On All Combined a column whose source
@@ -2086,6 +2188,7 @@ function makePanel(opts){
     if (!confirm('Discard all edits and reset every vehicle back to its current class?')) return;
     Object.keys(overrides).forEach(k => delete overrides[k]);
     Object.keys(preOffValues).forEach(k => delete preOffValues[k]);
+    markDraftDirty();
     renderRows();
   }
 
@@ -2641,9 +2744,69 @@ function makePanel(opts){
         Object.keys(overrides[idx]).forEach(k => { if (wanted.has(k)) delete overrides[idx][k]; });
         if (Object.keys(overrides[idx]).length === 0) delete overrides[idx];
       });
+      markDraftDirty();
       if (built) renderRows();
     },
-    refreshIfBuilt: () => { if (built) renderRows(); } };
+    refreshIfBuilt: () => { if (built) renderRows(); },
+    // --- draft save / restore --------------------------------------------
+    // A draft carries this panel's overrides only -- the edits, i.e. exactly
+    // the cells showing yellow. The filed baseline lives in the code, so it is
+    // never written into a draft and can never be overwritten by one.
+    // Rows are keyed by vehicle description rather than by VEHICLES index, so a
+    // draft still lands on the right vehicles after a master-file update has
+    // inserted rows and shifted every index below the insertion point.
+    draftLabel: panelLabel,
+    guideNameId: ids.guideName,
+    isDelegatePanel: !!delegateMap,
+    draftEditCount: () => {
+      if (delegateMap) return 0;
+      let n = 0;
+      Object.keys(overrides).forEach(idx => { n += Object.keys(overrides[idx]).length; });
+      return n;
+    },
+    draftSnapshot: () => {
+      if (delegateMap) return null;
+      const out = {};
+      Object.keys(overrides).forEach(idx => {
+        const v = VEHICLES[idx];
+        if (!v) return;
+        const cells = overrides[idx];
+        if (!cells || Object.keys(cells).length === 0) return;
+        out[v.d] = Object.assign({}, cells);
+      });
+      return out;
+    },
+    // Replaces this panel's edits wholesale: anything not in the draft goes
+    // back to the filed baseline, which is what "reopen where I left off"
+    // has to mean. Writes go through writeCell, so a draft value that now
+    // matches the baseline correctly stops being an edit instead of sitting
+    // there as a permanently yellow no-op.
+    draftRestore: rows => {
+      if (delegateMap) return { applied:0, skipped:0, unknownRows:[] };
+      Object.keys(overrides).forEach(k => delete overrides[k]);
+      Object.keys(preOffValues).forEach(k => delete preOffValues[k]);
+      const known = new Set(trKeys);
+      let applied = 0, skipped = 0;
+      const unknownRows = [];
+      Object.keys(rows || {}).forEach(desc => {
+        const cells = rows[desc] || {};
+        const idx = DESC_TO_IDX[desc];
+        if (idx === undefined){
+          unknownRows.push(desc);
+          skipped += Object.keys(cells).length;
+          return;
+        }
+        Object.keys(cells).forEach(trKey => {
+          // A column this panel does not have (draft written by a different
+          // build) is skipped rather than silently dropped into the map.
+          if (!known.has(trKey)){ skipped++; return; }
+          writeCell(idx, trKey, cells[trKey]);
+          applied++;
+        });
+      });
+      if (built) renderRows();
+      return { applied, skipped, unknownRows };
+    } };
   PANEL_REGISTRY[ids.tbody] = panelApi;
   return panelApi;
 }
@@ -3545,12 +3708,585 @@ async function exportAasMasterXlsx(){
 
 
 // ---------------------------------------------------------------------------
+// Drafts: save work in progress and pick it up later
+// ---------------------------------------------------------------------------
+// A draft is the set of edits -- exactly the cells showing yellow -- across all
+// 36 guides, plus each guide's name box. It deliberately does NOT contain the
+// filed baseline: that lives in the code as the INSTALLED_* constants, so a
+// draft can never overwrite what is on file, and restoring one always leaves
+// yellow meaning the same thing it did when the draft was saved.
+//
+// Rows are keyed by vehicle description, not by VEHICLES index. Index keying
+// would quietly corrupt every draft the next time a master-file update inserts
+// a row, because everything below the insertion point shifts by one.
+//
+// Three places to put a draft, in order of how much they are meant to be
+// trusted: autosave (this browser, overwritten constantly, for crash/close
+// recovery), named drafts (this browser, kept until deleted), and a draft file
+// (portable -- another machine, another person, a network folder, a backup).
+const DRAFT_FORMAT = 'carshield-class-guide-draft';
+const DRAFT_FORMAT_VERSION = 1;
+const DRAFT_AUTOSAVE_KEY = 'cgb_draft_autosave_v1';
+const DRAFT_INDEX_KEY = 'cgb_draft_index_v1';
+const DRAFT_ITEM_PREFIX = 'cgb_draft_v1:';
+const DRAFT_AUTOSAVE_DELAY_MS = 1500;
+
+// desc -> VEHICLES index. Descriptions are unique across all 3,227 rows, which
+// is what makes them usable as the stable row key for drafts.
+const DESC_TO_IDX = {};
+VEHICLES.forEach((v, idx) => { DESC_TO_IDX[v.d] = idx; });
+
+// localStorage is unavailable in a few setups (private windows, locked-down
+// policies). Everything that writes to it degrades to "file drafts only"
+// rather than throwing in the middle of an edit.
+const draftStore = (function(){
+  try {
+    const probe = '__cgb_probe__';
+    window.localStorage.setItem(probe, '1');
+    window.localStorage.removeItem(probe);
+    return window.localStorage;
+  } catch (e) { return null; }
+})();
+
+let draftDirty = false;
+let draftSuppressDirty = false;   // set while a restore is writing cells
+let draftAutosaveTimer = null;
+
+// Which draft the edits on screen belong to, so "what am I working on" is
+// always answerable. null means the work isn't tied to a named draft yet --
+// autosave still protects it, but there is nothing to update.
+//   id     - named-draft id in this browser, or null for a draft opened from a file
+//   name   - what the user called it
+//   source - 'browser' or 'file'
+let currentDraft = null;
+// True once the state has moved away from what was last written into
+// currentDraft. Distinct from draftDirty, which is only about the autosave.
+let draftChangedSinceSave = false;
+
+function setCurrentDraft(entry){
+  currentDraft = entry || null;
+  draftChangedSinceSave = false;
+  updateDraftStatus();
+}
+
+function currentDraftLabel(){
+  if (!currentDraft) return null;
+  return currentDraft.name + (currentDraft.source === 'file' ? ' (file)' : '');
+}
+
+function draftPanels(){
+  // Every panel that owns edit state. All Combined is excluded: it holds none
+  // of its own, its edits already live in the guide behind each column.
+  return Object.keys(PANEL_REGISTRY)
+    .map(id => ({ id, api: PANEL_REGISTRY[id] }))
+    .filter(p => p.api && !p.api.isDelegatePanel);
+}
+
+function draftTotals(){
+  let cells = 0, guides = 0;
+  draftPanels().forEach(p => {
+    const n = p.api.draftEditCount();
+    if (n > 0){ cells += n; guides++; }
+  });
+  return { cells, guides };
+}
+
+function collectDraft(name){
+  const panels = {};
+  draftPanels().forEach(p => {
+    const rows = p.api.draftSnapshot();
+    const nameEl = document.getElementById(p.api.guideNameId);
+    const guideName = nameEl ? nameEl.value : '';
+    const hasRows = rows && Object.keys(rows).length > 0;
+    if (!hasRows && !guideName) return;
+    panels[p.id] = { label: p.api.draftLabel, guideName: guideName, rows: rows || {} };
+  });
+  const allNameEl = document.getElementById('guideNameAll');
+  const totals = draftTotals();
+  return {
+    format: DRAFT_FORMAT,
+    version: DRAFT_FORMAT_VERSION,
+    name: name || '',
+    savedAt: new Date().toISOString(),
+    guideFile: CURRENT_GUIDE_FILE,
+    vehicleCount: VEHICLES.length,
+    editedCells: totals.cells,
+    editedGuides: totals.guides,
+    allCombinedName: allNameEl ? allNameEl.value : '',
+    // Which draft these edits came from. The autosave carries it so that
+    // reopening the tool can say "you were working on X", not just "you had
+    // unfinished edits".
+    openDraftId: currentDraft ? currentDraft.id : null,
+    openDraftName: currentDraft ? currentDraft.name : '',
+    openDraftSource: currentDraft ? currentDraft.source : '',
+    openDraftChanged: draftChangedSinceSave,
+    panels: panels
+  };
+}
+
+// Applies a draft over the whole tool: every panel is set to exactly what the
+// draft holds, so panels the draft doesn't mention go back to the filed guide.
+// Returns a report rather than alerting, so each caller words its own message.
+function applyDraft(draft){
+  const report = { applied:0, skipped:0, unknownRows:new Set(), unknownPanels:[] };
+  draftSuppressDirty = true;
+  try {
+    const panels = draft.panels || {};
+    draftPanels().forEach(p => {
+      const entry = panels[p.id];
+      const res = p.api.draftRestore(entry ? entry.rows : {});
+      report.applied += res.applied;
+      report.skipped += res.skipped;
+      (res.unknownRows || []).forEach(d => report.unknownRows.add(d));
+      if (entry && entry.guideName){
+        const nameEl = document.getElementById(p.api.guideNameId);
+        if (nameEl) nameEl.value = entry.guideName;
+      }
+    });
+    Object.keys(panels).forEach(id => { if (!PANEL_REGISTRY[id]) report.unknownPanels.push(id); });
+    const allNameEl = document.getElementById('guideNameAll');
+    if (allNameEl && draft.allCombinedName) allNameEl.value = draft.allCombinedName;
+  } finally {
+    draftSuppressDirty = false;
+  }
+  // All Combined reads through to the other panels, so it has to redraw too.
+  Object.keys(PANEL_REGISTRY).forEach(id => {
+    const api = PANEL_REGISTRY[id];
+    if (api && api.isDelegatePanel && api.refreshIfBuilt) api.refreshIfBuilt();
+  });
+  writeAutosave();
+  updateDraftStatus();
+  return report;
+}
+
+function draftMismatchWarning(draft){
+  // Drafts survive a master-file update because rows are keyed by description,
+  // but the user should still know they are crossing builds.
+  const bits = [];
+  if (draft.guideFile && draft.guideFile !== CURRENT_GUIDE_FILE){
+    bits.push('That draft was saved against ' + draft.guideFile + '; this tool is on ' + CURRENT_GUIDE_FILE + '.');
+  }
+  if (draft.vehicleCount && draft.vehicleCount !== VEHICLES.length){
+    bits.push('It was saved with ' + draft.vehicleCount.toLocaleString() + ' vehicle rows; this tool has ' + VEHICLES.length.toLocaleString() + '.');
+  }
+  return bits.join(' ');
+}
+
+function describeRestore(report){
+  let msg = report.applied.toLocaleString() + ' edited cell' + (report.applied===1?'':'s') + ' restored.';
+  if (report.unknownRows.size > 0){
+    const names = [...report.unknownRows].slice(0, 5).join(', ');
+    msg += '\n\n' + report.unknownRows.size + ' vehicle' + (report.unknownRows.size===1?'':'s')
+        + ' in the draft are not in this build and were skipped: ' + names
+        + (report.unknownRows.size > 5 ? ', and others.' : '.');
+  }
+  if (report.skipped > 0 && report.unknownRows.size === 0){
+    msg += '\n\n' + report.skipped.toLocaleString() + ' cell' + (report.skipped===1?'':'s') + ' in the draft did not match a column in this build and were skipped.';
+  }
+  return msg;
+}
+
+// ---- autosave -------------------------------------------------------------
+// Called from writeCell and the reset paths, i.e. once per actual change of
+// override state, so nothing can edit a cell without the autosave following it.
+function markDraftDirty(){
+  if (draftSuppressDirty) return;
+  draftDirty = true;
+  draftChangedSinceSave = true;
+  updateDraftStatus(true);
+  if (draftAutosaveTimer) clearTimeout(draftAutosaveTimer);
+  draftAutosaveTimer = setTimeout(writeAutosave, DRAFT_AUTOSAVE_DELAY_MS);
+}
+
+function writeAutosave(){
+  if (draftAutosaveTimer){ clearTimeout(draftAutosaveTimer); draftAutosaveTimer = null; }
+  if (!draftStore) { draftDirty = false; updateDraftStatus(); return; }
+  try {
+    const draft = collectDraft('');
+    if (draft.editedCells === 0){
+      draftStore.removeItem(DRAFT_AUTOSAVE_KEY);
+    } else {
+      draftStore.setItem(DRAFT_AUTOSAVE_KEY, JSON.stringify(draft));
+    }
+    draftDirty = false;
+    updateDraftStatus();
+  } catch (e) {
+    // Almost always the 5MB quota on a very large edit session.
+    draftDirty = false;
+    const el = document.getElementById('draftStatus');
+    if (el){ el.className = 'draftStatus pending'; el.textContent = 'Autosave failed — use Save / Drafts ▸ Download draft file'; }
+  }
+}
+
+// The "which draft am I on" tag. Three states, because they call for three
+// different actions: no draft open (save one if you want to keep it), a draft
+// open and matching what's saved, and a draft open with edits made since.
+function updateDraftNameTag(totals){
+  const tag = document.getElementById('draftNameTag');
+  if (!tag) return;
+  const esc = s => String(s).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+  if (currentDraft){
+    const changed = draftChangedSinceSave;
+    tag.className = 'draftNameTag ' + (changed ? 'unsaved' : 'named');
+    tag.title = (currentDraft.source === 'file' ? 'Opened from a draft file: ' : 'Draft saved in this browser: ')
+      + currentDraft.name + (changed ? ' — edited since it was last saved.' : ' — no changes since it was last saved.');
+    tag.innerHTML = 'Draft: <b>' + esc(currentDraft.name) + '</b>'
+      + (currentDraft.source === 'file' ? ' <span style="color:#888">(file)</span>' : '')
+      + (changed ? ' <span class="dot" title="Edited since last save">&#9679; edited</span>' : '');
+    return;
+  }
+  if ((totals || draftTotals()).cells === 0){
+    tag.className = 'draftNameTag';
+    tag.title = 'No draft open. Every guide shows what is currently filed.';
+    tag.innerHTML = 'Draft: <b>none</b>';
+    return;
+  }
+  tag.className = 'draftNameTag unsaved';
+  tag.title = 'These edits are autosaved but are not part of a named draft yet. Use Save / Drafts to name and save them.';
+  tag.innerHTML = 'Draft: <b>unnamed</b>';
+}
+
+function readAutosave(){
+  if (!draftStore) return null;
+  try {
+    const raw = draftStore.getItem(DRAFT_AUTOSAVE_KEY);
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    return (d && d.format === DRAFT_FORMAT) ? d : null;
+  } catch (e) { return null; }
+}
+
+function fmtWhen(iso){
+  const d = new Date(iso);
+  if (isNaN(d)) return 'an earlier session';
+  const sameDay = d.toDateString() === new Date().toDateString();
+  const time = d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+  return sameDay ? 'today at ' + time : d.toLocaleDateString([], {month:'short', day:'numeric'}) + ' at ' + time;
+}
+
+function updateDraftStatus(pending){
+  const el = document.getElementById('draftStatus');
+  const btn = document.getElementById('draftsBtn');
+  const totals = draftTotals();
+  if (btn) btn.classList.toggle('hasWork', totals.cells > 0);
+  updateDraftNameTag(totals);
+  if (!el) return;
+  if (pending || draftDirty){ el.className = 'draftStatus pending'; el.textContent = 'Saving…'; return; }
+  if (totals.cells === 0){ el.className = 'draftStatus'; el.textContent = 'No edits yet'; return; }
+  if (!draftStore){ el.className = 'draftStatus pending'; el.textContent = totals.cells.toLocaleString() + ' edits — not autosaved in this browser'; return; }
+  el.className = 'draftStatus saved';
+  // Kept short: the tag to the left already says which draft, and the
+  // Save / Drafts panel carries the full breakdown.
+  el.textContent = 'Saved · ' + totals.cells.toLocaleString() + ' edit' + (totals.cells===1?'':'s')
+    + ' · ' + totals.guides + ' guide' + (totals.guides===1?'':'s');
+}
+
+// ---- restore bar ----------------------------------------------------------
+function showRestoreBar(draft){
+  const bar = document.getElementById('draftRestoreBar');
+  const txt = document.getElementById('draftRestoreText');
+  if (!bar || !txt) return;
+  const esc = s => String(s).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+  txt.innerHTML = 'Unfinished work from ' + fmtWhen(draft.savedAt) + ': <b>'
+    + draft.editedCells.toLocaleString() + ' edited cell' + (draft.editedCells===1?'':'s')
+    + '</b> across <b>' + draft.editedGuides + ' guide' + (draft.editedGuides===1?'':'s') + '</b>'
+    + (draft.openDraftName
+        ? ', on draft <b>' + esc(draft.openDraftName) + '</b>'
+          + (draft.openDraftChanged ? ' (with changes made since it was saved)' : '')
+        : ', not saved to a named draft')
+    + '.';
+  bar.classList.remove('hidden');
+}
+
+function restoreAutosave(){
+  const draft = readAutosave();
+  if (!draft){ dismissRestoreBar(); return; }
+  const warn = draftMismatchWarning(draft);
+  if (warn && !confirm(warn + '\n\nEdits are matched to vehicles by name, so they will land on the right rows, but check anything that changed between builds.\n\nRestore it?')) return;
+  const report = applyDraft(draft);
+  // Come back onto the same draft the last session was working on, including
+  // whether it had unsaved changes -- otherwise a restore would silently look
+  // like a clean copy of a saved draft.
+  if (draft.openDraftName){
+    const stillThere = draft.openDraftSource === 'file' || readDraftIndex().some(d => d.id === draft.openDraftId);
+    setCurrentDraft(stillThere ? { id: draft.openDraftId, name: draft.openDraftName, source: draft.openDraftSource || 'browser' } : null);
+    if (stillThere && draft.openDraftChanged){ draftChangedSinceSave = true; updateDraftStatus(); }
+  } else {
+    setCurrentDraft(null);
+    draftChangedSinceSave = true;   // unnamed work in progress
+    updateDraftStatus();
+  }
+  dismissRestoreBar();
+  alert(describeRestore(report));
+}
+
+function dismissRestoreBar(){
+  const bar = document.getElementById('draftRestoreBar');
+  if (bar) bar.classList.add('hidden');
+}
+
+// ---- named drafts in this browser ----------------------------------------
+function readDraftIndex(){
+  if (!draftStore) return [];
+  try {
+    const raw = draftStore.getItem(DRAFT_INDEX_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  } catch (e) { return []; }
+}
+
+function writeDraftIndex(list){
+  if (!draftStore) return;
+  try { draftStore.setItem(DRAFT_INDEX_KEY, JSON.stringify(list)); } catch (e) {}
+}
+
+function saveNamedDraft(){
+  const input = document.getElementById('draftSaveName');
+  let name = (input && input.value || '').trim();
+  // With a browser draft already open and the name box left empty, Save means
+  // "update the one I'm on" -- the common case once work spans several days.
+  if (!name && currentDraft && currentDraft.source === 'browser') name = currentDraft.name;
+  if (!name){ alert('Give the draft a name first, so it is recognisable tomorrow.'); if (input) input.focus(); return; }
+  if (!draftStore){ alert('This browser will not let the tool save drafts locally. Use "Download draft file" instead — it holds exactly the same thing.'); return; }
+  const totals = draftTotals();
+  if (totals.cells === 0 && !confirm('There are no edits on screen. Save an empty draft anyway?')) return;
+  const list = readDraftIndex();
+  const existing = list.find(d => d.name.toLowerCase() === name.toLowerCase());
+  if (existing && !confirm('A draft called "' + existing.name + '" already exists. Overwrite it?')) return;
+  const id = existing ? existing.id : 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  const draft = collectDraft(name);
+  try {
+    draftStore.setItem(DRAFT_ITEM_PREFIX + id, JSON.stringify(draft));
+  } catch (e) {
+    alert('This draft is too large for browser storage. Use "Download draft file" instead — there is no size limit on that.');
+    return;
+  }
+  const entry = { id, name, savedAt: draft.savedAt, editedCells: draft.editedCells, editedGuides: draft.editedGuides, guideFile: draft.guideFile };
+  writeDraftIndex(existing ? list.map(d => d.id === id ? entry : d) : [entry, ...list]);
+  if (input) input.value = '';
+  // Saving is what moves you onto a draft: from here the header names it and
+  // further edits show as changes against it.
+  setCurrentDraft({ id, name, source:'browser' });
+  writeAutosave();
+  renderDraftList();
+}
+
+function openNamedDraft(id){
+  if (!draftStore) return;
+  let draft = null;
+  try { draft = JSON.parse(draftStore.getItem(DRAFT_ITEM_PREFIX + id)); } catch (e) {}
+  if (!draft || draft.format !== DRAFT_FORMAT){ alert('That draft could not be read. It may have been cleared by the browser.'); return; }
+  const totals = draftTotals();
+  let msg = 'Open "' + (draft.name || 'draft') + '"?\n\nThis replaces everything currently on screen with that draft';
+  msg += totals.cells > 0 ? ' — the ' + totals.cells.toLocaleString() + ' edit' + (totals.cells===1?'':'s') + ' you have open now will be discarded.' : '.';
+  const warn = draftMismatchWarning(draft);
+  if (warn) msg += '\n\n' + warn;
+  if (!confirm(msg)) return;
+  const report = applyDraft(draft);
+  setCurrentDraft({ id, name: draft.name || 'Untitled', source:'browser' });
+  writeAutosave();
+  closeDrafts();
+  dismissRestoreBar();
+  alert('Now working on: ' + (draft.name || 'Untitled') + '\n\n' + describeRestore(report));
+}
+
+function deleteNamedDraft(id){
+  if (!draftStore) return;
+  const list = readDraftIndex();
+  const entry = list.find(d => d.id === id);
+  if (!entry) return;
+  if (!confirm('Delete the draft "' + entry.name + '"? This cannot be undone.')) return;
+  try { draftStore.removeItem(DRAFT_ITEM_PREFIX + id); } catch (e) {}
+  writeDraftIndex(list.filter(d => d.id !== id));
+  // Deleting the draft you are on leaves the edits on screen untouched, but
+  // they are no longer anybody's saved draft -- say so rather than keep
+  // showing a name that no longer exists.
+  if (currentDraft && currentDraft.source === 'browser' && currentDraft.id === id){
+    setCurrentDraft(null);
+    draftChangedSinceSave = true;
+    updateDraftStatus();
+    writeAutosave();
+  }
+  renderDraftList();
+}
+
+function discardAutosave(){
+  if (!draftStore) return;
+  if (!confirm('Clear the autosaved work in progress? Any named drafts and draft files are untouched.')) return;
+  try { draftStore.removeItem(DRAFT_AUTOSAVE_KEY); } catch (e) {}
+  dismissRestoreBar();
+  renderDraftList();
+}
+
+// ---- draft files ----------------------------------------------------------
+function downloadDraftFile(){
+  const input = document.getElementById('draftSaveName');
+  const name = (input && input.value || '').trim();
+  const draft = collectDraft(name);
+  const stamp = new Date().toISOString().slice(0,10).replace(/-/g,'_');
+  const slug = (name || 'class_guide_draft').replace(/[^A-Za-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,60) || 'class_guide_draft';
+  const blob = new Blob([JSON.stringify(draft)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = slug + '_' + stamp + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  // Writing the file counts as saving: either it names a new draft, or it is a
+  // copy of the one already open, which is now up to date either way.
+  if (name) setCurrentDraft({ id:null, name, source:'file' });
+  else { draftChangedSinceSave = false; updateDraftStatus(); }
+  if (input) input.value = '';
+  writeAutosave();
+  renderDraftList();
+}
+
+function loadDraftFile(file){
+  const reader = new FileReader();
+  reader.onload = () => {
+    let draft = null;
+    try { draft = JSON.parse(reader.result); } catch (e) {}
+    if (!draft || draft.format !== DRAFT_FORMAT){
+      alert('That is not a Class Guide Builder draft file. Draft files are the .json files this tool writes from Save / Drafts ▸ Download draft file — not the XLSX exports.');
+      return;
+    }
+    const totals = draftTotals();
+    let msg = 'Open this draft file' + (draft.name ? ' ("' + draft.name + '")' : '') + ', saved ' + fmtWhen(draft.savedAt) + '?\n\n'
+      + (draft.editedCells || 0).toLocaleString() + ' edited cell' + ((draft.editedCells===1)?'':'s')
+      + ' across ' + (draft.editedGuides || 0) + ' guide' + ((draft.editedGuides===1)?'':'s') + '.';
+    if (totals.cells > 0) msg += '\n\nThis replaces what is on screen now — those ' + totals.cells.toLocaleString() + ' edit' + (totals.cells===1?'':'s') + ' will be discarded.';
+    const warn = draftMismatchWarning(draft);
+    if (warn) msg += '\n\n' + warn;
+    if (!confirm(msg)) return;
+    const report = applyDraft(draft);
+    // A file draft has no id in this browser; the name is what identifies it,
+    // falling back to the filename when the file was saved without one.
+    const label = draft.name || String(file.name || 'draft file').replace(/\.json$/i, '');
+    setCurrentDraft({ id:null, name: label, source:'file' });
+    writeAutosave();
+    closeDrafts();
+    dismissRestoreBar();
+    alert('Now working on: ' + label + '\n\n' + describeRestore(report));
+  };
+  reader.onerror = () => alert('That file could not be read.');
+  reader.readAsText(file);
+}
+
+// ---- modal ---------------------------------------------------------------
+function renderDraftList(){
+  const wrap = document.getElementById('draftList');
+  if (!wrap) return;
+  const rows = [];
+  const auto = readAutosave();
+  if (auto){
+    rows.push('<div class="draftItem auto"><div class="draftItemMain">'
+      + '<div class="draftItemName">Work in progress (autosaved)</div>'
+      + '<div class="draftItemMeta">' + fmtWhen(auto.savedAt) + ' · ' + (auto.editedCells||0).toLocaleString() + ' cell'
+      + ((auto.editedCells===1)?'':'s') + ' · ' + (auto.editedGuides||0) + ' guide' + ((auto.editedGuides===1)?'':'s') + '</div></div>'
+      + '<button class="btn green" onclick="restoreAutosaveFromList()">Open</button>'
+      + '<button class="btn red" onclick="discardAutosave()">Clear</button></div>');
+  }
+  readDraftIndex().forEach(d => {
+    const nm = String(d.name || 'Untitled').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+    // The one currently open is badged and its Open button turned off, so
+    // nobody reopens the draft they are already on and loses unsaved changes.
+    const isOpen = !!(currentDraft && currentDraft.source === 'browser' && currentDraft.id === d.id);
+    rows.push('<div class="draftItem' + (isOpen ? ' current' : '') + '"><div class="draftItemMain">'
+      + '<div class="draftItemName">' + nm + (isOpen ? ' <span class="draftCurrentBadge">Open now</span>' : '') + '</div>'
+      + '<div class="draftItemMeta">' + fmtWhen(d.savedAt) + ' · ' + (d.editedCells||0).toLocaleString() + ' cell'
+      + ((d.editedCells===1)?'':'s') + ' · ' + (d.editedGuides||0) + ' guide' + ((d.editedGuides===1)?'':'s')
+      + (d.guideFile && d.guideFile !== CURRENT_GUIDE_FILE ? ' · saved against ' + d.guideFile : '')
+      + (isOpen && draftChangedSinceSave ? ' · edited since saved' : '') + '</div></div>'
+      + (isOpen
+          ? '<button class="btn blue" onclick="saveNamedDraft()">Update</button>'
+          : '<button class="btn blue" onclick="openNamedDraft(\'' + d.id + '\')">Open</button>')
+      + '<button class="btn red" onclick="deleteNamedDraft(\'' + d.id + '\')">Delete</button></div>');
+  });
+  if (rows.length === 0){
+    wrap.innerHTML = '<div class="draftEmpty">' + (draftStore
+      ? 'Nothing saved yet in this browser.'
+      : 'This browser will not let the tool store drafts locally — use draft files instead.') + '</div>';
+    return;
+  }
+  wrap.innerHTML = rows.join('');
+}
+
+function restoreAutosaveFromList(){
+  closeDrafts();
+  restoreAutosave();
+}
+
+function openDrafts(){
+  const totals = draftTotals();
+  const now = document.getElementById('draftNow');
+  if (now){
+    const esc = x => String(x).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+    const head = currentDraft
+      ? 'Working on <b>' + esc(currentDraft.name) + '</b>'
+        + (currentDraft.source === 'file' ? ' (opened from a draft file)' : '')
+        + (draftChangedSinceSave
+            ? ' &mdash; <span style="color:#ffd98a">edited since it was last saved</span>.'
+            : ' &mdash; nothing changed since it was last saved.')
+      : (totals.cells === 0
+          ? 'No draft open. Every guide is showing exactly what is currently filed.'
+          : 'These edits are not part of a named draft yet &mdash; autosave is holding them, but name and save them to keep them.');
+    const body = totals.cells === 0
+      ? ''
+      : '<br>On screen right now: <b>' + totals.cells.toLocaleString() + ' edited cell'
+        + (totals.cells===1?'':'s') + '</b> across <b>' + totals.guides + ' guide'
+        + (totals.guides===1?'':'s') + '</b> &mdash; the cells showing yellow.';
+    now.innerHTML = head + body;
+  }
+  // Prefill with the open draft's name so Save updates it rather than quietly
+  // creating a second copy under a blank name.
+  const nameBox = document.getElementById('draftSaveName');
+  if (nameBox && !nameBox.value && currentDraft && currentDraft.source === 'browser') nameBox.value = currentDraft.name;
+  renderDraftList();
+  const m = document.getElementById('draftModal');
+  if (m) m.classList.remove('hidden');
+}
+
+function closeDrafts(){
+  const m = document.getElementById('draftModal');
+  if (m) m.classList.add('hidden');
+}
+
+(function wireDraftUi(){
+  const fileInput = document.getElementById('draftFileInput');
+  if (fileInput){
+    fileInput.addEventListener('change', e => {
+      const f = e.target.files && e.target.files[0];
+      if (f) loadDraftFile(f);
+      e.target.value = '';
+    });
+  }
+  const modal = document.getElementById('draftModal');
+  if (modal) modal.addEventListener('click', e => { if (e.target === modal) closeDrafts(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) closeDrafts();
+  });
+  // Guide-name boxes are part of the draft, so typing in one counts as a change.
+  document.querySelectorAll('input.guideName').forEach(el => el.addEventListener('change', markDraftDirty));
+  // Flush the pending autosave on the way out. pagehide fires on tab close and
+  // navigation where beforeunload sometimes does not.
+  const flush = () => { if (draftDirty) writeAutosave(); };
+  window.addEventListener('beforeunload', flush);
+  window.addEventListener('pagehide', flush);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flush(); });
+})();
+
+// ---------------------------------------------------------------------------
 // Boot
 // ---------------------------------------------------------------------------
 // All Combined is the home view. Its panel starts unhidden in the markup so
 // there's no flash of the wrong grid, but it's lazy, so it still needs a
 // switchProduct() call to get built and to have its column filters applied.
 switchProduct('all');
+
+(function bootDrafts(){
+  updateDraftStatus();
+  const auto = readAutosave();
+  if (auto && (auto.editedCells || 0) > 0) showRestoreBar(auto);
+})();
 </script>
 </body>
 </html>
