@@ -1532,7 +1532,9 @@ if (SUPPORTS_PICKER && typeof document !== 'undefined' && document.body) documen
 // state (idx -> array of trKeys that should start as "Off") — sourced from
 // Branded_from_Half.xlsx's "Diamond" sheet, merged against the current guide.
 // ============================================================
-// CURRENTLY FILED GUIDES -- as of 10/23/26.
+// CURRENTLY FILED GUIDES -- as of 10/29/26 (Class_Guide_Master_File_9.2.26_v11.xlsx,
+// which reproduces the 10/23/26 baselines below cell for cell -- see the 10/29/26
+// Change Log entry).
 // { vehicleIndex: [column keys Off today] }. This is each panel's BASELINE
 // (see makePanel/baseClass): renders neutral, never counts as an edit, and
 // "Reset All to Current Guide" returns here. All four tiered non-Florida
@@ -3428,10 +3430,10 @@ const allPanelObj = makePanel({
 // The AAS master class guide file the baselines below were built from -- what
 // every guide's "Current" state and every "Reset to Current Guide" reflects.
 // Update this alongside the CHANGE_LOG entry for each import.
-const CURRENT_GUIDE_FILE = 'Class Guide 10.23.26';
+const CURRENT_GUIDE_FILE = 'Class_Guide_Master_File_9.2.26_v11.xlsx';
 // The day that file was baked in as the baseline -- shown next to the file name
 // in the header so anyone opening the tool can see how current it is.
-const CURRENT_GUIDE_UPDATED = '2026-10-23';
+const CURRENT_GUIDE_UPDATED = '2026-10-29';
 
 (function showCurrentGuideFile(){
   const el = document.getElementById('currentGuideFile');
@@ -3444,6 +3446,20 @@ const CURRENT_GUIDE_UPDATED = '2026-10-23';
 })();
 
 const CHANGE_LOG = [
+  {
+    date: '2026-10-29',
+    source: 'Class_Guide_Master_File_9.2.26_v11.xlsx',
+    summary: 'v11 filed as the current guide &mdash; Diamond, Platinum and Gold Select Standard turned Off for the first time, Branded/RideShare Offs extended, one reclass; verified cell for cell against the sheet',
+    items: [
+      'What changed from v10 (the 10/20/26 file) to v11, by guide. Diamond Standard (non-Florida): 427 rows / 131 models turned Off, 1,563 cells (A 329, B 419, G 815). Platinum Standard: 864 rows / 277 models, 4,521 cells (A 1,042, B 1,331, G 2,148). Gold Select Standard: 883 rows / 277 models, 3,646 cells (A 668, B 970, G 2,008). Silver Standard stays at 826 rows / 254 models, 4,059 cells (A 850, B 1,155, G 2,054) after the changes below.',
+      'Branded (non-Florida), Offs added: Diamond 267 rows / 88 models, 988 cells (AS 239, BS 278, GS 471); Platinum 635 rows / 215 models, 3,576 cells (AS 897, BS 1,101, GS 1,578); Gold Select 703 rows / 228 models, 3,125 cells (AS 618, BS 865, GS 1,642). Filed totals on v11: Diamond 5,092, Platinum 7,242, Gold Select 6,283, Silver 5,686 cells.',
+      'RideShare (non-Florida), Offs added: Diamond 419 rows / 129 models, 1,530 cells (AR 326, BR 413, GR 791); Platinum 770 rows / 253 models, 4,185 cells (AR 991, BR 1,251, GR 1,943); Gold Select 765 rows / 250 models, 3,366 cells (AR 652, BR 938, GR 1,776). Filed totals on v11: Diamond 2,522, Platinum 7,249, Gold Select 6,082, Silver 6,526 cells.',
+      'Silver (all three cards) picked up further Offs: CHEV CORVETTE 8cyl Hybr 4X4 and RAM PROMASTER 2500 4cyl Diesel Turbo newly Off, and VOLV S60 4cyl Hybr Turbo 4X4 widened from Tier 3B only to Tiers 1B&ndash;3B and 1G&ndash;3G &mdash; Silver Standard 3 rows / 19 cells, Silver Branded 2 rows / 14 cells, Silver RideShare 2 rows / 10 cells.',
+      'Reclass (not an Off): Gold Select Standard files eight MERZ SPRINTER 3500 and SPRINTER 3500/4500 rows (4cyl and 6cyl Diesel Turbo, 2WD and 4X4) at class 9 instead of 8 on all nine tier/rate cells &mdash; 72 cells. AAS2012 and every other guide still read 8.',
+      'No Off was removed on any guide. Unchanged from v10: all 18 Florida guides, Aluminum Branded and RideShare, and EV Branded. Aluminum Standard and EV Standard (new columns in v11) carry no Offs &mdash; every vehicle at its raw class. EV RideShare, FL EV Branded and FL EV RideShare remain not offered.',
+      'Check against the sheet: the tool&rsquo;s baseline for every guide was compared with v11 cell for cell (3,227 vehicles, 174 guide columns, 506,301 cells) and matches with 0 differences. No vehicles added or removed and no AAS2012 class changed; the 63 vehicles with no class still read XXXX everywhere.',
+    ]
+  },
   {
     date: '2026-10-23',
     source: 'Class Guide 10.23.26',
